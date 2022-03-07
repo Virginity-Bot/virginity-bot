@@ -6,7 +6,6 @@ module.exports = {
 	once: false,
 	execute(oldState, newState) {
 		console.log(`Voice.`);
-        //if(voiceStateUpdate.newMember) return;
         let newUserChannel = newState.channelId;
 	    let oldUserChannel = oldState.channelId; 
         if (oldUserChannel == undefined && newUserChannel !== undefined) {
@@ -16,16 +15,12 @@ module.exports = {
             console.log(newState.member.id);
             var time = new Date().getTime();
             console.log(time);
-        } else if (oldUserChannel !== undefined && newUserChannel === undefined) {
-            // User Leave a voice channel
-            // Calculate with previous save time to get in voice time
-            console.log(`logged off.`);
-        } else if (
+        }  else if (
             oldUserChannel !== null &&
             newUserChannel !== null &&
             oldUserChannel != newUserChannel
         ) {
-            // User Switch a voice channel
+            // User switches voice channel
             console.log(` switched.`);
             //console.log(oldState);
         } else {
