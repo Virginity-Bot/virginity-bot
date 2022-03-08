@@ -1,10 +1,11 @@
 const { VoiceChannel, VoiceState } = require("discord.js");
 const moment= require('moment') 
+const { Users } = require('../dbObjects.js');
 
 module.exports = {
 	name: 'voiceStateUpdate',
 	once: false,
-	execute(oldState, newState) {
+	async execute(oldState, newState) {
 		console.log(`Voice.`);
         let newUserChannel = newState.channelId;
 	    let oldUserChannel = oldState.channelId; 
@@ -12,9 +13,15 @@ module.exports = {
             // User Join a voice channel
             console.log(`joined.`);
             //console.log(newState.guild.id);
-            console.log(newState.member.id);
+            //console.log(newState.member.id);
             var time = new Date().getTime();
-            console.log(time);
+            //console.log(time);
+            //let user = Users.findOne({ where: { user_id: newState.member.id } });
+            let user = await Users.findOrCreate({ where: { user_id: newState.member.id } });
+            let virginity = await user.virginity;
+            console.log(user);
+            console.log(newState.member.id);
+            console.log(user.virginity);
         }  else if (
             oldUserChannel !== null &&
             newUserChannel !== null &&
