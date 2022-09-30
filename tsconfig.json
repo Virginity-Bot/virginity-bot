@@ -1,0 +1,24 @@
+{
+  "extends": "./node_modules/gts/tsconfig-google.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "build",
+    "experimentalDecorators": true,
+    "allowJs": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "target": "es2022",
+    "module": "NodeNext",
+    "resolveJsonModule": true,
+    "moduleResolution": "Node",
+    "baseUrl": "./",
+    "allowSyntheticDefaultImports": true,
+    "noStrictGenericChecks" : true,
+    "sourceMap": false
+  },
+  
+  "include": [
+    "src/",
+    "test/**/*.ts"
+  ]
+}
