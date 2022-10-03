@@ -1,6 +1,6 @@
 import { Options } from "@mikro-orm/core";
-import { Test } from "./entities/test-entity";
-import {Virgin} from "./entities/virgin-entity"
+import {Virgin} from "./entities/virgin-entity";
+import { Guild } from "./entities/guild-entity";
 
 const options: Options = {
     entities: [Virgin],
