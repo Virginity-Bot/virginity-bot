@@ -1,13 +1,10 @@
-import { BigIntType, Entity, PrimaryKey, Property, UuidType } from "@mikro-orm/core";
-import { randomInt, randomUUID } from "crypto";
-import { Collection } from "discord.js";
-import { type } from "os";
-import {v4 } from 'uuid';
+import { BigIntType, Entity, PrimaryKey, Property } from '@mikro-orm/core';
+import { v4 } from 'uuid';
 @Entity()
 export class Virgin {
-  [x: string]: any;
+  //[x: string]: any;
 
-  @PrimaryKey({type: String})
+  @PrimaryKey({ type: String })
   uuid = v4();
   @Property({ type: BigIntType })
   _id: string;
@@ -24,12 +21,17 @@ export class Virgin {
   //Virginity Points
   username: string;
 
-  constructor(_id: string, virginity: number, blueballs: number, guild: string, username: string) {
+  constructor(
+    _id: string,
+    virginity: number,
+    blueballs: number,
+    guild: string,
+    username: string,
+  ) {
     this._id = _id;
     this.virginity = virginity;
     this.blueballs = blueballs;
     this.guild = guild;
     this.username = username;
   }
-
 }

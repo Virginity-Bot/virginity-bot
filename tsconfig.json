@@ -13,12 +13,9 @@
     "moduleResolution": "Node",
     "baseUrl": "./",
     "allowSyntheticDefaultImports": true,
-    "noStrictGenericChecks" : true,
-    "sourceMap": false
+    "noStrictGenericChecks": true,
+    "sourceMap": true
   },
-  
-  "include": [
-    "src/",
-    "test/**/*.ts"
-  ]
+
+  "include": ["src/", "test/**/*.ts"]
 }
