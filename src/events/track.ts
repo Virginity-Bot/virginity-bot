@@ -2,6 +2,7 @@
 import { Virgin } from '../entities/virgin-entity';
 import { MikroORM, wrap } from '@mikro-orm/core';
 import { millisecondsToMinutes } from 'date-fns';
+import * as dotenv from 'dotenv';
 
 module.exports = {
   //this name MUST be "voiceStateUpdate" its how discordjs knows what event its working with
@@ -20,14 +21,13 @@ module.exports = {
     let newUserChannel = newState.channelId;
     let oldUserChannel = oldState.channelId;
     const orm = await MikroORM.init();
-    //const time = Math.round(new Date().getTime() / (1000 * 60)); //returns minutes since 1/1/1970
+    dotenv.config();
     const time = new Date();
-    const bot = 943974476469645333n;
+    const bot = process.env.BOT;
+    console.log(bot);
     let guildId = newState.guild.id;
     let virginity = 0;
     let username = newState.member.user.username;
-    //console.log(username);
-    //console.log(newState.member.user);
     const testvirgin = new Virgin(
       newState.member.id,
       virginity,
@@ -45,7 +45,6 @@ module.exports = {
       // User Join a voice channel
 
       try {
-        //const virgin = await orm.em.findOneOrFail(Virgin, { _id: newState.member.id });
         const virgin = await orm.em.findOneOrFail(Virgin, {
           $and: [
             { guild: { $eq: guildId } },
@@ -63,7 +62,6 @@ module.exports = {
           guildId,
           username,
         );
-        //console.log('Updating');
         wrap(virgin).assign(virgin1, { mergeObjects: true });
         await orm.em.persistAndFlush(virgin);
       } catch (e) {
@@ -91,8 +89,6 @@ module.exports = {
       oldUserChannel != newUserChannel
     ) {
       // User switches voice channel
-      //console.log(` switched.`);
-      //console.log(oldState);
     } else {
       try {
         const virgin = await orm.em.findOneOrFail(Virgin, {
@@ -115,7 +111,6 @@ module.exports = {
           username,
         );
         wrap(virgin).assign(virgin1, { mergeObjects: true });
-        //console.log(virgin);
         await orm.em.persistAndFlush(virgin);
       } catch (e) {
         //console.error(e); // our custom error

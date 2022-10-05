@@ -1,7 +1,7 @@
 //This module keeps tabs on the amount of time a user spends on discordand assigns them XP ;)
 import { Virgin } from '../entities/virgin-entity';
 import { MikroORM, wrap } from '@mikro-orm/core';
-import { millisecondsToMinutes } from 'date-fns';
+import * as dotenv from 'dotenv';
 import {
   createAudioResource,
   generateDependencyReport,
@@ -11,7 +11,6 @@ import {
   AudioPlayerStatus,
   DiscordGatewayAdapterCreator,
 } from '@discordjs/voice';
-import { channel } from 'diagnostics_channel';
 
 module.exports = {
   //this name MUST be "voiceStateUpdate" its how discordjs knows what event its working with
@@ -27,58 +26,75 @@ module.exports = {
         [x: string]: DiscordGatewayAdapterCreator;
         id: any;
       };
-      //channel: { guild: { [x: string]: DiscordGatewayAdapterCreator } };
     },
   ) {
     let newUserChannel = newState.channelId;
     let oldUserChannel = oldState.channelId;
-    //const orm = await MikroORM.init();
-    //const time = Math.round(new Date().getTime() / (1000 * 60)); //returns minutes since 1/1/1970
-    //const time = new Date();
-    const bot = 943974476469645333n;
-    //let guildId = newState.guild.id;
-    //let virginity = 0;
-    //let username = newState.member.user.username;
+    const orm = await MikroORM.init();
+    dotenv.config();
+    const bot = process.env.BOT;
+    let guildId = newState.guild.id;
     if (
       oldUserChannel == null &&
       newUserChannel != null &&
       newState.member.id != bot
     ) {
-      const connection = joinVoiceChannel({
-        channelId: newState.channelId,
-        guildId: newState.guild.id,
-        //adapterCreator: newState.channel.guild.voiceAdapterCreator,
-        adapterCreator: newState.guild.voiceAdapterCreator,
-      });
-      console.log('Bot Entered');
-      console.log(connection.state);
-      const player = createAudioPlayer({
-        behaviors: {
-          noSubscriber: NoSubscriberBehavior.Pause,
-        },
-      });
-      const resource = createAudioResource('./assets_entrancetheme.mp3');
-      connection.subscribe(player);
-      player.play(resource);
-      //connection.subscribe(player);
+      try {
+        //check if virgin exists in database
+        const virgin = await orm.em.findOneOrFail(Virgin, {
+          $and: [
+            { guild: { $eq: guildId } },
+            {
+              discordId: {
+                $eq: newState.member.id,
+              },
+            },
+          ],
+        });
+        try {
+          //check if anyone with more virginity exists on server
+          const virgin1 = await orm.em.findOneOrFail(Virgin, {
+            $and: [
+              { guild: { $eq: guildId } },
+              {
+                virginity: {
+                  $gt: virgin.virginity,
+                },
+              },
+            ],
+          });
+        } catch (e) {
+          const connection = joinVoiceChannel({
+            channelId: newState.channelId,
+            guildId: newState.guild.id,
+            adapterCreator: newState.guild.voiceAdapterCreator,
+          });
+          const player = createAudioPlayer({
+            behaviors: {
+              noSubscriber: NoSubscriberBehavior.Pause,
+            },
+          });
+          const resource = createAudioResource(
+            'assets/assets_entrance_theme.opus',
+            {
+              metadata: {
+                title: 'The Biggest Virgin!',
+              },
+            },
+          );
+          resource.volume?.setVolume(2);
+          player.play(resource);
+          connection.subscribe(player);
+          player.on(AudioPlayerStatus.Idle, () => {
+            player.stop();
+            connection.destroy();
+          });
+        }
+      } catch (e) {}
 
-      //player.stop();
-      player.on(AudioPlayerStatus.Playing, () => {
-        console.log('The audio player has started playing!');
-      });
-      //connection.destroy();
-      console.log(connection.listeners);
-      console.log(connection.state.status);
-      //console.log(generateDependencyReport());
       //await orm.em.flush();
-    } else if (
-      oldUserChannel !== null &&
-      newUserChannel !== null &&
-      oldUserChannel != newUserChannel
-    ) {
-      //c
-    } else {
     }
-    //cc
+    {
+    }
   },
 };
