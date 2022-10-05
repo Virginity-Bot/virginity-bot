@@ -10,7 +10,7 @@ export default async function schemaUpdate() {
   // there is also `generate()` method that returns drop + create queries
   const dropAndCreateDump = await generator.generate();
   const updateDump = await generator.getUpdateSchemaSQL();
-  console.log(dropAndCreateDump);
+  //console.log(dropAndCreateDump);
 
   // in tests it can be handy to use those:
   await generator.refreshDatabase(); // ensure db exists and is fresh

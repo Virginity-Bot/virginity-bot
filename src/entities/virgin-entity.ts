@@ -1,4 +1,10 @@
-import { BigIntType, Entity, PrimaryKey, Property } from '@mikro-orm/core';
+import {
+  BigIntType,
+  Entity,
+  PrimaryKey,
+  Property,
+  TimeType,
+} from '@mikro-orm/core';
 import { v4 } from 'uuid';
 @Entity()
 export class Virgin {
@@ -7,28 +13,28 @@ export class Virgin {
   @PrimaryKey({ type: String })
   uuid = v4();
   @Property({ type: BigIntType })
-  _id: string;
+  discordId: string;
   @Property({ type: BigIntType })
   //Virginity Points
   virginity: number;
   @Property({ type: BigIntType })
   //Virginity Points
   guild: string;
-  @Property({ type: BigIntType })
+  @Property({ type: 'timestamptz' })
   //Time Since last login neccessary to calculate virgnity
-  blueballs: number;
+  blueballs: Date;
   @Property()
   //Virginity Points
   username: string;
 
   constructor(
-    _id: string,
+    discordId: string,
     virginity: number,
-    blueballs: number,
+    blueballs: Date,
     guild: string,
     username: string,
   ) {
-    this._id = _id;
+    this.discordId = discordId;
     this.virginity = virginity;
     this.blueballs = blueballs;
     this.guild = guild;

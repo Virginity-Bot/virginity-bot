@@ -18,7 +18,7 @@ module.exports = {
         $and: [
           { guild: { $eq: guildId } },
           {
-            _id: {
+            discordId: {
               $eq: interaction.member?.user.id,
             },
           },
