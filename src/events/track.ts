@@ -24,7 +24,6 @@ module.exports = {
     dotenv.config();
     const time = new Date();
     const bot = process.env.BOT;
-    console.log(bot);
     let guildId = newState.guild.id;
     let virginity = 0;
     let username = newState.member.user.username;
