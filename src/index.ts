@@ -3,9 +3,11 @@ import * as fs from 'node:fs';
 import configRaw from './config.json';
 import schemaUpdate from './schemaUpdate';
 import path from 'path';
+import deployComands from './deploy-commands';
 
 const main = async () => {
   schemaUpdate();
+  deployComands();
 };
 
 main()
