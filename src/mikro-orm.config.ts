@@ -4,11 +4,9 @@ import * as dotenv from 'dotenv';
 
 const options: Options = {
   entities: [Virgin],
-  //type: process.env.TYPE,
-  type: 'postgresql',
+  type: process.env.TYPE,
   dbName: process.env.DB_NAME,
-  //port: process.env.PORT,
-  port: 3306,
+  port: process.env.PORT,
   user: process.env.USER,
   password: process.env.PASSWORD,
 };
