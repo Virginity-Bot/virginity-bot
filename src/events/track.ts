@@ -26,7 +26,7 @@ module.exports = {
     const bot = process.env.BOT;
     let guildId = newState.guild.id;
     let virginity = 0;
-    let username = newState.member.user.username;
+    let username = newState.member.user.username.toLowerCase();
     const testvirgin = new Virgin(
       newState.member.id,
       virginity,

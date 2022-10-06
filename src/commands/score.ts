@@ -24,11 +24,6 @@ module.exports = {
           },
         ],
       });
-      //const virgin1 = new Virgin(newState.member.id, virgin.virginity, time)
-      console.log('Found');
-      console.log('Virginity: ' + virgin.virginity);
-      console.log(virgin);
-      console.log(virgin.virginity);
       await interaction.reply('Your Virginity is: ' + virgin.virginity);
     } catch (e) {
       console.log(interaction.member?.user.id);
