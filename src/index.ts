@@ -21,8 +21,8 @@ main()
 //This how you tell discord what sort of events to send you
 const client = new Client({
   intents: [
-    //Intents.FLAGS.GUILD_MESSAGES,
-    //Intents.FLAGS.GUILDS,
+    Intents.FLAGS.GUILD_MESSAGES,
+    Intents.FLAGS.GUILDS,
     Intents.FLAGS.GUILD_VOICE_STATES, //Needed for Voice Activity
   ],
 });
