@@ -1,4 +1,4 @@
-# VirginityBot
+# VirginityBot <img alt="logo" src="assets/logo.png" height="20rem" />
 
 Discord Bot to track peoples' virginity, i.e. their accumulated online time on the server.
 
