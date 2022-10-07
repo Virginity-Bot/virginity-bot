@@ -2,20 +2,20 @@
   "name": "virginitybot",
   "version": "0.0.0",
   "description": "",
-  "main": "build/src/index.js",
-  "scripts": {
-    "build": "npx tsc",
-    "start": "node ./build/index.ts",
-    "start:dev": "ts-node src"
-  },
   "types": "build/src/index.d.ts",
   "files": [
     "build/src"
   ],
+  "main": "build/index.js",
   "license": "AGPL-3.0",
   "keywords": [],
   "engines": {
     "node": ">=18.10.0 <19.0.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node .",
+    "start:dev": "ts-node src"
   },
   "devDependencies": {
     "@iunu-inc/code-style": "^0.0.12",
