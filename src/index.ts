@@ -1,9 +1,9 @@
 import { Client, Collection, Intents } from 'discord.js';
 import * as fs from 'node:fs';
-import configRaw from './config.json';
 import schemaUpdate from './schemaUpdate';
 import path from 'path';
 import deployComands from './deploy-commands';
+import * as dotenv from 'dotenv';
 
 const main = async () => {
   schemaUpdate();
@@ -55,14 +55,6 @@ for (const file of commandFiles) {
   client.commands.set(command.data.name, command);
 }
 
-//Parse down token
-interface Config {
-  token: string;
-  guildId: string;
-  clientId: string;
-}
-const config: Config = configRaw;
-
 client.on('interactionCreate', async (interaction) => {
   if (!interaction.isCommand()) return;
 
@@ -81,4 +73,4 @@ client.on('interactionCreate', async (interaction) => {
   }
 });
 
-client.login(config.token);
+client.login(process.env.TOKEN);
