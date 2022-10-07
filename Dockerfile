@@ -26,7 +26,7 @@ LABEL maintainer="edgar@saldivar.io"
 
 ARG USER=virgin
 ARG APP_DIR=~/app
-ARG PORT=3000
+ARG PORT=3306
 EXPOSE $PORT/tcp
 
 RUN useradd "$USER"
