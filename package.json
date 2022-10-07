@@ -4,7 +4,9 @@
   "description": "",
   "main": "build/src/index.js",
   "scripts": {
-    "start": "npx tsc && node ./build/index.js"
+    "build": "tsc",
+    "start": "node .",
+    "start:dev": "ts-node src"
   },
   "types": "build/src/index.d.ts",
   "files": [
