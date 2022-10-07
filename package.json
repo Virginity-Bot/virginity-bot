@@ -2,10 +2,6 @@
   "name": "virginitybot",
   "version": "0.0.0",
   "description": "",
-  "types": "build/src/index.d.ts",
-  "files": [
-    "build/src"
-  ],
   "main": "build/index.js",
   "license": "AGPL-3.0",
   "keywords": [],
