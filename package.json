@@ -44,7 +44,6 @@
     "ffmpeg": "^0.0.4",
     "ffmpeg-static": "^5.1.0",
     "mikro-orm": "^5.4.2",
-    "sodium": "^3.0.2",
     "sodium-native": "^3.4.1",
     "ts-node": "^10.9.1",
     "uuid": "^9.0.0"
