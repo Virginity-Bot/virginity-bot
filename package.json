@@ -2,20 +2,16 @@
   "name": "virginitybot",
   "version": "0.0.0",
   "description": "",
-  "main": "build/src/index.js",
-  "scripts": {
-    "build": "npx tsc",
-    "start": "node ./build/index.ts",
-    "start:dev": "ts-node src"
-  },
-  "types": "build/src/index.d.ts",
-  "files": [
-    "build/src"
-  ],
+  "main": "build/index.js",
   "license": "AGPL-3.0",
   "keywords": [],
   "engines": {
     "node": ">=18.10.0 <19.0.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node .",
+    "start:dev": "ts-node src"
   },
   "devDependencies": {
     "@iunu-inc/code-style": "^0.0.12",
@@ -48,7 +44,6 @@
     "ffmpeg": "^0.0.4",
     "ffmpeg-static": "^5.1.0",
     "mikro-orm": "^5.4.2",
-    "sodium": "^3.0.2",
     "sodium-native": "^3.4.1",
     "ts-node": "^10.9.1",
     "uuid": "^9.0.0"
