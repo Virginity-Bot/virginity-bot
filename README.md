@@ -23,7 +23,7 @@ Discord Bot to track peoples' virginity, i.e. their accumulated online time on t
 -   Dockerize application
 -   Add more commands
 -   Have bot assign roles
--   Give bot scheduler, for wiping or annoucing
+-   Give bot scheduler, for wiping or announcing
 -   Have Bot auto create/add channel for annoucements.
 -   Suggestions Welcome.
 
