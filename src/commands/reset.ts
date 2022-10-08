@@ -32,7 +32,7 @@ module.exports = {
     guild: Guild;
     reply: any;
   }) {
-    const orm = await MikroORM.init();
+    const orm = (await MikroORM.init()).em.fork();
     const time = new Date();
     const userId = interaction.options.getString('user')?.toLowerCase();
     const guildId = interaction.guildId!;
@@ -43,7 +43,7 @@ module.exports = {
       //console.log(interaction.member.guild);
     } else {
       try {
-        const virgin = await orm.em.findOneOrFail(Virgin, {
+        const virgin = await orm.findOneOrFail(Virgin, {
           $and: [
             { guild: { $eq: guildId } },
             {
@@ -61,7 +61,7 @@ module.exports = {
           virgin.username,
         );
         wrap(virgin).assign(virgin1, { mergeObjects: true });
-        await orm.em.persistAndFlush(virgin);
+        await orm.persistAndFlush(virgin);
         await interaction.reply('Reset ' + userId + "'s virginity");
       } catch (e) {
         await interaction.reply('Virgin not found, good night I guess?');

@@ -30,7 +30,7 @@ module.exports = {
   ) {
     let newUserChannel = newState.channelId;
     let oldUserChannel = oldState.channelId;
-    const orm = await MikroORM.init();
+    const orm = (await MikroORM.init()).em.fork();
     dotenv.config();
     const bot = process.env.BOT;
     let guildId = newState.guild.id;
@@ -41,7 +41,7 @@ module.exports = {
     ) {
       try {
         //check if virgin exists in database
-        const virgin = await orm.em.findOneOrFail(Virgin, {
+        const virgin = await orm.findOneOrFail(Virgin, {
           $and: [
             { guild: { $eq: guildId } },
             {
@@ -53,7 +53,7 @@ module.exports = {
         });
         try {
           //check if anyone with more virginity exists on server
-          const virgin1 = await orm.em.findOneOrFail(Virgin, {
+          const virgin1 = await orm.findOneOrFail(Virgin, {
             $and: [
               { guild: { $eq: guildId } },
               {

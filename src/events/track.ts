@@ -20,7 +20,8 @@ module.exports = {
     //console.log(`Voice.`);
     let newUserChannel = newState.channelId;
     let oldUserChannel = oldState.channelId;
-    const orm = await MikroORM.init();
+    let multi = 1;
+    const orm = (await MikroORM.init()).em.fork();
     dotenv.config();
     const time = new Date();
     const bot = process.env.BOT;
@@ -36,85 +37,86 @@ module.exports = {
     );
     //This set of If statements checks if a user is joining, moving (between channels), or leaving a discord.
     //Listens for every update on a users channel state.
-    if (
-      oldUserChannel == null &&
-      newUserChannel != null &&
-      newState.member.id != bot
-    ) {
-      // User Join a voice channel
+    if (newState.member)
+      if (
+        oldUserChannel == null &&
+        newUserChannel != null &&
+        newState.member.id != bot
+      ) {
+        // User Join a voice channel
 
-      try {
-        const virgin = await orm.em.findOneOrFail(Virgin, {
-          $and: [
-            { guild: { $eq: guildId } },
-            {
-              discordId: {
-                $eq: newState.member.id,
+        try {
+          const virgin = await orm.findOneOrFail(Virgin, {
+            $and: [
+              { guild: { $eq: guildId } },
+              {
+                discordId: {
+                  $eq: newState.member.id,
+                },
               },
-            },
-          ],
-        });
-        const virgin1 = new Virgin(
-          newState.member.id,
-          virgin.virginity,
-          time,
-          guildId,
-          username,
-        );
-        wrap(virgin).assign(virgin1, { mergeObjects: true });
-        await orm.em.persistAndFlush(virgin);
-      } catch (e) {
-        //console.error(e); // our custom error
-        const virgin1 = new Virgin(
-          newState.member.id,
-          virginity,
-          time,
-          guildId,
-          username,
-        );
-        //console.log('Creating');
-        const virgin = orm.em.create(Virgin, {
-          discordId: virgin1.discordId,
-          virginity: virgin1.virginity,
-          blueballs: time,
-          guild: guildId,
-          username,
-        });
-        await orm.em.persistAndFlush(virgin);
-      }
-    } else if (
-      oldUserChannel !== null &&
-      newUserChannel !== null &&
-      oldUserChannel != newUserChannel
-    ) {
-      // User switches voice channel
-    } else {
-      try {
-        const virgin = await orm.em.findOneOrFail(Virgin, {
-          $and: [
-            { guild: { $eq: guildId } },
-            {
-              discordId: {
-                $eq: newState.member.id,
+            ],
+          });
+          const virgin1 = new Virgin(
+            newState.member.id,
+            virgin.virginity,
+            time,
+            guildId,
+            username,
+          );
+          wrap(virgin).assign(virgin1, { mergeObjects: true });
+          await orm.persistAndFlush(virgin);
+        } catch (e) {
+          //console.error(e); // our custom error
+          const virgin1 = new Virgin(
+            newState.member.id,
+            virginity,
+            time,
+            guildId,
+            username,
+          );
+          //console.log('Creating');
+          const virgin = orm.create(Virgin, {
+            discordId: virgin1.discordId,
+            virginity: virgin1.virginity,
+            blueballs: time,
+            guild: guildId,
+            username,
+          });
+          await orm.persistAndFlush(virgin);
+        }
+      } else if (
+        oldUserChannel !== null &&
+        newUserChannel !== null &&
+        oldUserChannel != newUserChannel
+      ) {
+        // User switches voice channel
+      } else {
+        try {
+          const virgin = await orm.findOneOrFail(Virgin, {
+            $and: [
+              { guild: { $eq: guildId } },
+              {
+                discordId: {
+                  $eq: newState.member.id,
+                },
               },
-            },
-          ],
-        });
-        //console.log(`exited`);
-        const virgin1 = new Virgin(
-          newState.member.id,
-          millisecondsToMinutes(time.getTime()) -
-            millisecondsToMinutes(virgin.blueballs.getTime()),
-          time,
-          guildId,
-          username,
-        );
-        wrap(virgin).assign(virgin1, { mergeObjects: true });
-        await orm.em.persistAndFlush(virgin);
-      } catch (e) {
-        //console.error(e); // our custom error
+            ],
+          });
+          //console.log(`exited`);
+          const virgin1 = new Virgin(
+            newState.member.id,
+            millisecondsToMinutes(time.getTime()) -
+              millisecondsToMinutes(virgin.blueballs.getTime()),
+            time,
+            guildId,
+            username,
+          );
+          wrap(virgin).assign(virgin1, { mergeObjects: true });
+          await orm.persistAndFlush(virgin);
+        } catch (e) {
+          //console.error(e); // our custom error
+        }
       }
-    }
   },
 };
 

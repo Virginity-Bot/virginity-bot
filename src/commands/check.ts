@@ -14,11 +14,11 @@ module.exports = {
         .setRequired(true),
     ),
   async execute(interaction: CommandInteraction) {
-    const orm = await MikroORM.init();
+    const orm = (await MikroORM.init()).em.fork();
     const userId = interaction.options.getString('userdata')?.toLowerCase();
     const guildId = interaction.guildId;
     try {
-      const virgin = await orm.em.findOneOrFail(Virgin, {
+      const virgin = await orm.findOneOrFail(Virgin, {
         $and: [
           { guild: { $eq: guildId } },
           {

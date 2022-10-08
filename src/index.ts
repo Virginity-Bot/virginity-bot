@@ -2,12 +2,12 @@ import { Client, Collection, Intents } from 'discord.js';
 import * as fs from 'node:fs';
 import schemaUpdate from './schemaUpdate';
 import path from 'path';
-import deployComands from './deploy-commands';
+import deployCommands from './deploy-commands';
 import * as dotenv from 'dotenv';
 
 const main = async () => {
   schemaUpdate();
-  deployComands();
+  deployCommands();
 };
 
 main()

@@ -11,13 +11,13 @@ module.exports = {
     interaction: BaseCommandInteraction,
     newState: { channelId: any; member: { id: any }; guild: { id: any } },
   ) {
-    const orm = await MikroORM.init();
+    const orm = (await MikroORM.init()).em.fork();
     console.log('test');
     console.log(interaction.member?.user.username);
     //const guildId = newState.guild.id;
     const guildId = interaction.guildId;
     try {
-      const virgin = await orm.em.find(Virgin, { guild: { $eq: guildId } });
+      const virgin = await orm.find(Virgin, { guild: { $eq: guildId } });
       let response = 'Leaderboard:' + '\n';
       for (let i = 0; i < virgin.length; i++) {
         response =

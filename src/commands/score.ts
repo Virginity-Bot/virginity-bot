@@ -11,10 +11,10 @@ module.exports = {
     interaction: BaseCommandInteraction,
     newState: { channelId: any; member: { id: any }; guild: { id: any } },
   ) {
-    const orm = await MikroORM.init();
+    const orm = (await MikroORM.init()).em.fork();
     const guildId = interaction.guildId;
     try {
-      const virgin = await orm.em.findOneOrFail(Virgin, {
+      const virgin = await orm.findOneOrFail(Virgin, {
         $and: [
           { guild: { $eq: guildId } },
           {

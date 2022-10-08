@@ -3,7 +3,7 @@ import path from 'node:path';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 
-export default async function deployComands() {
+export default async function deployCommands() {
   const commands = [];
   const commandsPath = path.join(__dirname, 'commands');
   const commandFiles = fs
