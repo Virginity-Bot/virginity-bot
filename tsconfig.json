@@ -13,7 +13,7 @@
     "moduleResolution": "Node",
     "baseUrl": "./",
     "allowSyntheticDefaultImports": true,
-    "noStrictGenericChecks": true,
+    "noStrictGenericChecks": false,
     "sourceMap": true
   },
 

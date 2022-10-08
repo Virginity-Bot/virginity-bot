@@ -10,14 +10,6 @@ const main = async () => {
   deployCommands();
 };
 
-main()
-  .catch((error) => {
-    //console.error(error)
-  })
-  .finally(() => {
-    //process.exit()
-  });
-
 //This how you tell discord what sort of events to send you
 const client = new Client({
   intents: [
@@ -72,5 +64,5 @@ client.on('interactionCreate', async (interaction) => {
     });
   }
 });
-
+dotenv.config();
 client.login(process.env.TOKEN);

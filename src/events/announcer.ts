@@ -13,10 +13,10 @@ import {
 } from '@discordjs/voice';
 
 module.exports = {
-  //this name MUST be "voiceStateUpdate" its how discordjs knows what event its working with
+  //this name MUST be "voiceStateUpdate" its how DiscordJS knows what event its working with
   name: 'voiceStateUpdate',
   once: false,
-  //paramaters from voiceStateUpdate that you need, if you need more add more
+  //parameters from voiceStateUpdate that you need, if you need more add more
   async execute(
     oldState: { channelId: any },
     newState: {
@@ -34,11 +34,7 @@ module.exports = {
     dotenv.config();
     const bot = process.env.BOT;
     let guildId = newState.guild.id;
-    if (
-      oldUserChannel == null &&
-      newUserChannel != null &&
-      newState.member.id != bot
-    ) {
+    if (oldUserChannel == null && newUserChannel != null && newState.member.id != bot) {
       try {
         //check if virgin exists in database
         const virgin = await orm.findOneOrFail(Virgin, {
@@ -74,14 +70,11 @@ module.exports = {
               noSubscriber: NoSubscriberBehavior.Pause,
             },
           });
-          const resource = createAudioResource(
-            'assets/assets_entrance_theme.opus',
-            {
-              metadata: {
-                title: 'The Biggest Virgin!',
-              },
+          const resource = createAudioResource('assets/assets_entrance_theme.opus', {
+            metadata: {
+              title: 'The Biggest Virgin!',
             },
-          );
+          });
           resource.volume?.setVolume(2);
           player.play(resource);
           connection.subscribe(player);

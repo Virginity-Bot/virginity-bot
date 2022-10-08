@@ -8,8 +8,8 @@ export default async function schemaUpdate() {
   const generator = orm.getSchemaGenerator();
 
   // there is also `generate()` method that returns drop + create queries
-  const dropAndCreateDump = await generator.generate();
-  const updateDump = await generator.getUpdateSchemaSQL();
+  //const dropAndCreateDump = await generator.generate();
+  //const updateDump = await generator.getUpdateSchemaSQL();
   //console.log(dropAndCreateDump);
 
   // in tests it can be handy to use those:
