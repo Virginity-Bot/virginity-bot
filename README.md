@@ -20,8 +20,6 @@ Discord Bot to track peoples' virginity, i.e. their accumulated online time on t
 -   Alpha virgin role - rename to Ω Virgin?
 -   Dockerize application
 -   Add more commands
--   Dont assign point for muted/deafened/afk virgins.
--   More points from streaming?
 -   Have bot assign roles
 -   Give bot scheduler, for wiping or annoucing
 -   Have Bot auto create/add channel for annoucements.
