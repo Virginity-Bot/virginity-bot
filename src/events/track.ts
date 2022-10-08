@@ -11,7 +11,7 @@ module.exports = {
   once: false,
   //parameters from voiceStateUpdate that you need, if you need more add more
   async execute(
-    oldState: { channelId: any },
+    oldState: { channelId: any; selfVideo: boolean; streaming: boolean },
     newState: {
       channelId: any;
       member: { id: any; user: any };
@@ -19,37 +19,33 @@ module.exports = {
       streaming: boolean;
       mute: boolean;
       deaf: boolean;
-      requestToSpeakTimestamp: number;
+      selfVideo: boolean;
     },
   ) {
     //console.log(`Voice.`);
     let newUserChannel = newState.channelId;
     let oldUserChannel = oldState.channelId;
     let streaming = 1;
-    let eligibility = true;
+    let eligible = true;
     const orm = (await MikroORM.init()).em.fork();
     dotenv.config();
     const time = new Date();
+    //This is needed to check if user is BOT and if so it wont be tracked
     const bot = process.env.BOT;
     let guildId = newState.guild.id;
     let virginity = 0;
     let username = newState.member.user.username.toLowerCase();
     //Checks if streaming and adds multiplier if so
-    if (newState.streaming) streaming = 2;
-    //check if user "should" receive points. If user is mute, deaf, or hasn't spoken in a long time.
-    //Anti gaming
-    if (newState.mute || newState.deaf || newState.requestToSpeakTimestamp > 60)
-      eligibility = false;
-    //This set of If statements checks if a user is joining, moving (between channels), or leaving a discord.
+    if (oldState.streaming) streaming = 2;
+    if (oldState.selfVideo) streaming = 3;
+    if (newState.mute || newState.deaf || newState.member.id == bot)
+      //check if user "should" receive points. If user is mute, deaf, or hasn't spoken in a long time.
+      //Anti gaming
+      eligible = false;
     //Listens for every update on a users channel state.
-    if (
-      oldUserChannel == null &&
-      newUserChannel != null &&
-      newState.member.id != bot &&
-      eligibility != false
-    ) {
-      // User Join a voice channel
-      //No points assigned time stamp updated
+    //Check if eligible for points/update if so it will apply points accordingly
+    //if user isn't in DB an entry will be created for them
+    if (eligible)
       try {
         const virgin = await orm.findOneOrFail(Virgin, {
           $and: [
@@ -63,22 +59,17 @@ module.exports = {
         });
         const virgin1 = new Virgin(
           newState.member.id,
-          virgin.virginity,
+          millisecondsToMinutes(time.getTime()) * streaming - millisecondsToMinutes(virgin.blueballs.getTime()),
           time,
           guildId,
           username,
         );
         wrap(virgin).assign(virgin1, { mergeObjects: true });
         await orm.persistAndFlush(virgin);
+        //
       } catch (e) {
         //Catch is if user is new
-        const virgin1 = new Virgin(
-          newState.member.id,
-          virginity,
-          time,
-          guildId,
-          username,
-        );
+        const virgin1 = new Virgin(newState.member.id, virginity, time, guildId, username);
         const virgin = orm.create(Virgin, {
           discordId: virgin1.discordId,
           virginity: virgin1.virginity,
@@ -88,40 +79,5 @@ module.exports = {
         });
         await orm.persistAndFlush(virgin);
       }
-      //Switched nothing done but we could do something
-    } else if (
-      oldUserChannel !== null &&
-      newUserChannel !== null &&
-      oldUserChannel != newUserChannel
-    ) {
-      // User switches voice channel
-    } else if (eligibility != false) {
-      //User exited, here we calculate points and update the DB
-      try {
-        const virgin = await orm.findOneOrFail(Virgin, {
-          $and: [
-            { guild: { $eq: guildId } },
-            {
-              discordId: {
-                $eq: newState.member.id,
-              },
-            },
-          ],
-        });
-        //console.log(`exited`);
-        const virgin1 = new Virgin(
-          newState.member.id,
-          millisecondsToMinutes(time.getTime()) * streaming -
-            millisecondsToMinutes(virgin.blueballs.getTime()),
-          time,
-          guildId,
-          username,
-        );
-        wrap(virgin).assign(virgin1, { mergeObjects: true });
-        await orm.persistAndFlush(virgin);
-      } catch (e) {
-        //User left channel without entering scenario (Bot was just added)
-      }
-    }
   },
 };
