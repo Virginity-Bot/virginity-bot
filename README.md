@@ -14,6 +14,8 @@ Discord Bot to track peoples' virginity, i.e. their accumulated online time on t
 ## How to Increase Your Virginity
 
 1. Virginity counter starts on initial voice channel join
+2. Stream for more virginity points :)
+3. Share camera for even more points! :D
 
 ### Potential Improvements
 
