@@ -34,7 +34,6 @@ RUN useradd "$USER" --create-home;
 WORKDIR ${APP_DIR}
 
 COPY --from=builder ${APP_DIR} ${APP_DIR}/
-RUN rm -rf "${APP_DIR}/node_modules"
 
 RUN npm clean-install --omit=dev
 
