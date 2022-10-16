@@ -50,3 +50,11 @@ Discord Bot to track peoples' virginity, i.e. their accumulated online time on t
     -   Required for playing the biggest virgin's intro theme.
 -   Voice Activity
     -   Required for tracking users virginity.
+
+## Upgrading NodeJS versions
+
+There are a few places where the node version number needs to be bumped in order to upgrade. Unfortunately, not all of them share the same syntax.
+
+1. [`Dockerfile`](/Dockerfile)'s `NODE_VERSION` `ARG`.
+1. [`.nvmrc`](/.nvmrc)
+1. [`package.json`](/package.json)'s `engines.node`
