@@ -1,8 +1,11 @@
+ARG USER=virgin
+ARG APP_DIR=/home/${USER}/app
+
 # build stage
 FROM docker.io/library/node:18 AS builder
 
-ARG USER=virgin
-ARG APP_DIR=/home/${USER}/app
+ARG USER
+ARG APP_DIR
 
 RUN useradd "$USER" --create-home;
 RUN mkdir -p "$APP_DIR"; \
@@ -21,8 +24,8 @@ RUN npm run build
 FROM docker.io/library/node:18 as runner
 LABEL maintainer="louis@orleans.io"
 
-ARG USER=virgin
-ARG APP_DIR=/home/${USER}/app
+ARG USER
+ARG APP_DIR
 ARG PORT=3000
 EXPOSE $PORT/tcp
 
