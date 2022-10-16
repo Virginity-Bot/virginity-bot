@@ -1,8 +1,9 @@
 ARG USER=virgin
 ARG APP_DIR=/home/${USER}/app
+ARG NODE_VERSION=18
 
 # build stage
-FROM docker.io/library/node:18 AS builder
+FROM docker.io/library/node:${NODE_VERSION} AS builder
 
 ARG USER
 ARG APP_DIR
@@ -21,7 +22,7 @@ COPY . ${APP_DIR}/
 RUN npm run build
 
 # run stage
-FROM docker.io/library/node:18 as runner
+FROM docker.io/library/node:${NODE_VERSION} as runner
 LABEL maintainer="louis@orleans.io"
 
 ARG USER
