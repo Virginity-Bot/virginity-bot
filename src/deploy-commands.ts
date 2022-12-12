@@ -1,14 +1,15 @@
-import fs from 'node:fs';
-import path from 'node:path';
+import * as fs from 'node:fs';
+import path from 'path';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
+import * as dotenv from 'dotenv';
 
 export default async function deployCommands() {
+  console.log('Deploy');
+  dotenv.config();
   const commands = [];
   const commandsPath = path.join(__dirname, 'commands');
-  const commandFiles = fs
-    .readdirSync(commandsPath)
-    .filter((file) => file.endsWith('.js'));
+  const commandFiles = fs.readdirSync(commandsPath).filter((file) => file.endsWith('.js'));
 
   for (const file of commandFiles) {
     const filePath = path.join(commandsPath, file);
@@ -18,8 +19,16 @@ export default async function deployCommands() {
 
   const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
 
-  rest
-    .put(Routes.applicationCommands(process.env.CLIENT), { body: commands })
-    .then(() => console.log('Successfully registered application commands.'))
-    .catch(console.error);
+  (async () => {
+    try {
+      console.log('Started refreshing application (/) commands.');
+      //console.log(commands);
+
+      await rest.put(Routes.applicationCommands(process.env.CLIENTID), { body: commands });
+
+      console.log('Successfully reloaded application (/) commands.');
+    } catch (error) {
+      console.error(error);
+    }
+  })();
 }

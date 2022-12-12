@@ -14,7 +14,7 @@ module.exports = {
         temp = guild.channels.cache.filter((TextChannel) => TextChannel.name === 'virginity-bot');
         temp.forEach((channel) => {
           if (channel.type === 'GUILD_TEXT') {
-            channel.send('d');
+            //channel.send('/leaderboard');
           }
         });
       });
