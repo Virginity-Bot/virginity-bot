@@ -4,13 +4,13 @@ import { MikroORM, wrap } from '@mikro-orm/core';
 import * as dotenv from 'dotenv';
 import {
   createAudioResource,
-  generateDependencyReport,
   joinVoiceChannel,
   NoSubscriberBehavior,
   createAudioPlayer,
   AudioPlayerStatus,
   DiscordGatewayAdapterCreator,
 } from '@discordjs/voice';
+import { Guild, GuildMember, GuildMemberManager, GuildMemberRoleManager, Role } from 'discord.js';
 
 module.exports = {
   //this name MUST be "voiceStateUpdate" its how DiscordJS knows what event its working with
@@ -22,10 +22,8 @@ module.exports = {
     newState: {
       channelId: any;
       member: { id: any; user: any };
-      guild: {
-        [x: string]: DiscordGatewayAdapterCreator;
-        id: any;
-      };
+      guild: Guild;
+      members: GuildMemberManager;
     },
   ) {
     let newUserChannel = newState.channelId;
@@ -36,58 +34,50 @@ module.exports = {
     let guildId = newState.guild.id;
     if (oldUserChannel == null && newUserChannel != null && newState.member.id != bot) {
       try {
-        //check if virgin exists in database
-        const virgin = await orm.findOneOrFail(Virgin, {
-          $and: [
-            { guild: { $eq: guildId } },
-            {
-              discordId: {
-                $eq: newState.member.id,
+        const roles = await newState.guild.roles.cache;
+        var role: string | Role | undefined;
+        let members = await newState.guild.members.cache;
+        if (
+          (role = roles?.find(
+            (element: { name: string }) => element.name == 'Chonkiest Virgin the World Has Ever Seen',
+          ))
+        ) {
+          let roley = role.id.toString();
+          let mem = members.find((member) => member.roles.cache.has(roley) === true);
+          newState.guild.voiceAdapterCreator;
+          if (mem?.id == newState.member.id) {
+            const connection = joinVoiceChannel({
+              channelId: newState.channelId,
+              guildId: newState.guild.id,
+              adapterCreator: newState.guild.voiceAdapterCreator as DiscordGatewayAdapterCreator,
+            });
+            const player = createAudioPlayer({
+              behaviors: {
+                noSubscriber: NoSubscriberBehavior.Pause,
               },
-            },
-          ],
-        });
-        try {
-          //check if anyone with more virginity exists on server
-          const virgin1 = await orm.findOneOrFail(Virgin, {
-            $and: [
-              { guild: { $eq: guildId } },
-              {
-                virginity: {
-                  $gt: virgin.virginity,
-                },
+            });
+            const resource = createAudioResource('assets/assets_entrance_theme.opus', {
+              metadata: {
+                title: 'The Biggest Virgin!',
               },
-            ],
-          });
-        } catch (e) {
-          const connection = joinVoiceChannel({
-            channelId: newState.channelId,
-            guildId: newState.guild.id,
-            adapterCreator: newState.guild.voiceAdapterCreator,
-          });
-          const player = createAudioPlayer({
-            behaviors: {
-              noSubscriber: NoSubscriberBehavior.Pause,
-            },
-          });
-          const resource = createAudioResource('assets/assets_entrance_theme.opus', {
-            metadata: {
-              title: 'The Biggest Virgin!',
-            },
-          });
-          resource.volume?.setVolume(2);
-          player.play(resource);
-          connection.subscribe(player);
-          player.on(AudioPlayerStatus.Idle, () => {
-            player.stop();
-            connection.destroy();
-          });
+            });
+            resource.volume?.setVolume(2);
+            player.play(resource);
+            connection.subscribe(player);
+            player.on(AudioPlayerStatus.Idle, () => {
+              player.stop();
+              connection.destroy();
+            });
+          } else {
+            //let test = newState.member.id;
+            //console.log(test);
+          }
         }
-      } catch (e) {}
 
-      //await orm.em.flush();
-    }
-    {
+        //await orm.em.flush();
+      } catch (e) {
+        // Something Something Josh dies inside
+      }
     }
   },
 };
