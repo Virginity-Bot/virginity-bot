@@ -10,6 +10,7 @@ Discord Bot to track peoples' virginity, i.e. their accumulated online time on t
 -   `/leaderboard` - list top 10 virgins in the server
 -   `/checkvirginity` - checks virginity of a given user
 -   `/reset` - resets a specified member's virginity
+-   `/crown` - gives the title to a specified user
 
 ## How to Increase Your Virginity
 
@@ -20,11 +21,7 @@ Discord Bot to track peoples' virginity, i.e. their accumulated online time on t
 ### Potential Improvements
 
 -   Alpha virgin role - rename to Ω Virgin?
--   Dockerize application
 -   Add more commands
--   Have bot assign roles
--   Give bot scheduler, for wiping or announcing
--   Have Bot auto create/add channel for annoucements.
 -   Suggestions Welcome.
 
 ## Run your own Virginity Bot
