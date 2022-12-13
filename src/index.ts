@@ -6,7 +6,7 @@ import deployCommands from './deploy-commands';
 import * as dotenv from 'dotenv';
 
 const main = async () => {
-  //await schemaUpdate();
+  await schemaUpdate();
   await deployCommands();
 
   //This how you tell discord what sort of events to send you
