@@ -39,7 +39,7 @@ module.exports = {
     if (oldState.streaming) streaming = 2;
     if (oldState.selfVideo) streaming = 2.5;
     if (oldState.streaming && oldState.selfVideo) streaming = 3;
-    if (!newState.mute || !newState.deaf || newState.member.id != bot || (newState == null && oldState != null))
+    if (!newState.mute && !newState.deaf && newState.member.id != bot && newState == null && oldState != null)
       //check if user "should" receive points. If user is mute, deaf, or hasn't spoken in a long time.
       //Anti gaming
       eligible = true;
@@ -80,12 +80,7 @@ module.exports = {
         });
         await orm.persistAndFlush(virgin);
       }
-    } else if (
-      (newState != null && oldState == null) ||
-      !newState.mute ||
-      !newState.deaf ||
-      newState.member.id != bot
-    ) {
+    } else if (newState != null && oldState == null && !newState.mute && !newState.deaf && newState.member.id != bot) {
       try {
         const virgin = await orm.findOneOrFail(Virgin, {
           $and: [
