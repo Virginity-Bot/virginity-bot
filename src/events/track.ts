@@ -37,8 +37,15 @@ module.exports = {
     let username = newState.member.user.username.toLowerCase();
     //Checks if streaming and adds multiplier if so
     if (oldState.streaming) streaming = 2;
-    if (oldState.selfVideo) streaming = 3;
-    if (newState.mute || newState.deaf || newState.member.id == bot)
+    if (oldState.selfVideo) streaming = 2.5;
+    if (oldState.streaming && oldState.selfVideo) streaming = 3;
+    if (
+      newState.mute ||
+      newState.deaf ||
+      newState.member.id == bot ||
+      newState != null ||
+      oldUserChannel != newUserChannel
+    )
       //check if user "should" receive points. If user is mute, deaf, or hasn't spoken in a long time.
       //Anti gaming
       eligible = false;
