@@ -97,13 +97,10 @@ module.exports = {
           ],
         });
         //console.log(`exited`);
-        const virgin1 = new Virgin(
-          newState.member.id,
-          millisecondsToMinutes(time.getTime()) - millisecondsToMinutes(virgin.blueballs.getTime()) + virgin.virginity,
-          time,
-          guildId,
-          username,
-        );
+        const vp = millisecondsToMinutes(time.getTime()) - millisecondsToMinutes(virgin.blueballs.getTime());
+        const virgin1 = new Virgin(newState.member.id, vp + virgin.virginity, time, guildId, username);
+        console.log('To Add: ' + vp);
+        console.log('Old points: ' + virgin.virginity);
         wrap(virgin).assign(virgin1, { mergeObjects: true });
         await orm.persistAndFlush(virgin);
       } catch (e) {
