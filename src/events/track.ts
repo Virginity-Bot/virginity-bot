@@ -52,49 +52,9 @@ module.exports = {
     //Listens for every update on a users channel state.
     //Check if eligible for points/update if so it will apply points accordingly
     //if user isn't in DB an entry will be created for them
-    if (eligible) {
-      try {
-        const virgin = await orm.findOneOrFail(Virgin, {
-          $and: [
-            { guild: { $eq: guildId } },
-            {
-              discordId: {
-                $eq: newState.member.id,
-              },
-            },
-          ],
-        });
-        const virgin1 = new Virgin(
-          newState.member.id,
-          millisecondsToMinutes(time.getTime()) -
-            millisecondsToMinutes(virgin.blueballs.getTime()) * streaming +
-            virgin.virginity,
-          time,
-          guildId,
-          username,
-        );
-        wrap(virgin).assign(virgin1, { mergeObjects: true });
-        await orm.persistAndFlush(virgin);
-        //
-      } catch (e) {
-        //Catch is if user is new
-        const virgin1 = new Virgin(newState.member.id, virginity, time, guildId, username);
-        const virgin = orm.create(Virgin, {
-          discordId: virgin1.discordId,
-          virginity: virgin1.virginity,
-          blueballs: time,
-          guild: guildId,
-          username,
-        });
-        await orm.persistAndFlush(virgin);
-      }
-    } else if (
-      oldUserChannel == null &&
-      newUserChannel != null &&
-      !newState.mute &&
-      !newState.deaf &&
-      newState.member.id != bot
-    ) {
+    if (oldUserChannel == null && newUserChannel != null && newState.member.id != bot) {
+      // User Join a voice channel
+
       try {
         const virgin = await orm.findOneOrFail(Virgin, {
           $and: [
@@ -109,9 +69,45 @@ module.exports = {
         const virgin1 = new Virgin(newState.member.id, virgin.virginity, time, guildId, username);
         wrap(virgin).assign(virgin1, { mergeObjects: true });
         await orm.persistAndFlush(virgin);
-        //
       } catch (e) {
-        console.log('User not in DB');
+        //console.error(e); // our custom error
+        const virgin1 = new Virgin(newState.member.id, virginity, time, guildId, username);
+        //console.log('Creating');
+        const virgin = orm.create(Virgin, {
+          discordId: virgin1.discordId,
+          virginity: virgin1.virginity,
+          blueballs: time,
+          guild: guildId,
+          username,
+        });
+        await orm.persistAndFlush(virgin);
+      }
+    } else if (oldUserChannel !== null && newUserChannel !== null && oldUserChannel != newUserChannel) {
+      // User switches voice channel
+    } else {
+      try {
+        const virgin = await orm.findOneOrFail(Virgin, {
+          $and: [
+            { guild: { $eq: guildId } },
+            {
+              discordId: {
+                $eq: newState.member.id,
+              },
+            },
+          ],
+        });
+        //console.log(`exited`);
+        const virgin1 = new Virgin(
+          newState.member.id,
+          millisecondsToMinutes(time.getTime()) - millisecondsToMinutes(virgin.blueballs.getTime()) + virgin.virginity,
+          time,
+          guildId,
+          username,
+        );
+        wrap(virgin).assign(virgin1, { mergeObjects: true });
+        await orm.persistAndFlush(virgin);
+      } catch (e) {
+        //console.error(e); // our custom error
       }
     }
   },
