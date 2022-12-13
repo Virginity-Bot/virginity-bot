@@ -16,6 +16,7 @@ module.exports = {
       await generator.clearDatabase(); // removes all data
 
       await orm.close(true);
+      await interaction.reply('The Virgins have been purged!');
     } catch (e) {
       await interaction.reply('Unable to clear the Database');
     }
