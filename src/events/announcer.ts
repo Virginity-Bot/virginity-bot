@@ -29,7 +29,7 @@ module.exports = {
     dotenv.config();
     const bot = process.env.BOT;
     let guildId = newState.guild.id;
-    if (oldUserChannel == null && newUserChannel != null && newState.member.id != bot) {
+    if (newUserChannel != null && newState.member.id != bot) {
       try {
         const roles = await newState.guild.roles.cache;
         var role: string | Role | undefined;
