@@ -4,16 +4,19 @@ import { MikroORM } from '@mikro-orm/core';
 import { Virgin } from '../entities/virgin-entity';
 import { userInfo } from 'os';
 import { updateSpread } from 'typescript';
+import { PermissionFlagsBits } from 'discord-api-types/v9';
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('crown')
     .setDescription('Assigns user the chonkiest virgin role')
+    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers)
     .addStringOption((option) => option.setName('userdata').setDescription('Enter a users name').setRequired(true)),
   async execute(interaction: CommandInteraction) {
     const orm = (await MikroORM.init()).em.fork();
     const userId = interaction.options.getString('userdata')?.toLowerCase();
     const guildId = interaction.guildId;
+    const isAdmin = interaction.member?.permissions;
     try {
       const virgin = await orm.findOneOrFail(Virgin, {
         $and: [
