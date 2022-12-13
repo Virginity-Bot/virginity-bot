@@ -13,17 +13,14 @@ module.exports = {
     const guildId = interaction.guildId;
     const isAdmin = interaction.member?.permissions;
     try {
-      const roles = await interaction.guild?.roles.fetch();
-      var mem;
-      var count = 0;
-      while (
-        (mem = await interaction.guild?.members.cache.find(
-          (member) => member.roles.cache.has('Chonkiest Virgin the World Has Ever Seen') === true,
-        ))
-      ) {
-        console.log(count++);
-        await mem?.roles.remove('Chonkiest Virgin the World Has Ever Seen');
-      }
+      let roles = await interaction.guild?.roles.fetch();
+      let role = roles?.find((element) => element.name == 'Chonkiest Virgin the World Has Ever Seen');
+      role!.members.forEach((member, i) => {
+        // Looping through the members of Role.
+        setTimeout(() => {
+          member.roles.remove(role!); // Removing the Role.
+        }, 1000);
+      });
       await interaction.reply('The Virgins have been laid');
     } catch (e) {
       await interaction.reply('No Roles to Clear');
