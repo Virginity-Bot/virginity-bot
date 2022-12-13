@@ -99,7 +99,7 @@ module.exports = {
         //console.log(`exited`);
         const virgin1 = new Virgin(
           newState.member.id,
-          millisecondsToMinutes(time.getTime()) - millisecondsToMinutes(virgin.blueballs.getTime()),
+          millisecondsToMinutes(time.getTime()) - millisecondsToMinutes(virgin.blueballs.getTime()) + virgin.virginity,
           time,
           guildId,
           username,
