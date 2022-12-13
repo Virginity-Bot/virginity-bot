@@ -13,7 +13,7 @@ export default async function schemaUpdate() {
   //console.log(dropAndCreateDump);
 
   // in tests it can be handy to use those:
-  await generator.refreshDatabase(); // ensure db exists and is fresh
+  //await generator.refreshDatabase(); // ensure db exists and is fresh
   //await generator.clearDatabase(); // removes all data
 
   await orm.close(true);
