@@ -59,11 +59,7 @@ module.exports = {
         });
         const virgin1 = new Virgin(
           newState.member.id,
-          millisecondsToMinutes(
-            millisecondsToMinutes(time.getTime()) -
-              millisecondsToMinutes(virgin.blueballs.getTime()) * streaming +
-              virgin.virginity,
-          ),
+          millisecondsToMinutes(time.getTime() - virgin.blueballs.getTime()) * streaming + virgin.virginity,
           time,
           guildId,
           username,
