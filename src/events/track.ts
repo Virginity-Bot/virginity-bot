@@ -96,7 +96,7 @@ module.exports = {
         const virgin1 = new Virgin(
           newState.member.id,
           +millisecondsToMinutes(time.getTime()) -
-            +millisecondsToMinutes(virgin.blueballs.getTime()) +
+            +millisecondsToMinutes(virgin.blueballs.getTime()) * +streaming +
             +virgin.virginity,
           time,
           guildId,
