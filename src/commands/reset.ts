@@ -12,18 +12,15 @@ import {
 } from 'discord.js';
 import { MikroORM, wrap } from '@mikro-orm/core';
 import { Virgin } from '../entities/virgin-entity';
+import { PermissionFlagsBits } from 'discord-api-types/v9';
 //import { InteractionResponseType as CommandInteraction } from 'discord-api-types/v9';
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('reset')
     .setDescription("Resets user's virginity")
-    .addStringOption((option) =>
-      option
-        .setName('user')
-        .setDescription('Enter a users name')
-        .setRequired(true),
-    ),
+    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers)
+    .addStringOption((option) => option.setName('user').setDescription('Enter a users name').setRequired(true)),
   //async execute(interaction: BaseCommandInteraction) {
   async execute(interaction: {
     options: CommandInteractionOptionResolver;
@@ -37,9 +34,7 @@ module.exports = {
     const userId = interaction.options.getString('user')?.toLowerCase();
     const guildId = interaction.guildId!;
     if (!interaction.member.roles.cache.some((role) => role.name === 'Admin')) {
-      await interaction.reply(
-        'You Have No Power Here Gandalf the Grey ( ͡° ͜ʖ ͡°)',
-      );
+      await interaction.reply('You Have No Power Here Gandalf the Grey ( ͡° ͜ʖ ͡°)');
       //console.log(interaction.member.guild);
     } else {
       try {
@@ -53,13 +48,7 @@ module.exports = {
             },
           ],
         });
-        const virgin1 = new Virgin(
-          virgin.discordId,
-          0,
-          time,
-          virgin.guild,
-          virgin.username,
-        );
+        const virgin1 = new Virgin(virgin.discordId, 0, time, virgin.guild, virgin.username);
         wrap(virgin).assign(virgin1, { mergeObjects: true });
         await orm.persistAndFlush(virgin);
         await interaction.reply('Reset ' + userId + "'s virginity");
