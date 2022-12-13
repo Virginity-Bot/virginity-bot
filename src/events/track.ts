@@ -39,20 +39,14 @@ module.exports = {
     if (oldState.streaming) streaming = 2;
     if (oldState.selfVideo) streaming = 2.5;
     if (oldState.streaming && oldState.selfVideo) streaming = 3;
-    if (
-      newState.mute ||
-      newState.deaf ||
-      newState.member.id == bot ||
-      newState != null ||
-      oldUserChannel != newUserChannel
-    )
+    if (!newState.mute || !newState.deaf || newState.member.id != bot || (newState == null && oldState != null))
       //check if user "should" receive points. If user is mute, deaf, or hasn't spoken in a long time.
       //Anti gaming
-      eligible = false;
+      eligible = true;
     //Listens for every update on a users channel state.
     //Check if eligible for points/update if so it will apply points accordingly
     //if user isn't in DB an entry will be created for them
-    if (eligible)
+    if (eligible) {
       try {
         const virgin = await orm.findOneOrFail(Virgin, {
           $and: [
@@ -86,5 +80,30 @@ module.exports = {
         });
         await orm.persistAndFlush(virgin);
       }
+    } else if (
+      (newState != null && oldState == null) ||
+      !newState.mute ||
+      !newState.deaf ||
+      newState.member.id != bot
+    ) {
+      try {
+        const virgin = await orm.findOneOrFail(Virgin, {
+          $and: [
+            { guild: { $eq: guildId } },
+            {
+              discordId: {
+                $eq: newState.member.id,
+              },
+            },
+          ],
+        });
+        const virgin1 = new Virgin(newState.member.id, virgin.virginity, time, guildId, username);
+        wrap(virgin).assign(virgin1, { mergeObjects: true });
+        await orm.persistAndFlush(virgin);
+        //
+      } catch (e) {
+        console.log('User not in DB');
+      }
+    }
   },
 };
