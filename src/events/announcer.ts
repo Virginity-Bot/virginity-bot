@@ -1,6 +1,4 @@
 //This module keeps tabs on the amount of time a user spends on discordand assigns them XP ;)
-import { Virgin } from '../entities/virgin-entity';
-import { MikroORM, wrap } from '@mikro-orm/core';
 import * as dotenv from 'dotenv';
 import {
   createAudioResource,
@@ -28,7 +26,6 @@ module.exports = {
   ) {
     let newUserChannel = newState.channelId;
     let oldUserChannel = oldState.channelId;
-    const orm = (await MikroORM.init()).em.fork();
     dotenv.config();
     const bot = process.env.BOT;
     let guildId = newState.guild.id;
@@ -45,6 +42,8 @@ module.exports = {
           let roley = role.id.toString();
           let mem = members.find((member) => member.roles.cache.has(roley) === true);
           newState.guild.voiceAdapterCreator;
+          console.log(mem?.id);
+          console.log(newState.member.id);
           if (mem?.id == newState.member.id) {
             const connection = joinVoiceChannel({
               channelId: newState.channelId,
