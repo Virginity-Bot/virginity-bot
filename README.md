@@ -27,7 +27,7 @@ Discord Bot to track peoples' virginity, i.e. their accumulated online time on t
 ## Run your own Virginity Bot
 
 1. (Create a new Discord Application](https://discord.com/developers/applications/]
-2. Retrive your Bot Token from the bot tab
+2. Retrieve your Bot Token from the bot tab
 3. Make sure to set the [/.env](/.env) variables appropriately.
 4. Run npm start to start the bot
 

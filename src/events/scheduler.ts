@@ -24,29 +24,20 @@ module.exports = {
           .setThumbnail('https://i.imgur.com/X9AWcYV.jpg')
           .setTimestamp();
         const guilds = client.guilds.cache;
-        let temp = new Collection<string, GuildBasedChannel>();
-        const test = guilds.forEach(async (guild) => {
-          var leaderboard: MessageEmbed;
-          var biggestVirgin: string = ' ';
-          //{[leaderboard, biggestVirgin]} = await getBoard(guild.id.toString());
-          temp = guild.channels.cache.filter((TextChannel) => TextChannel.name === 'virginity-bot');
-          temp.forEach(async (channel) => {
+        console.log(guilds);
+        guilds.forEach(async (guild) => {
+          let biggestVirgin: string = ' ';
+          const virginityBotChannels = guild.channels.cache.filter(
+            (TextChannel) => TextChannel.name === 'virginity-bot',
+          );
+          virginityBotChannels.forEach(async (channel) => {
             const orm = (await MikroORM.init()).em.fork();
             const guildId = channel.guildId;
-            var virginArray: Virgin[] = new Array();
             try {
-              const virgin = await orm.find(Virgin, { guild: { $eq: guildId } });
-              for (let i = 0; i < virgin.length; i++) {
-                virginArray.push(
-                  new Virgin(
-                    virgin[i].discordId,
-                    virgin[i].virginity,
-                    virgin[i].blueballs,
-                    virgin[i].guild,
-                    virgin[i].username,
-                  ),
-                );
-              }
+              const virgins = await orm.find(Virgin, { guild: { $eq: guildId } });
+              const virginArray = virgins.map((virgin) => {
+                return new Virgin(virgin.discordId, virgin.virginity, virgin.blueballs, virgin.guild, virgin.username);
+              });
               virginArray.sort((a, b) => (a.virginity > b.virginity ? -1 : 1));
               biggestVirgin = virginArray[0].username;
               for (let i = 0; i < virginArray.length; i++) {
@@ -67,8 +58,8 @@ module.exports = {
         });
       });
     } catch (e) {
-      console.log(e);
-      console.log('Scheduled Event Failed');
+      console.error(e);
+      console.error('Scheduled Event Failed');
     }
   },
 };
