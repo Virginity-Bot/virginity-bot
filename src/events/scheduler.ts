@@ -4,15 +4,16 @@ var cron = require('node-cron');
 import schemaUpdate from '../schemaUpdate';
 import { MikroORM } from '@mikro-orm/core';
 import { Virgin } from '../entities/virgin-entity';
-
-//This event schedules an announcement to take place every tuesday for
-// the chonkiest virgin in the virginity-bot channel
+/*
+This event schedules an announcement to take place every tuesday @10am PST (1800 UTC)
+for the chonkiest virgin in the virginity-bot channel for all servers the bot services
+*/
 module.exports = {
   name: 'ready',
   once: true,
   async execute(client: Client) {
     try {
-      cron.schedule('* * 10 * * Tuesday', () => {
+      cron.schedule('0 18 * * Tue', () => {
         const boardEmbed = new MessageEmbed()
           .setColor('#0099ff')
           .setTitle('Leader Board')
