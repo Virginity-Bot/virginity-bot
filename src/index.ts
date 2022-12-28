@@ -20,8 +20,9 @@ const main = async () => {
 
   client.commands = new Collection();
   const commandsPath = path.join(__dirname, 'commands');
-  const commandFiles = fs.readdirSync(commandsPath).filter((file) => file.endsWith('.js'));
-  const eventFiles = fs.readdirSync('./build/events').filter((file: string) => file.endsWith('.js'));
+  const eventsPath = path.join(__dirname, 'events');
+  const commandFiles = fs.readdirSync(commandsPath).filter((file) => file.match(/\.[jt]s/i));
+  const eventFiles = fs.readdirSync(eventsPath).filter((file) => file.match(/\.[jt]s/i));
   //Reads all events from directory
   for (const file of eventFiles) {
     const event = require(`./events/${file}`);

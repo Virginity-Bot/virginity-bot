@@ -11,7 +11,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node .",
-    "start:dev": "ts-node src"
+    "start:dev": "node --inspect -r ts-node/register src/index.ts"
   },
   "devDependencies": {
     "@iunu-inc/code-style": "^0.0.12",
