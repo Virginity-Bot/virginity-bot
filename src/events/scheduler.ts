@@ -25,7 +25,7 @@ module.exports = {
           .setThumbnail('https://i.imgur.com/X9AWcYV.jpg')
           .setTimestamp();
         const guilds = client.guilds.cache;
-        console.log(guilds);
+        //console.log(guilds);
         guilds.forEach(async (guild) => {
           let biggestVirgin: string = ' ';
           const virginityBotChannels = guild.channels.cache.filter(

@@ -40,7 +40,6 @@ module.exports = {
       //check if user "should" receive points. If user is mute, deaf, or hasn't spoken in a long time.
       //Anti gaming
       eligible = true;
-    const testvirgin = new Virgin(newState.member.id, virginity, time, guildId, username);
     //This set of If statements checks if a user is joining, moving (between channels), or leaving a discord.
     //Listens for every update on a users channel state.
     if (oldUserChannel == null && newUserChannel != null && newState.member.id != bot && eligible == true) {
@@ -95,8 +94,7 @@ module.exports = {
         //console.log(`exited`);
         const virgin1 = new Virgin(
           newState.member.id,
-          +millisecondsToMinutes(time.getTime()) -
-            +millisecondsToMinutes(virgin.blueballs.getTime()) * +streaming +
+          (+millisecondsToMinutes(time.getTime()) - +millisecondsToMinutes(virgin.blueballs.getTime())) * +streaming +
             +virgin.virginity,
           time,
           guildId,

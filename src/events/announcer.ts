@@ -42,8 +42,6 @@ module.exports = {
           let roley = role.id.toString();
           let mem = members.find((member) => member.roles.cache.has(roley) === true);
           newState.guild.voiceAdapterCreator;
-          console.log(mem?.id);
-          console.log(newState.member.id);
           if (mem?.id == newState.member.id) {
             const connection = joinVoiceChannel({
               channelId: newState.channelId,
