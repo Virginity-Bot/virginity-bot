@@ -36,7 +36,7 @@ module.exports = {
           ),
         );
       }
-      virginArray.sort((a, b) => a.virginity - b.virginity);
+      virginArray.sort((a, b) => b.virginity - a.virginity);
       for (let i = 0; i < virginArray.length; i++) {
         boardEmbed.addFields({
           name: i + 1 + ') ' + virginArray[i].username,
