@@ -41,6 +41,32 @@ module.exports = {
               });
               virginArray.sort((a, b) => (a.virginity > b.virginity ? -1 : 1));
               biggestVirgin = virginArray[0].username;
+              const roles = await channel.guild?.roles.fetch();
+              //removes Role from whichever member holds it and gives it to the new champion, if does exists it will create role
+              if (roles?.find((element) => element.name == 'Chonkiest Virgin the World Has Ever Seen')) {
+                let mem = channel.guild?.members.cache.find(
+                  (member) => member.roles.cache.has('Chonkiest Virgin the World Has Ever Seen') === true,
+                );
+                mem?.roles.remove('Chonkiest Virgin the World Has Ever Seen');
+                let members = channel.guild?.members.cache;
+                mem = members?.find((element) => element.id == virginArray[0].discordId);
+                let role = roles?.find((element) => element.name == 'Chonkiest Virgin the World Has Ever Seen');
+                await mem?.roles.add(role!);
+              } else {
+                let role = await channel.guild?.roles
+                  .create({
+                    name: 'Chonkiest Virgin the World Has Ever Seen',
+                    color: 'BLUE',
+                    reason: 'we needed a chonky boi',
+                  })
+                  //.then(console.log)
+                  .catch(console.error);
+                //await interaction.guild?.roles.resolveId
+                let members = channel.guild?.members.cache;
+                let mem = members?.find((element) => element.id == virginArray[0].discordId);
+                await mem?.roles.add(role!);
+              }
+
               for (let i = 0; i < virginArray.length; i++) {
                 boardEmbed.addFields({
                   name: i + 1 + ') ' + virginArray[i].username,
