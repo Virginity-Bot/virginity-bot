@@ -43,6 +43,30 @@ module.exports = {
           value: virginArray[i].virginity.toString(),
         });
       }
+      const roles = await interaction.guild?.roles.fetch();
+      if (roles?.find((element) => element.name == 'Chonkiest Virgin the World Has Ever Seen')) {
+        let mem = await interaction.guild?.members.cache.find(
+          (member) => member.roles.cache.has('Chonkiest Virgin the World Has Ever Seen') === true,
+        );
+        mem?.roles.remove('Chonkiest Virgin the World Has Ever Seen');
+        let members = await interaction.guild?.members.cache;
+        mem = await members?.find((element) => element.id == virginArray[0].discordId);
+        let role = roles?.find((element) => element.name == 'Chonkiest Virgin the World Has Ever Seen');
+        await mem?.roles.add(role!);
+      } else {
+        let role = await interaction.guild?.roles
+          .create({
+            name: 'Chonkiest Virgin the World Has Ever Seen',
+            color: 'BLUE',
+            reason: 'we needed a chonky boi',
+          })
+          //.then(console.log)
+          .catch(console.error);
+        //await interaction.guild?.roles.resolveId
+        let members = await interaction.guild?.members.cache;
+        let mem = members?.find((element) => element.id == virginArray[0].discordId);
+        await mem?.roles.add(role!);
+      }
       await interaction.reply({ embeds: [boardEmbed] });
     } catch (e) {
       await interaction.reply('No Virgins :(');
