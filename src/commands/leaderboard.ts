@@ -69,6 +69,7 @@ module.exports = {
       }
       await interaction.reply({ embeds: [boardEmbed] });
     } catch (e) {
+      console.log(e);
       await interaction.reply('No Virgins :(');
     }
   },
