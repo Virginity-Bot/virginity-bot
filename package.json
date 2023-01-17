@@ -1,53 +1,82 @@
 {
-  "name": "virginitybot",
-  "version": "0.0.0",
+  "name": "project-name",
+  "version": "0.0.1",
   "description": "",
-  "main": "build/index.js",
-  "license": "AGPL-3.0",
-  "keywords": [],
-  "engines": {
-    "node": ">=18.10.0 <19.0.0"
-  },
+  "author": "",
+  "private": true,
+  "license": "UNLICENSED",
   "scripts": {
-    "build": "tsc",
-    "start": "node .",
-    "start:dev": "node --inspect -r ts-node/register src/index.ts"
-  },
-  "devDependencies": {
-    "@iunu-inc/code-style": "^0.0.12",
-    "@mikro-orm/cli": "^5.2.1",
-    "@types/body-parser": "^1.19.2",
-    "@types/express": "^4.17.13",
-    "@types/node": "^18.7.18",
-    "@types/node-cron": "^3.0.5",
-    "@types/uuid": "^8.3.4",
-    "gts": "^4.0.0",
-    "typescript": "^4.7.4"
-  },
-  "mikro-orm": {
-    "useTsNode": true,
-    "configPaths": [
-      "./src/mikro-orm.config.ts",
-      "./build/mikro-orm.config.js"
-    ]
+    "build": "nest build",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch",
+    "start:prod": "node dist/main",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@discordjs/builders": "^1.2.0",
+    "@discord-nestjs/core": "^4.3.1",
     "@discordjs/opus": "^0.8.0",
-    "@discordjs/rest": "^1.1.0",
-    "@discordjs/voice": "^0.11.0",
-    "@mikro-orm/core": "^5.4.2",
-    "@mikro-orm/postgresql": "^5.4.2",
+    "@discordjs/voice": "^0.14.0",
+    "@iunu-inc/code-style": "^0.0.12",
+    "@mikro-orm/core": "^5.6.6",
+    "@mikro-orm/nestjs": "^5.1.6",
+    "@mikro-orm/postgresql": "^5.6.6",
+    "@nestjs/common": "^9.0.0",
+    "@nestjs/config": "^2.2.0",
+    "@nestjs/core": "^9.0.0",
+    "@nestjs/platform-express": "^9.0.0",
     "date-fns": "^2.29.3",
-    "discord-api-types": "^0.37.10",
-    "discord.js": "13",
-    "express": "^4.18.1",
-    "ffmpeg": "^0.0.4",
+    "discord.js": "^14.7.1",
     "ffmpeg-static": "^5.1.0",
-    "mikro-orm": "^5.4.2",
-    "node-cron": "^3.0.2",
-    "sodium-native": "^3.4.1",
-    "ts-node": "^10.9.1",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.2.0",
+    "sodium-native": "^4.0.0",
     "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^9.0.0",
+    "@nestjs/schematics": "^9.0.0",
+    "@nestjs/testing": "^9.0.0",
+    "@types/express": "^4.17.13",
+    "@types/jest": "29.2.4",
+    "@types/node": "18.11.18",
+    "@types/supertest": "^2.0.11",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@typescript-eslint/parser": "^5.0.0",
+    "eslint": "^8.0.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "jest": "29.3.1",
+    "prettier": "^2.3.2",
+    "source-map-support": "^0.5.20",
+    "supertest": "^6.1.3",
+    "ts-jest": "29.0.3",
+    "ts-loader": "^9.2.3",
+    "ts-node": "^10.0.0",
+    "tsconfig-paths": "4.1.1",
+    "typescript": "^4.7.4"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "src",
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "**/*.(t|j)s"
+    ],
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
   }
 }
