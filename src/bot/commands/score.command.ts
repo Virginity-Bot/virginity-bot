@@ -11,7 +11,7 @@ import {
   StringSelectMenuInteraction,
 } from 'discord.js';
 import { Injectable } from '@nestjs/common';
-import { EntityRepository } from '@mikro-orm/core';
+import { EntityRepository } from '@mikro-orm/postgresql';
 import { Virgin } from 'src/entities/virgin.entity';
 
 @Command({
