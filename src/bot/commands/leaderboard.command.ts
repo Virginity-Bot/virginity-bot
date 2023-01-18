@@ -2,7 +2,6 @@ import {
   Command,
   CommandExecutionContext,
   DiscordCommand,
-  Param,
 } from '@discord-nestjs/core';
 import {
   ButtonInteraction,
@@ -14,7 +13,6 @@ import {
 } from 'discord.js';
 import { Injectable } from '@nestjs/common';
 import { EntityRepository } from '@mikro-orm/postgresql';
-import { Guild } from 'src/entities/guild.entity';
 import { Virgin } from 'src/entities/virgin.entity';
 
 @Command({
@@ -30,7 +28,6 @@ export class LeaderboardCommand implements DiscordCommand {
       ButtonInteraction<CacheType> | StringSelectMenuInteraction<CacheType>
     >,
   ): Promise<MessagePayload> {
-    this.virginsRepo;
     const boardEmbed = new EmbedBuilder()
       .setColor('#0099ff')
       .setTitle('Leader Board')
