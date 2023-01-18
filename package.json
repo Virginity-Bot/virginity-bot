@@ -21,7 +21,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "db:create": "mikro-orm schema:create -r",
+    "db:create": "mikro-orm migration:up",
     "db:drop": "mikro-orm schema:drop -r"
   },
   "dependencies": {
@@ -30,6 +30,7 @@
     "@discordjs/voice": "^0.14.0",
     "@iunu-inc/code-style": "^0.0.12",
     "@mikro-orm/core": "5.6.7",
+    "@mikro-orm/migrations": "5.6.7",
     "@mikro-orm/nestjs": "^5.1.6",
     "@mikro-orm/postgresql": "5.6.7",
     "@mikro-orm/reflection": "5.6.7",

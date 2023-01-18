@@ -3,16 +3,18 @@ import { TsMorphMetadataProvider } from '@mikro-orm/reflection';
 import { Logger } from '@nestjs/common';
 
 import configuration from './config/configuration';
+
 import { Virgin } from './entities/virgin.entity';
 import { Guild } from './entities/guild.entity';
 import { VCEvent } from './entities/vc-event.entity';
+import { DeletedRecord } from './entities/deleted-record.entity';
 
 const logger = new Logger('MikroORM');
 const config: Options = {
   metadataProvider: TsMorphMetadataProvider,
   logger: Logger.log.bind(logger),
 
-  entities: [Virgin, Guild, VCEvent],
+  entities: [Virgin, Guild, VCEvent, DeletedRecord],
 
   type: configuration.db.type,
   clientUrl: configuration.db.url,
