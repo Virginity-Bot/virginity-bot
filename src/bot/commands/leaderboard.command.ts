@@ -14,6 +14,7 @@ import {
 import { Injectable } from '@nestjs/common';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import { Virgin } from 'src/entities/virgin.entity';
+import { InjectRepository } from '@mikro-orm/nestjs';
 
 @Command({
   name: 'leaderboard',
@@ -21,7 +22,11 @@ import { Virgin } from 'src/entities/virgin.entity';
 })
 @Injectable()
 export class LeaderboardCommand implements DiscordCommand {
-  constructor(private readonly virginsRepo: EntityRepository<Virgin>) {}
+  constructor(
+    @InjectRepository(Virgin)
+    private readonly virginsRepo: EntityRepository<Virgin>,
+  ) {}
+
   async handler(
     interaction: ChatInputCommandInteraction<CacheType>,
     ctx: CommandExecutionContext<

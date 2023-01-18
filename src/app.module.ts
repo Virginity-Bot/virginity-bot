@@ -9,11 +9,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BotModule } from './bot/bot.module';
 import { VCEvent } from './entities/vc-event.entity';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
     // ConfigModule.forRoot({ load: [configuration] }),
-    MikroOrmModule.forRoot(),
+    DatabaseModule,
     BotModule,
   ],
   controllers: [AppController],
