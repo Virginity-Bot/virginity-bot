@@ -12,9 +12,11 @@ import {
   EmbedBuilder,
 } from 'discord.js';
 import { Injectable } from '@nestjs/common';
-import { EntityRepository } from '@mikro-orm/postgresql';
-import { Virgin } from 'src/entities/virgin.entity';
 import { InjectRepository } from '@mikro-orm/nestjs';
+import { UseRequestContext, MikroORM } from '@mikro-orm/core';
+import { EntityRepository } from '@mikro-orm/postgresql';
+
+import { Virgin } from 'src/entities/virgin.entity';
 
 @Command({
   name: 'leaderboard',
@@ -23,10 +25,12 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 @Injectable()
 export class LeaderboardCommand implements DiscordCommand {
   constructor(
+    private readonly orm: MikroORM,
     @InjectRepository(Virgin)
     private readonly virginsRepo: EntityRepository<Virgin>,
   ) {}
 
+  @UseRequestContext()
   async handler(
     interaction: ChatInputCommandInteraction<CacheType>,
     ctx: CommandExecutionContext<
@@ -46,7 +50,9 @@ export class LeaderboardCommand implements DiscordCommand {
 
     const guildId = interaction.guildId;
     try {
-      const virgins = await this.virginsRepo.find({ guild: { $eq: guildId } });
+      const virgins = await this.virginsRepo.find({
+        guild: { snowflake: { $eq: guildSnowflake } },
+      });
       virgins.sort((a, b) => b.cached_dur_in_vc - a.cached_dur_in_vc);
       for (let i = 0; i < virgins.length; i++) {
         boardEmbed.addFields({
