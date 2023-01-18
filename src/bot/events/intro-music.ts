@@ -11,7 +11,7 @@ import {
 } from '@discordjs/voice';
 
 @Injectable()
-export class VCConnect {
+export class IntroMusic {
   constructor(@InjectDiscordClient() private readonly client: Client) {}
 
   @On('voiceStateUpdate')

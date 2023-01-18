@@ -19,7 +19,7 @@ export class VCEvent extends BaseEntity {
   connection_end?: Date;
 
   @Property()
-  streaming: boolean = false;
+  screen: boolean = false;
 
   @Property()
   camera: boolean = false;

@@ -13,6 +13,7 @@ import { VCEvent } from './vc-event.entity';
 
 @Entity()
 export class Virgin extends BaseEntity {
+  //discordId
   @Property({ type: TextType })
   snowflake: string;
 

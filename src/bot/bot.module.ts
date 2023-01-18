@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common';
 import { DiscordConfigService } from 'src/bot/discord-config.service';
 
 import { SlashCommandsModule } from './commands/slash-commands.module';
-import { VCConnect } from './events/vc-connect';
+import { IntroMusic } from './events/intro-music';
 
 @Module({
   imports: [
@@ -12,6 +12,6 @@ import { VCConnect } from './events/vc-connect';
     }),
     SlashCommandsModule,
   ],
-  providers: [VCConnect],
+  providers: [IntroMusic],
 })
 export class BotModule {}

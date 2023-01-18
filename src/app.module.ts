@@ -8,6 +8,7 @@ import { DiscordConfigService } from './bot/discord-config.service';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BotModule } from './bot/bot.module';
+import { VCEvent } from './entities/vc-event.entity';
 
 @Module({
   imports: [
