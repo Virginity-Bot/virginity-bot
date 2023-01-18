@@ -9,8 +9,8 @@ export default {
     type: (process.env.DATABASE_TYPE ?? 'postgresql') as any,
     url: process.env.DATABASE_URL,
     pool: {
-      min: parseInt(process.env.DATABASE_POOL_MIN!) ?? 1,
-      max: parseInt(process.env.DATABASE_POOL_MAX!) ?? 5,
+      min: parseInt(process.env.DATABASE_POOL_MIN ?? '1'),
+      max: parseInt(process.env.DATABASE_POOL_MAX ?? '5'),
     },
   },
 
