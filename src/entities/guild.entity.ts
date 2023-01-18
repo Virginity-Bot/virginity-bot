@@ -11,7 +11,7 @@ import { Virgin } from './virgin.entity';
 
 @Entity()
 export class Guild extends BaseEntity {
-  @Property({ type: TextType })
+  @Property({ type: TextType, unique: true })
   snowflake: string;
 
   @Property({ type: TextType })

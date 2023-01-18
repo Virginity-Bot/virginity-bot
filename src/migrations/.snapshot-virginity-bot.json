@@ -148,6 +148,15 @@
       "schema": "public",
       "indexes": [
         {
+          "columnNames": [
+            "snowflake"
+          ],
+          "composite": false,
+          "keyName": "guild_snowflake_unique",
+          "primary": false,
+          "unique": true
+        },
+        {
           "keyName": "guild_pkey",
           "columnNames": [
             "id"
