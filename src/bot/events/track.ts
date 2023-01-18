@@ -9,16 +9,21 @@ import {
   VoiceState,
 } from 'discord.js';
 import { Virgin } from 'src/entities/virgin.entity';
-import { EntityRepository } from '@mikro-orm/core';
+import { EntityRepository, MikroORM } from '@mikro-orm/core';
 import { VCEvent } from 'src/entities/vc-event.entity';
 import millisecondsToMinutes from 'date-fns/millisecondsToMinutes';
+import { InjectRepository } from '@mikro-orm/nestjs';
 
 @Injectable()
 export class Track {
   constructor(
-    @InjectDiscordClient() private readonly client: Client,
+    private readonly orm: MikroORM,
+    @InjectRepository(Virgin)
     private readonly virginsRepo: EntityRepository<Virgin>,
+    @InjectRepository(VCEvent)
     private readonly vcEventsRepo: EntityRepository<VCEvent>,
+    @InjectDiscordClient()
+    private readonly client: Client,
   ) {}
 
   @On(Events.VoiceStateUpdate)
