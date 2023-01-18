@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { DiscordConfigService } from 'src/bot/discord-config.service';
 
 import { SlashCommandsModule } from './commands/slash-commands.module';
+import { EventsModule } from './events/events.module';
 import { IntroMusic } from './events/intro-music';
 
 @Module({
@@ -11,6 +12,7 @@ import { IntroMusic } from './events/intro-music';
       useClass: DiscordConfigService,
     }),
     SlashCommandsModule,
+    EventsModule,
   ],
   providers: [IntroMusic],
 })
