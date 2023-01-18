@@ -1,13 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDiscordClient, On } from '@discord-nestjs/core';
-import { Client, embedLength, time, VoiceState } from 'discord.js';
+import {
+  Client,
+  embedLength,
+  Events,
+  InteractionCollector,
+  time,
+  VoiceState,
+} from 'discord.js';
 import { Virgin } from 'src/entities/virgin.entity';
+import { EntityRepository } from '@mikro-orm/core';
+import { VCEvent } from 'src/entities/vc-event.entity';
+import millisecondsToMinutes from 'date-fns/millisecondsToMinutes';
 
 @Injectable()
 export class Track {
-  constructor(@InjectDiscordClient() private readonly client: Client) {}
+  constructor(
+    @InjectDiscordClient() private readonly client: Client,
+    private readonly virginsRepo: EntityRepository<Virgin>,
+    private readonly vcEventsRepo: EntityRepository<VCEvent>,
+  ) {}
 
-  @On('voiceStateUpdate')
+  @On(Events.VoiceStateUpdate)
   async voiceStateUpdate(old_state: VoiceState, new_state: VoiceState) {
     console.log('Someone did a thing in VC. Give em Points');
     console.log(arguments);
@@ -29,45 +43,36 @@ export class Track {
     ) {
       // User Join a voice channel
 
-      try {
-        const virgin = await orm.findOneOrFail(Virgin, {
+      const virgin: Virgin = await this.virginsRepo
+        .findOneOrFail({
           $and: [
             { guild: { $eq: guildId } },
             {
-              discordId: {
+              snowflake: {
                 $eq: new_state.member.id,
               },
             },
           ],
+        })
+        .catch(() => {
+          const newVirgin = this.virginsRepo.create({
+            snowflake: new_state.member.id,
+            username: new_state.member.user.username,
+            discriminator: new_state.member.user.discriminator,
+            guild: guildId,
+          });
+
+          return newVirgin;
         });
-        const newVirgin = new Virgin(
-          new_state.member.id,
-          virgin.virginity,
-          time,
-          guildId,
-          username,
-        );
-        wrap(virgin).assign(newVirgin, { mergeObjects: true });
-        await orm.persistAndFlush(virgin);
-      } catch (e) {
-        //console.error(e); // our custom error
-        const newVirgin = new Virgin(
-          new_state.member.id,
-          virginity,
-          time,
-          guildId,
-          username,
-        );
-        //console.log('Creating');
-        const virgin = orm.create(Virgin, {
-          discordId: newVirgin.discordId,
-          virginity: newVirgin.virginity,
-          blueballs: time,
-          guild: guildId,
-          username,
-        });
-        await orm.persistAndFlush(virgin);
-      }
+      let vcEvent = this.vcEventsRepo.create({
+        guild: new_state.guild,
+        virgin: virgin,
+        connection_start: new Date(),
+        screen: old_state.streaming,
+        camera: old_state.selfVideo,
+      });
+      virgin.vc_events.add(vcEvent);
+      await this.virginsRepo.persistAndFlush(virgin);
     } else if (
       old_state.channelId !== null &&
       new_state.channelId !== null &&
@@ -75,41 +80,102 @@ export class Track {
       eligible == true
     ) {
       // User switches voice channel
-    } else if (eligible == true) {
-      try {
-        const virgin = await orm.findOneOrFail(Virgin, {
+    } else if (
+      old_state.channelId != null &&
+      new_state.channelId == null &&
+      new_state.member.id != bot &&
+      eligible == true
+    ) {
+      const virgin: Virgin = await this.virginsRepo
+        .findOneOrFail({
           $and: [
             { guild: { $eq: guildId } },
             {
-              discordId: {
+              snowflake: {
                 $eq: new_state.member.id,
               },
             },
           ],
+        })
+        .catch(() => {
+          const newVirgin = this.virginsRepo.create({
+            snowflake: new_state.member.id,
+            username: new_state.member.user.username,
+            discriminator: new_state.member.user.discriminator,
+            guild: guildId,
+          });
+
+          return newVirgin;
         });
-        //console.log(`exited`);
-        const newVirgin = new Virgin(
-          new_state.member.id,
-          (+millisecondsToMinutes(time.getTime()) -
-            +millisecondsToMinutes(virgin.blueballs.getTime())) *
-            +streaming +
-            +virgin.virginity,
-          time,
-          guildId,
-          username,
-        );
-        wrap(virgin).assign(newVirgin, { mergeObjects: true });
-        await orm.persistAndFlush(virgin);
-      } catch (e) {
-        //console.error(e); // our custom error
-      }
+      let vcEvent = this.vcEventsRepo.create({
+        guild: new_state.guild,
+        virgin: virgin,
+        connection_end: new Date(),
+        screen: old_state.streaming,
+        camera: old_state.selfVideo,
+      });
+      const date = new Date();
+      const events = await virgin.vc_events.loadItems();
+      let streamingBonus = 1;
+      if (old_state.streaming) streamingBonus = 2;
+      if (old_state.selfVideo) streamingBonus = 3;
+      if (old_state.streaming && old_state.selfVideo) streamingBonus = 5;
+
+      virgin.cached_dur_in_vc =
+        virgin.cached_dur_in_vc +
+        (+millisecondsToMinutes(date.getTime()) -
+          +millisecondsToMinutes(events[0].connection_start.getTime())) *
+          streamingBonus;
+      virgin.vc_events.add(vcEvent);
+      await this.virginsRepo.persistAndFlush(virgin);
+    } else if (
+      old_state.channelId == new_state.channelId &&
+      new_state.member.id != bot &&
+      eligible == true
+    ) {
+      //Someone is entering or exiting streaming states
+      const virgin: Virgin = await this.virginsRepo
+        .findOneOrFail({
+          $and: [
+            { guild: { $eq: guildId } },
+            {
+              snowflake: {
+                $eq: new_state.member.id,
+              },
+            },
+          ],
+        })
+        .catch(() => {
+          const newVirgin = this.virginsRepo.create({
+            snowflake: new_state.member.id,
+            username: new_state.member.user.username,
+            discriminator: new_state.member.user.discriminator,
+            guild: guildId,
+          });
+
+          return newVirgin;
+        });
+      let vcEvent = this.vcEventsRepo.create({
+        guild: new_state.guild,
+        virgin: virgin,
+        connection_start: new Date(),
+        screen: old_state.streaming,
+        camera: old_state.selfVideo,
+      });
+      const date = new Date();
+      const events = await virgin.vc_events.loadItems();
+      let streamingBonus = 1;
+      if (old_state.streaming) streamingBonus = 2;
+      if (old_state.selfVideo) streamingBonus = 3;
+      if (old_state.streaming && old_state.selfVideo) streamingBonus = 5;
+
+      virgin.cached_dur_in_vc =
+        virgin.cached_dur_in_vc +
+        (+millisecondsToMinutes(date.getTime()) -
+          +millisecondsToMinutes(events[0].connection_start.getTime())) *
+          streamingBonus;
+      virgin.vc_events.add(vcEvent);
+      await this.virginsRepo.persistAndFlush(virgin);
     }
   }
-}
-function wrap(virgin: any) {
-  throw new Error('Function not implemented.');
-}
-
-function millisecondsToMinutes(arg0: any) {
-  throw new Error('Function not implemented.');
 }

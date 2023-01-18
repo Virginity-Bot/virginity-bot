@@ -4,6 +4,7 @@ import {
   ManyToOne,
   OneToMany,
   Property,
+  QueryOrder,
   TextType,
 } from '@mikro-orm/core';
 
@@ -29,6 +30,8 @@ export class Virgin extends BaseEntity {
   @Property()
   cached_dur_in_vc: number = 0;
 
-  @OneToMany(() => VCEvent, (e) => e.virgin)
+  @OneToMany(() => VCEvent, (e) => e.virgin, {
+    orderBy: { connection_start: QueryOrder.DESC },
+  })
   vc_events = new Collection<VCEvent>(this);
 }
