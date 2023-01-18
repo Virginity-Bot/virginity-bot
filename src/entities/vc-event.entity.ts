@@ -4,15 +4,15 @@ import { Guild } from './guild.entity';
 import { Virgin } from './virgin.entity';
 import { BaseEntity } from './base.entity';
 
-@Entity()
+@Entity({ tableName: 'vc_event' })
 export class VCEvent extends BaseEntity {
-  @ManyToOne(() => Guild)
+  @ManyToOne()
   guild: Guild;
 
-  @ManyToOne(() => Virgin)
+  @ManyToOne()
   virgin: Virgin;
 
-  @Property()
+  @Property({ defaultRaw: 'NOW()' })
   connection_start: Date;
 
   @Property()

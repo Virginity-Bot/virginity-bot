@@ -5,6 +5,9 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "mikro-orm": {
+    "useTsNode": true
+  },
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -17,16 +20,19 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "db:create": "mikro-orm schema:create -r",
+    "db:drop": "mikro-orm schema:drop -r"
   },
   "dependencies": {
     "@discord-nestjs/core": "^4.3.1",
     "@discordjs/opus": "^0.8.0",
     "@discordjs/voice": "^0.14.0",
     "@iunu-inc/code-style": "^0.0.12",
-    "@mikro-orm/core": "^5.6.6",
+    "@mikro-orm/core": "5.6.7",
     "@mikro-orm/nestjs": "^5.1.6",
-    "@mikro-orm/postgresql": "^5.6.6",
+    "@mikro-orm/postgresql": "5.6.7",
+    "@mikro-orm/reflection": "5.6.7",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.0.0",
@@ -40,6 +46,7 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "@mikro-orm/cli": "5.6.7",
     "@nestjs/cli": "^9.0.0",
     "@nestjs/schematics": "^9.0.0",
     "@nestjs/testing": "^9.0.0",
