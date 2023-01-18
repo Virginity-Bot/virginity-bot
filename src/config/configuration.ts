@@ -16,7 +16,7 @@ export default {
 
   // TODO: WTF is this?
   bot: process.env.BOT,
-  token: process.env.TOKEN,
+  discord_token: process.env.DISCORD_TOKEN,
   // TODO: WTF is this?
   guild_id: process.env.GUILD_ID,
   // TODO: WTF is this?

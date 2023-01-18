@@ -13,7 +13,7 @@ import config from '../config/configuration';
 export class DiscordConfigService implements DiscordOptionsFactory {
   createDiscordOptions(): DiscordModuleOption {
     return {
-      token: config.token,
+      token: config.discord_token,
       discordClientOptions: {
         intents: [
           GatewayIntentBits.Guilds,
