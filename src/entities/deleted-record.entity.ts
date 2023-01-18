@@ -1,4 +1,10 @@
-import { Entity, PrimaryKey, Property, UuidType } from '@mikro-orm/core';
+import {
+  Entity,
+  PrimaryKey,
+  Property,
+  TextType,
+  UuidType,
+} from '@mikro-orm/core';
 import { v4 } from 'uuid';
 
 @Entity()
@@ -12,7 +18,7 @@ export class DeletedRecord {
   @Property({ defaultRaw: 'NOW()', onUpdate: () => new Date() })
   updatedAt: Date = new Date();
 
-  @Property({ type: 'text' })
+  @Property({ type: TextType })
   table_name: string;
 
   @Property({ type: UuidType })
