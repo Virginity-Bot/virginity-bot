@@ -2,7 +2,7 @@ import { PrimaryKey, Property, UuidType } from '@mikro-orm/core';
 import { v4 } from 'uuid';
 
 export abstract class BaseEntity {
-  @PrimaryKey({ type: UuidType })
+  @PrimaryKey({ type: UuidType, defaultRaw: 'uuid_generate_v4()' })
   id: string = v4();
 
   @Property({ defaultRaw: 'NOW()' })
