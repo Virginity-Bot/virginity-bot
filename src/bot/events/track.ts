@@ -8,10 +8,16 @@ import {
   time,
   VoiceState,
 } from 'discord.js';
-import millisecondsToMinutes from 'date-fns/millisecondsToMinutes';
 import { MikroORM, NotFoundError, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
+import {
+  sub,
+  millisecondsToMinutes,
+  differenceInMinutes,
+  differenceInSeconds,
+} from 'date-fns';
+
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
 import configuration from 'src/config/configuration';
