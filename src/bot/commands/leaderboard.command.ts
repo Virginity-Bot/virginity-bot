@@ -64,12 +64,10 @@ export class LeaderboardCommand implements DiscordCommand {
         url: 'https://github.com/EdgarSaldivar/VirginityBot',
       });
 
-    const guildSnowflake = interaction.guildId;
-
-    await this.recalculateScores();
+    await this.recalculateScores(interaction.guildId);
 
     const top_virgins = await this.virginsRepo.find(
-      { guild: guildSnowflake },
+      { guild: interaction.guildId },
       { orderBy: [{ cached_dur_in_vc: -1 }], limit: 10 },
     );
     if (top_virgins.length === 0) {
@@ -105,28 +103,30 @@ export class LeaderboardCommand implements DiscordCommand {
     return `**${pos}.** ${virgin.username} – \`${virgin.cached_dur_in_vc}\``;
   }
 
-  async recalculateScores() {
+  async recalculateScores(guild_id: string) {
     const timestamp = new Date();
-    const users_in_vc = await this.discord_helper.getUsersInVC();
+    const users_in_vc = await this.discord_helper.getUsersInVC(guild_id);
 
     // close all in-progress events
-    await Promise.all(
+    const events = await Promise.all(
       users_in_vc.map(async (user) => {
         const old_event = await this.database.closeEvent(
           user.guild,
           user,
           timestamp,
         );
-        this.vc_events.create({
-          ...old_event,
-          connection_start: timestamp,
-          connection_end: null,
-        });
+        if (old_event != null) {
+          return this.vc_events.create({
+            ...old_event,
+            id: null,
+            virgin: [old_event.virgin.id, old_event.virgin.guild.id],
+            connection_start: timestamp,
+            connection_end: null,
+          });
+        }
       }),
     );
 
-    // TODO(0): actually calculate the scores
-
-    this.vc_events.flush();
+    await this.vc_events.persistAndFlush(events);
   }
 }
