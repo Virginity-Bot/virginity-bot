@@ -14,6 +14,7 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
 import { VirginEntity } from 'src/entities/virgin.entity';
+import { GuildEntity } from 'src/entities/guild.entity';
 
 @Injectable()
 export class IntroMusic {
@@ -23,46 +24,62 @@ export class IntroMusic {
     private readonly orm: MikroORM,
     @InjectRepository(VirginEntity)
     private readonly virgins: EntityRepository<VirginEntity>,
+    @InjectRepository(GuildEntity)
+    private readonly guilds: EntityRepository<GuildEntity>,
     @InjectDiscordClient()
     private readonly client: Client,
   ) {}
 
   @On('voiceStateUpdate')
   @UseRequestContext()
-  voiceStateUpdate(old_state: VoiceState, new_state: VoiceState) {
+  async voiceStateUpdate(old_state: VoiceState, new_state: VoiceState) {
     this.logger.log(`Playing intro music maybe?`);
 
     if (
       new_state.channelId != null &&
       new_state.channelId != old_state.channelId
     ) {
-      this.playIntroMusic(new_state.guild, new_state.channelId);
+      const guild_ent = await this.guilds.findOneOrFail(new_state.guild.id);
+      if (
+        // TODO: does this actually check if the user has the role?
+        new_state.member.roles.resolveId(guild_ent.biggest_virgin_role_id) !=
+        null
+      ) {
+        await this.playIntroMusic(new_state.guild, new_state.channelId);
+      }
     }
   }
 
-  playIntroMusic(guild: Guild, channel_id: string) {
-    const connection = joinVoiceChannel({
-      channelId: channel_id,
-      guildId: guild.id,
-      adapterCreator: guild.voiceAdapterCreator as DiscordGatewayAdapterCreator,
-    });
-    const player = createAudioPlayer({
-      behaviors: {
-        noSubscriber: NoSubscriberBehavior.Pause,
-      },
-    });
+  playIntroMusic(guild: Guild, channel_id: string): Promise<void> {
+    return new Promise<void>((res, rej) => {
+      const connection = joinVoiceChannel({
+        channelId: channel_id,
+        guildId: guild.id,
+        adapterCreator:
+          guild.voiceAdapterCreator as DiscordGatewayAdapterCreator,
+      });
+      const player = createAudioPlayer({
+        behaviors: {
+          noSubscriber: NoSubscriberBehavior.Pause,
+        },
+      });
 
-    const resource = createAudioResource('assets/assets_entrance_theme.opus', {
-      metadata: { title: 'The Biggest Virgin!' },
-      inlineVolume: true,
-    });
-    resource.volume.setVolume(0.3);
+      const resource = createAudioResource(
+        'assets/assets_entrance_theme.opus',
+        {
+          metadata: { title: 'The Biggest Virgin!' },
+          inlineVolume: true,
+        },
+      );
+      resource.volume.setVolume(0.3);
 
-    connection.subscribe(player);
-    player.play(resource);
-    player.on(AudioPlayerStatus.Idle, () => {
-      player.stop();
-      connection.destroy();
+      connection.subscribe(player);
+      player.play(resource);
+      player.on(AudioPlayerStatus.Idle, () => {
+        player.stop();
+        connection.destroy();
+        res();
+      });
     });
   }
 }
