@@ -120,21 +120,14 @@ export class Track {
       });
       const event = events[0];
 
+
       event.connection_end = timestamp;
 
-      let score_multiplier = 1;
-      if (event.screen)
-        score_multiplier *= configuration.score.multiplier.screen;
-      if (event.camera)
-        score_multiplier *= configuration.score.multiplier.camera;
-
-      const score =
-        Math.abs(
-          differenceInMinutes(event.connection_end, event.connection_start),
-        ) * score_multiplier;
+      const score = this.calculateScoreForEvent(event);
       this.logger.log(
         `Giving ${virgin.username}#${virgin.discriminator} of ${new_state.guild.name} ${score} points`,
       );
+
       virgin.cached_dur_in_vc += score;
 
       await this.virginsRepo.persistAndFlush(virgin);
@@ -249,5 +242,17 @@ export class Track {
     );
 
     this.virginsRepo.flush();
+  }
+
+  calculateScoreForEvent(event: VCEventEntity): number {
+    let score_multiplier = 1;
+    if (event.screen) score_multiplier *= configuration.score.multiplier.screen;
+    if (event.camera) score_multiplier *= configuration.score.multiplier.camera;
+
+    return (
+      Math.abs(
+        differenceInMinutes(event.connection_end, event.connection_start),
+      ) * score_multiplier
+    );
   }
 }
