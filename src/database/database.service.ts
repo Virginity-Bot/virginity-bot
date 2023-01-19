@@ -95,13 +95,52 @@ export class DatabaseService {
     event.connection_end = timestamp;
 
     // TODO(1): this should probably just recalculate their whole score
-    const score = this.calculateScoreForEvent(event);
+    const additional_score = this.calculateScoreForEvent(event);
     this.logger.log(
-      `Giving ${virgin.username}#${virgin.discriminator} of ${guild.name} ${score} points`,
+      `Giving ${virgin.username}#${virgin.discriminator} of ${guild.name} ${additional_score} points`,
     );
 
-    virgin.cached_dur_in_vc += score;
+    virgin.cached_dur_in_vc += additional_score;
+
+    const total_score = await this.calculateScore(virgin.id, guild.id);
+
+    if (virgin.cached_dur_in_vc != total_score) {
+      this.logger.warn([
+        `Score mismatch! User ${virgin.username}#${virgin.discriminator} of "${guild.name}"'s score did not match our expected value from calculations!`,
+        `Expected: ${virgin.cached_dur_in_vc}`,
+        `Actual: ${total_score}`,
+      ]);
+    }
+
+    // virgin.cached_dur_in_vc = total_score;
 
     return event;
+  }
+
+  async calculateScore(virgin_id: string, guild_id: string): Promise<number> {
+    // TODO(2): is there a better place to get a query builder from?
+    const qb = this.vcEventsRepo.createQueryBuilder();
+
+    const res = await qb
+      .getKnex()
+      .select([
+        'virgin_snowflake',
+        'guild_snowflake',
+        qb.raw(
+          `SUM (FLOOR(EXTRACT(EPOCH FROM connection_end - connection_start) / 60))`,
+        ),
+      ])
+      .from('vc_event')
+      .where((b) =>
+        b
+          .where({
+            virgin_snowflake: virgin_id,
+            guild_snowflake: guild_id,
+          })
+          .whereNotNull('connection_end'),
+      )
+      .groupBy(['virgin_snowflake', 'guild_snowflake']);
+
+    return res[0]?.sum;
   }
 }
