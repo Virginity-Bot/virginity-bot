@@ -31,4 +31,10 @@ export default {
       camera: parseFloat(process.env.SCORE_MULTIPLIER_CAMERA ?? '1.5'),
     },
   },
+
+  role: {
+    name: process.env.ROLE_NAME ?? 'Chonkiest Virgin the World Has Ever Seen',
+    color: process.env.ROLE_COLOR ?? '#DA8C80',
+    emoji: process.env.ROLE_EMOJI ?? undefined,
+  },
 };
