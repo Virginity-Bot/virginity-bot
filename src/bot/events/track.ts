@@ -33,6 +33,7 @@ export class Track {
   async voiceStateUpdate(old_state: VoiceState, new_state: VoiceState) {
     console.log('Someone did a thing in VC. Give em Points');
     console.log(arguments);
+    const timestamp = new Date();
     let streaming = 1;
     let eligible = false;
     let guildId = new_state.guild.id;
@@ -81,6 +82,7 @@ export class Track {
     ) {
       // User switches voice channel
     } else if (
+      // User disconnects
       old_state.channelId != null &&
       new_state.channelId == null &&
       new_state.member.id != configuration.bot &&
@@ -100,26 +102,31 @@ export class Track {
 
           return newVirgin;
         });
-      let vcEvent = this.vcEventsRepo.create({
-        guild: new_state.guild,
-        virgin: virgin,
-        connection_end: new Date(),
-        screen: old_state.streaming,
-        camera: old_state.selfVideo,
-      });
-      const date = new Date();
-      const events = await virgin.vc_events.loadItems();
-      let streamingBonus = 1;
-      if (old_state.streaming) streamingBonus = 2;
-      if (old_state.selfVideo) streamingBonus = 3;
-      if (old_state.streaming && old_state.selfVideo) streamingBonus = 5;
 
-      virgin.cached_dur_in_vc =
-        virgin.cached_dur_in_vc +
-        (+millisecondsToMinutes(date.getTime()) -
-          +millisecondsToMinutes(events[0].connection_start.getTime())) *
-          streamingBonus;
-      virgin.vc_events.add(vcEvent);
+      // TODO: limit this to one result?
+      const events = await virgin.vc_events.loadItems({
+        where: { connection_end: null },
+        orderBy: [{ connection_start: -1 }],
+      });
+      const event = events[0];
+
+      event.connection_end = timestamp;
+
+      let score_multiplier = 1;
+      if (event.screen)
+        score_multiplier *= configuration.score.multiplier.screen;
+      if (event.camera)
+        score_multiplier *= configuration.score.multiplier.camera;
+
+      const score =
+        Math.abs(
+          differenceInMinutes(event.connection_end, event.connection_start),
+        ) * score_multiplier;
+      this.logger.log(
+        `Giving ${virgin.username}#${virgin.discriminator} of ${new_state.guild.name} ${score} points`,
+      );
+      virgin.cached_dur_in_vc += score;
+
       await this.virginsRepo.persistAndFlush(virgin);
     } else if (
       old_state.channelId == new_state.channelId &&
