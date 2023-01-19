@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDiscordClient, On } from '@discord-nestjs/core';
-import { Client, Events } from 'discord.js';
+import { Client, Events, Guild } from 'discord.js';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { MikroORM, NotFoundError, UseRequestContext } from '@mikro-orm/core';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
-import { Guild } from 'src/entities/guild.entity';
+import { GuildEntity } from 'src/entities/guild.entity';
 
 @Injectable()
 export class CreateWitnessedGuilds {
   constructor(
     private readonly orm: MikroORM,
-    @InjectRepository(Guild)
-    private readonly guildRepo: EntityRepository<Guild>,
+    @InjectRepository(GuildEntity)
+    private readonly guildRepo: EntityRepository<GuildEntity>,
     @InjectDiscordClient()
     private readonly client: Client,
   ) {}
@@ -24,7 +24,7 @@ export class CreateWitnessedGuilds {
     // TODO(4): paginate this
     for (const [_, guild] of await client.guilds.fetch()) {
       this.guildRepo.upsert({
-        snowflake: guild.id,
+        id: guild.id,
         name: guild.name,
         updatedAt: new Date(),
       });
@@ -37,7 +37,7 @@ export class CreateWitnessedGuilds {
   @UseRequestContext()
   async guildJoined(guild: Guild): Promise<void> {
     this.guildRepo.create({
-      snowflake: guild.id,
+      id: guild.id,
       name: guild.name,
     });
 
@@ -48,7 +48,7 @@ export class CreateWitnessedGuilds {
   @UseRequestContext()
   async guildUpdated(old_guild: Guild, new_guild: Guild): Promise<void> {
     this.guildRepo.upsert({
-      snowflake: old_guild.id,
+      id: old_guild.id,
       name: new_guild.name,
       updatedAt: new Date(),
     });

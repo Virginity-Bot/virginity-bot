@@ -12,7 +12,7 @@ import {
 } from 'discord.js';
 import { Injectable } from '@nestjs/common';
 import { EntityRepository } from '@mikro-orm/postgresql';
-import { Virgin } from 'src/entities/virgin.entity';
+import { VirginEntity } from 'src/entities/virgin.entity';
 
 @Command({
   name: 'score',
@@ -20,7 +20,7 @@ import { Virgin } from 'src/entities/virgin.entity';
 })
 @Injectable()
 export class ScoreCommand implements DiscordCommand {
-  constructor(private readonly virginsRepo: EntityRepository<Virgin>) {}
+  constructor(private readonly virginsRepo: EntityRepository<VirginEntity>) {}
   async handler(
     interaction: ChatInputCommandInteraction<CacheType>,
     ctx: CommandExecutionContext<
@@ -28,7 +28,7 @@ export class ScoreCommand implements DiscordCommand {
     >,
   ): Promise<MessagePayload> {
     const userScore = this.virginsRepo.findOneOrFail({
-      snowflake: { $eq: interaction.member.user.id },
+      id: interaction.member.user.id,
     });
     return new MessagePayload(interaction.channel, {
       content: `You Score is: ${userScore}!`,

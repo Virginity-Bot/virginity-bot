@@ -16,7 +16,7 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { UseRequestContext, MikroORM } from '@mikro-orm/core';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
-import { Virgin } from 'src/entities/virgin.entity';
+import { VirginEntity } from 'src/entities/virgin.entity';
 
 @Command({
   name: 'leaderboard',
@@ -26,8 +26,8 @@ import { Virgin } from 'src/entities/virgin.entity';
 export class LeaderboardCommand implements DiscordCommand {
   constructor(
     private readonly orm: MikroORM,
-    @InjectRepository(Virgin)
-    private readonly virginsRepo: EntityRepository<Virgin>,
+    @InjectRepository(VirginEntity)
+    private readonly virginsRepo: EntityRepository<VirginEntity>,
   ) {}
 
   @UseRequestContext()
@@ -48,11 +48,13 @@ export class LeaderboardCommand implements DiscordCommand {
       .setThumbnail('https://i.imgur.com/X9AWcYV.jpg')
       .setTimestamp();
 
-    const guildId = interaction.guildId;
+    const guildSnowflake = interaction.guildId;
+
     try {
       const virgins = await this.virginsRepo.find({
-        guild: { snowflake: { $eq: guildSnowflake } },
+        guild: { id: guildSnowflake },
       });
+
       virgins.sort((a, b) => b.cached_dur_in_vc - a.cached_dur_in_vc);
       for (let i = 0; i < virgins.length; i++) {
         boardEmbed.addFields({
@@ -75,9 +77,7 @@ export class LeaderboardCommand implements DiscordCommand {
         );
         mem?.roles.remove('Chonkiest Virgin the World Has Ever Seen');
         let members = await interaction.guild.members.cache;
-        mem = await members?.find(
-          (element) => element.id == virgins[0].snowflake,
-        );
+        mem = await members?.find((element) => element.id == virgins[0].id);
         let role = roles?.find(
           (element) =>
             element.name == 'Chonkiest Virgin the World Has Ever Seen',
@@ -91,9 +91,7 @@ export class LeaderboardCommand implements DiscordCommand {
         });
         //await interaction.guild?.roles.resolveId
         let members = await interaction.guild?.members.cache;
-        let mem = members?.find(
-          (element) => element.id == virgins[0].snowflake,
-        );
+        let mem = members?.find((element) => element.id == virgins[0].id);
         await mem?.roles.add(role!);
       }
       await interaction.reply({ embeds: [boardEmbed] });

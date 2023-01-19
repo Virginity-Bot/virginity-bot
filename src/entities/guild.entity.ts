@@ -2,17 +2,20 @@ import {
   Collection,
   Entity,
   OneToMany,
+  PrimaryKey,
   Property,
   TextType,
 } from '@mikro-orm/core';
 
 import { BaseEntity } from './base.entity';
-import { Virgin } from './virgin.entity';
+import { VCEventEntity } from './vc-event.entity';
+import { VirginEntity } from './virgin.entity';
 
-@Entity()
-export class Guild extends BaseEntity {
-  @Property({ type: TextType, unique: true })
-  snowflake: string;
+@Entity({ tableName: 'guild' })
+export class GuildEntity extends BaseEntity {
+  /** Discord's snowflake identifier */
+  @PrimaryKey({ type: TextType, unique: true, index: true })
+  id: string;
 
   @Property({ type: TextType })
   name: string;
@@ -20,6 +23,9 @@ export class Guild extends BaseEntity {
   @Property({ type: TextType })
   biggest_virgin_role_id?: string;
 
-  @OneToMany(() => Virgin, (g) => g.guild)
-  virgins = new Collection<Virgin>(this);
+  @OneToMany(() => VirginEntity, (v) => v.guild)
+  virgins = new Collection<VirginEntity>(this);
+
+  @OneToMany(() => VCEventEntity, (e) => e.guild)
+  vc_events = new Collection<VCEventEntity>(this);
 }

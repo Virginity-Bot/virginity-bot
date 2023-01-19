@@ -8,20 +8,20 @@ import {
   time,
   VoiceState,
 } from 'discord.js';
-import { Virgin } from 'src/entities/virgin.entity';
 import { EntityRepository, MikroORM } from '@mikro-orm/core';
-import { VCEvent } from 'src/entities/vc-event.entity';
 import millisecondsToMinutes from 'date-fns/millisecondsToMinutes';
+import { VirginEntity } from 'src/entities/virgin.entity';
+import { VCEventEntity } from 'src/entities/vc-event.entity';
 import { InjectRepository } from '@mikro-orm/nestjs';
 
 @Injectable()
 export class Track {
   constructor(
     private readonly orm: MikroORM,
-    @InjectRepository(Virgin)
-    private readonly virginsRepo: EntityRepository<Virgin>,
-    @InjectRepository(VCEvent)
-    private readonly vcEventsRepo: EntityRepository<VCEvent>,
+    @InjectRepository(VirginEntity)
+    private readonly virginsRepo: EntityRepository<VirginEntity>,
+    @InjectRepository(VCEventEntity)
+    private readonly vcEventsRepo: EntityRepository<VCEventEntity>,
     @InjectDiscordClient()
     private readonly client: Client,
   ) {}
@@ -48,20 +48,13 @@ export class Track {
     ) {
       // User Join a voice channel
 
-      const virgin: Virgin = await this.virginsRepo
+      const virgin: VirginEntity = await this.virginsRepo
         .findOneOrFail({
-          $and: [
-            { guild: { $eq: guildId } },
-            {
-              snowflake: {
-                $eq: new_state.member.id,
-              },
-            },
-          ],
+          $and: [{ guild: { $eq: guildId } }, { id: new_state.member.id }],
         })
         .catch(() => {
           const newVirgin = this.virginsRepo.create({
-            snowflake: new_state.member.id,
+            id: new_state.member.id,
             username: new_state.member.user.username,
             discriminator: new_state.member.user.discriminator,
             guild: guildId,
@@ -91,20 +84,13 @@ export class Track {
       new_state.member.id != bot &&
       eligible == true
     ) {
-      const virgin: Virgin = await this.virginsRepo
+      const virgin: VirginEntity = await this.virginsRepo
         .findOneOrFail({
-          $and: [
-            { guild: { $eq: guildId } },
-            {
-              snowflake: {
-                $eq: new_state.member.id,
-              },
-            },
-          ],
+          $and: [{ guild: { $eq: guildId } }, { id: new_state.member.id }],
         })
         .catch(() => {
           const newVirgin = this.virginsRepo.create({
-            snowflake: new_state.member.id,
+            id: new_state.member.id,
             username: new_state.member.user.username,
             discriminator: new_state.member.user.discriminator,
             guild: guildId,
@@ -139,20 +125,13 @@ export class Track {
       eligible == true
     ) {
       //Someone is entering or exiting streaming states
-      const virgin: Virgin = await this.virginsRepo
+      const virgin: VirginEntity = await this.virginsRepo
         .findOneOrFail({
-          $and: [
-            { guild: { $eq: guildId } },
-            {
-              snowflake: {
-                $eq: new_state.member.id,
-              },
-            },
-          ],
+          $and: [{ guild: { $eq: guildId } }, { id: new_state.member.id }],
         })
         .catch(() => {
           const newVirgin = this.virginsRepo.create({
-            snowflake: new_state.member.id,
+            id: new_state.member.id,
             username: new_state.member.user.username,
             discriminator: new_state.member.user.discriminator,
             guild: guildId,

@@ -86,13 +86,12 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "text",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "default": "uuid_generate_v4()",
-          "mappedType": "uuid"
+          "mappedType": "text"
         },
         "created_at": {
           "name": "created_at",
@@ -115,15 +114,6 @@
           "length": 6,
           "default": "now()",
           "mappedType": "datetime"
-        },
-        "snowflake": {
-          "name": "snowflake",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
         },
         "name": {
           "name": "name",
@@ -149,12 +139,30 @@
       "indexes": [
         {
           "columnNames": [
-            "snowflake"
+            "id"
           ],
           "composite": false,
-          "keyName": "guild_snowflake_unique",
+          "keyName": "guild_id_index",
           "primary": false,
-          "unique": true
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "created_at"
+          ],
+          "composite": false,
+          "keyName": "guild_created_at_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "updated_at"
+          ],
+          "composite": false,
+          "keyName": "guild_updated_at_index",
+          "primary": false,
+          "unique": false
         },
         {
           "keyName": "guild_pkey",
@@ -173,13 +181,12 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "text",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "default": "uuid_generate_v4()",
-          "mappedType": "uuid"
+          "mappedType": "text"
         },
         "created_at": {
           "name": "created_at",
@@ -203,15 +210,6 @@
           "default": "now()",
           "mappedType": "datetime"
         },
-        "snowflake": {
-          "name": "snowflake",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
         "username": {
           "name": "username",
           "type": "text",
@@ -230,14 +228,14 @@
           "nullable": false,
           "mappedType": "text"
         },
-        "guild_id": {
-          "name": "guild_id",
-          "type": "uuid",
+        "guild_snowflake": {
+          "name": "guild_snowflake",
+          "type": "text",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "mappedType": "uuid"
+          "mappedType": "text"
         },
         "cached_dur_in_vc": {
           "name": "cached_dur_in_vc",
@@ -254,6 +252,60 @@
       "schema": "public",
       "indexes": [
         {
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "keyName": "virgin_id_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "created_at"
+          ],
+          "composite": false,
+          "keyName": "virgin_created_at_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "updated_at"
+          ],
+          "composite": false,
+          "keyName": "virgin_updated_at_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "username"
+          ],
+          "composite": false,
+          "keyName": "virgin_username_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "discriminator"
+          ],
+          "composite": false,
+          "keyName": "virgin_discriminator_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "cached_dur_in_vc"
+          ],
+          "composite": false,
+          "keyName": "virgin_cached_dur_in_vc_index",
+          "primary": false,
+          "unique": false
+        },
+        {
           "keyName": "virgin_pkey",
           "columnNames": [
             "id"
@@ -265,10 +317,10 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "virgin_guild_id_foreign": {
-          "constraintName": "virgin_guild_id_foreign",
+        "virgin_guild_snowflake_foreign": {
+          "constraintName": "virgin_guild_snowflake_foreign",
           "columnNames": [
-            "guild_id"
+            "guild_snowflake"
           ],
           "localTableName": "public.virgin",
           "referencedColumnNames": [
@@ -313,23 +365,23 @@
           "default": "now()",
           "mappedType": "datetime"
         },
-        "guild_id": {
-          "name": "guild_id",
-          "type": "uuid",
+        "guild_snowflake": {
+          "name": "guild_snowflake",
+          "type": "text",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "mappedType": "uuid"
+          "mappedType": "text"
         },
-        "virgin_id": {
-          "name": "virgin_id",
-          "type": "uuid",
+        "virgin_snowflake": {
+          "name": "virgin_snowflake",
+          "type": "text",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "mappedType": "uuid"
+          "mappedType": "text"
         },
         "connection_start": {
           "name": "connection_start",
@@ -377,6 +429,42 @@
       "schema": "public",
       "indexes": [
         {
+          "columnNames": [
+            "created_at"
+          ],
+          "composite": false,
+          "keyName": "vc_event_created_at_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "updated_at"
+          ],
+          "composite": false,
+          "keyName": "vc_event_updated_at_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "connection_start"
+          ],
+          "composite": false,
+          "keyName": "vc_event_connection_start_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "connection_end"
+          ],
+          "composite": false,
+          "keyName": "vc_event_connection_end_index",
+          "primary": false,
+          "unique": false
+        },
+        {
           "keyName": "vc_event_pkey",
           "columnNames": [
             "id"
@@ -388,10 +476,10 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "vc_event_guild_id_foreign": {
-          "constraintName": "vc_event_guild_id_foreign",
+        "vc_event_guild_snowflake_foreign": {
+          "constraintName": "vc_event_guild_snowflake_foreign",
           "columnNames": [
-            "guild_id"
+            "guild_snowflake"
           ],
           "localTableName": "public.vc_event",
           "referencedColumnNames": [
@@ -400,10 +488,10 @@
           "referencedTableName": "public.guild",
           "updateRule": "cascade"
         },
-        "vc_event_virgin_id_foreign": {
-          "constraintName": "vc_event_virgin_id_foreign",
+        "vc_event_virgin_snowflake_foreign": {
+          "constraintName": "vc_event_virgin_snowflake_foreign",
           "columnNames": [
-            "virgin_id"
+            "virgin_snowflake"
           ],
           "localTableName": "public.vc_event",
           "referencedColumnNames": [
