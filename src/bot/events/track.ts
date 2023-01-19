@@ -3,23 +3,15 @@ import { InjectDiscordClient, On } from '@discord-nestjs/core';
 import {
   ChannelType,
   Client,
-  embedLength,
   Events,
   Guild,
   GuildMember,
-  InteractionCollector,
-  time,
   VoiceState,
 } from 'discord.js';
 import { MikroORM, NotFoundError, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
-import {
-  sub,
-  millisecondsToMinutes,
-  differenceInMinutes,
-  differenceInSeconds,
-} from 'date-fns';
+import { sub, differenceInMinutes } from 'date-fns';
 
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
