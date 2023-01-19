@@ -100,17 +100,19 @@ export class Track {
     ) {
       const virgin: VirginEntity = await this.virginsRepo
         .findOneOrFail({
-          $and: [{ guild: { $eq: guildId } }, { id: new_state.member.id }],
+          $and: [{ guild: new_state.guild.id }, { id: new_state.member.id }],
         })
-        .catch(() => {
-          const newVirgin = this.virginsRepo.create({
-            id: new_state.member.id,
-            username: new_state.member.user.username,
-            discriminator: new_state.member.user.discriminator,
-            guild: guildId,
-          });
-
-          return newVirgin;
+        .catch((err) => {
+          if (err instanceof NotFoundError) {
+            return this.virginsRepo.create({
+              id: new_state.member.id,
+              username: new_state.member.user.username,
+              discriminator: new_state.member.user.discriminator,
+              guild: { id: new_state.guild.id, name: new_state.guild.name },
+            });
+          } else {
+            throw err;
+          }
         });
 
       // TODO: limit this to one result?
