@@ -1,4 +1,5 @@
 // TODO: switch to using @nestjs/config
+import { ColorResolvable } from 'discord.js';
 import { config } from 'dotenv';
 
 config();
@@ -34,7 +35,7 @@ export default {
 
   role: {
     name: process.env.ROLE_NAME ?? 'Chonkiest Virgin the World Has Ever Seen',
-    color: process.env.ROLE_COLOR ?? '#DA8C80',
+    color: (process.env.ROLE_COLOR ?? '#DA8C80') as ColorResolvable,
     emoji: process.env.ROLE_EMOJI ?? undefined,
   },
 };
