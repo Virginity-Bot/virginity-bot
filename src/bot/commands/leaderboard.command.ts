@@ -88,14 +88,14 @@ export class LeaderboardCommand implements DiscordCommand {
 
       leaderboard.push('...');
       // TODO(2): how do we get the user's leaderboard position?
-      leaderboard.push(this.virginToLeaderboardLine(requester, 0));
+      leaderboard.push(this.virginToLeaderboardLine(requester, '?'));
     }
 
     boardEmbed.setDescription(leaderboard.join('\n'));
     return new MessagePayload(interaction.channel, { embeds: [boardEmbed] });
   }
 
-  virginToLeaderboardLine(virgin: VirginEntity, pos: number): string {
+  virginToLeaderboardLine(virgin: VirginEntity, pos: number | string): string {
     return `**${pos}.** ${virgin.username} – \`${virgin.cached_dur_in_vc}\``;
   }
 
