@@ -4,7 +4,6 @@ import { DiscordConfigService } from 'src/bot/discord-config.service';
 
 import { SlashCommandsModule } from './commands/slash-commands.module';
 import { EventsModule } from './events/events.module';
-import { IntroMusic } from './events/intro-music';
 
 @Module({
   imports: [
@@ -14,6 +13,5 @@ import { IntroMusic } from './events/intro-music';
     SlashCommandsModule,
     EventsModule,
   ],
-  providers: [IntroMusic],
 })
 export class BotModule {}
