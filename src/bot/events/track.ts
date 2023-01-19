@@ -115,12 +115,7 @@ export class Track {
           }
         });
 
-      // TODO: limit this to one result?
-      const events = await virgin.vc_events.loadItems({
-        where: { connection_end: null },
-        orderBy: [{ connection_start: -1 }],
-      });
-      const event = events[0];
+      const event = await this.findEventToClose(virgin);
 
       if (event == null) {
         this.logger.warn(
@@ -250,6 +245,15 @@ export class Track {
     );
 
     this.virginsRepo.flush();
+  }
+
+  async findEventToClose(virgin: VirginEntity): Promise<VCEventEntity> {
+    // TODO: limit this to one result?
+    const events = await virgin.vc_events.loadItems({
+      where: { connection_end: null },
+      orderBy: [{ connection_start: -1 }],
+    });
+    return events[0];
   }
 
   calculateScoreForEvent(event: VCEventEntity): number {
