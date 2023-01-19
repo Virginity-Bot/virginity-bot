@@ -117,9 +117,8 @@ export class Track {
             if (err instanceof NotFoundError) {
               this.vcEventsRepo.create({
                 virgin: [user_ent.id, user.guild.id],
-                // TODO(1): how do we get the user's state?
-                // camera: user,
-                // screen: ,
+                camera: user.voice?.selfVideo,
+                screen: user.voice?.streaming,
               });
             } else {
               throw err;
