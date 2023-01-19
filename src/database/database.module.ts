@@ -5,6 +5,7 @@ import config from 'src/mikro-orm.config';
 import { GuildEntity } from 'src/entities/guild.entity';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
+import { DatabaseService } from './database.service';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { VCEventEntity } from 'src/entities/vc-event.entity';
       entities: [GuildEntity, VirginEntity, VCEventEntity],
     }),
   ],
-  exports: [MikroOrmModule],
+  providers: [DatabaseService],
+  exports: [MikroOrmModule, DatabaseService],
 })
 export class DatabaseModule {}
