@@ -98,20 +98,10 @@ export class Track {
 
     await Promise.all(
       users_in_vc.map(async (user) => {
-        const user_ent = await this.virginsRepo
-          .findOneOrFail({ id: user.id })
-          .catch((err) => {
-            if (err instanceof NotFoundError) {
-              return this.virginsRepo.create({
-                id: user.id,
-                username: user.user.username,
-                discriminator: user.user.discriminator,
-                guild: { id: user.guild.id, name: user.guild.name },
-              });
-            } else {
-              throw err;
-            }
-          });
+        const user_ent = await this.database.findOrCreateVirgin(
+          user.guild,
+          user,
+        );
 
         const res = await this.vcEventsRepo
           .findOneOrFail(
