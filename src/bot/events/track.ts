@@ -52,13 +52,12 @@ export class Track {
       eligible = true;
 
     if (
+      // User Join a voice channel
       old_state.channelId == null &&
       new_state.channelId != null &&
       new_state.member.id != configuration.bot &&
       eligible == true
     ) {
-      // User Join a voice channel
-
       const virgin: VirginEntity = await this.virginsRepo
         .findOneOrFail({
           $and: [{ guild: { $eq: guildId } }, { id: new_state.member.id }],
@@ -83,12 +82,12 @@ export class Track {
       virgin.vc_events.add(vcEvent);
       await this.virginsRepo.persistAndFlush(virgin);
     } else if (
+      // User switches voice channel
       old_state.channelId !== null &&
       new_state.channelId !== null &&
       old_state.channelId != new_state.channelId &&
       eligible == true
     ) {
-      // User switches voice channel
     } else if (
       // User disconnects
       old_state.channelId != null &&
@@ -137,11 +136,11 @@ export class Track {
 
       await this.virginsRepo.persistAndFlush(virgin);
     } else if (
+      //Someone is entering or exiting streaming states
       old_state.channelId == new_state.channelId &&
       new_state.member.id != configuration.bot &&
       eligible == true
     ) {
-      //Someone is entering or exiting streaming states
       const virgin: VirginEntity = await this.virginsRepo
         .findOneOrFail({
           $and: [{ guild: { $eq: guildId } }, { id: new_state.member.id }],
