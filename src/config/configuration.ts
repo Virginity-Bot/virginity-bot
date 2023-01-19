@@ -24,4 +24,11 @@ export default {
   // TODO: WTF is this?
   client_id: process.env.CLIENT_ID,
   // });
+
+  score: {
+    multiplier: {
+      screen: parseFloat(process.env.SCORE_MULTIPLIER_SCREEN ?? '1.5'),
+      camera: parseFloat(process.env.SCORE_MULTIPLIER_CAMERA ?? '1.5'),
+    },
+  },
 };
