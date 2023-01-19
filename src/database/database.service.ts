@@ -54,6 +54,7 @@ export class DatabaseService {
             username: member.user.username,
             discriminator: member.user.discriminator,
             guild: guild.id,
+            nickname: member.nickname,
           });
         } else {
           throw err;

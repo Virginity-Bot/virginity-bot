@@ -31,6 +31,9 @@ export class VirginEntity extends BaseEntity {
   @Property({ type: TextType, index: true })
   discriminator: string;
 
+  @Property({ type: TextType })
+  nickname: string;
+
   @Property({ index: true })
   cached_dur_in_vc: number = 0;
 
