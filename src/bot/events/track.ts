@@ -8,11 +8,12 @@ import {
   time,
   VoiceState,
 } from 'discord.js';
-import { EntityRepository, MikroORM } from '@mikro-orm/core';
 import millisecondsToMinutes from 'date-fns/millisecondsToMinutes';
+import { MikroORM, NotFoundError, UseRequestContext } from '@mikro-orm/core';
+import { InjectRepository } from '@mikro-orm/nestjs';
+import { EntityRepository } from '@mikro-orm/postgresql';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
-import { InjectRepository } from '@mikro-orm/nestjs';
 import configuration from 'src/config/configuration';
 
 @Injectable()
@@ -30,6 +31,7 @@ export class Track {
   ) {}
 
   @On(Events.VoiceStateUpdate)
+  @UseRequestContext()
   async voiceStateUpdate(old_state: VoiceState, new_state: VoiceState) {
     console.log('Someone did a thing in VC. Give em Points');
     console.log(arguments);
