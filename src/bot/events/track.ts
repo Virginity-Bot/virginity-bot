@@ -97,34 +97,36 @@ export class Track {
     const users_in_vc = await this.discord_helper.getUsersInVC();
 
     await Promise.all(
-      users_in_vc.map(async (user) => {
-        const user_ent = await this.database.findOrCreateVirgin(
-          user.guild,
-          user,
-        );
+      users_in_vc
+        .filter((user) => this.isEligable(user.voice))
+        .map(async (user) => {
+          const user_ent = await this.database.findOrCreateVirgin(
+            user.guild,
+            user,
+          );
 
-        const res = await this.vcEventsRepo
-          .findOneOrFail(
-            {
-              virgin: [user_ent.id, user.guild.id],
-              // only find recently unclosed transactions
-              // connection_start: { $gt: now_minus_24_hours },
-              connection_end: null,
-            },
-            { orderBy: [{ connection_start: 1 }] },
-          )
-          .catch((err) => {
-            if (err instanceof NotFoundError) {
-              this.vcEventsRepo.create({
+          const res = await this.vcEventsRepo
+            .findOneOrFail(
+              {
                 virgin: [user_ent.id, user.guild.id],
-                camera: user.voice?.selfVideo,
-                screen: user.voice?.streaming,
-              });
-            } else {
-              throw err;
-            }
-          });
-      }),
+                // only find recently unclosed transactions
+                // connection_start: { $gt: now_minus_24_hours },
+                connection_end: null,
+              },
+              { orderBy: [{ connection_start: 1 }] },
+            )
+            .catch((err) => {
+              if (err instanceof NotFoundError) {
+                this.vcEventsRepo.create({
+                  virgin: [user_ent.id, user.guild.id],
+                  camera: user.voice?.selfVideo,
+                  screen: user.voice?.streaming,
+                });
+              } else {
+                throw err;
+              }
+            });
+        }),
     );
 
     this.virginsRepo.flush();
