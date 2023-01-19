@@ -72,6 +72,11 @@ export class LeaderboardCommand implements DiscordCommand {
       { guild: guildSnowflake },
       { orderBy: [{ cached_dur_in_vc: -1 }], limit: 10 },
     );
+    if (top_virgins.length === 0) {
+      boardEmbed.setDescription('No virgins 😭');
+      return new MessagePayload(interaction.channel, { embeds: [boardEmbed] });
+    }
+
     await this.discord_helper.assignBiggestVirginRole(top_virgins[0]);
     await this.guilds.flush();
 
@@ -103,6 +108,7 @@ export class LeaderboardCommand implements DiscordCommand {
     const timestamp = new Date();
     const users_in_vc = await this.discord_helper.getUsersInVC();
 
+    // close all in-progress events
     await Promise.all(
       users_in_vc.map(async (user) => {
         const old_event = await this.database.closeEvent(

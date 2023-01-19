@@ -133,6 +133,8 @@ export class Track {
                 // camera: user,
                 // screen: ,
               });
+            } else {
+              throw err;
             }
           });
       }),
