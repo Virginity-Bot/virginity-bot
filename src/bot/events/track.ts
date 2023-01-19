@@ -48,7 +48,11 @@ export class Track {
     if (old_state.streaming) streaming = 2;
     if (old_state.selfVideo) streaming = 3;
     if (old_state.streaming && old_state.selfVideo) streaming = 4;
-    if (!new_state.mute && !new_state.deaf && new_state.member.id != bot)
+    if (
+      !new_state.mute &&
+      !new_state.deaf &&
+      new_state.member.id != configuration.bot
+    )
       eligible = true;
 
     if (
