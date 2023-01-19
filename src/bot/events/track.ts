@@ -120,6 +120,12 @@ export class Track {
       });
       const event = events[0];
 
+      if (event == null) {
+        this.logger.warn(
+          `Virgin ${virgin.id} tried to leave VC, but did not have any open vc_events`,
+        );
+        return;
+      }
 
       event.connection_end = timestamp;
 
