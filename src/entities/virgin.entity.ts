@@ -25,17 +25,38 @@ export class VirginEntity extends BaseEntity {
 
   [PrimaryKeyType]?: [string, string];
 
-  @Property({ type: TextType, index: true })
+  /** User's Discord username */
+  @Property({ type: TextType, index: true, comment: `User's Discord username` })
   username: string;
 
-  @Property({ type: TextType, index: true })
+  /** User's Discord discriminator */
+  @Property({
+    type: TextType,
+    index: true,
+    comment: `User's Discord discriminator`,
+  })
   discriminator: string;
 
   // TODO(4): MikroORM's internal type checker thinks this is non-nullable if we don't specify `nullable`
-  @Property({ type: TextType, nullable: true })
+  /** User's Discord guild-specific nickname */
+  @Property({
+    type: TextType,
+    nullable: true,
+    comment: `User's Discord guild-specific nickname`,
+  })
   nickname?: string;
 
-  @Property({ index: true })
+  /**
+   * The cached total duration the user has spent in VC.
+   * Keep in mind this can be out of date!
+   */
+  @Property({
+    index: true,
+    comment: [
+      'The cached total duration the user has spent in VC.',
+      'Keep in mind this can be out of date!',
+    ].join(' '),
+  })
   cached_dur_in_vc: number = 0;
 
   @OneToMany(() => VCEventEntity, (e) => e.virgin, {

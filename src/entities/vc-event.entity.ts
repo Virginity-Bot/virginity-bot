@@ -20,15 +20,23 @@ export class VCEventEntity extends BaseEntity {
   @ManyToOne({ fieldNames: ['virgin_snowflake', 'guild_snowflake'] })
   virgin: VirginEntity;
 
-  @Property({ defaultRaw: 'NOW()', index: true })
+  /** The time the user entered VC */
+  @Property({
+    defaultRaw: 'NOW()',
+    index: true,
+    comment: 'The time the user entered VC',
+  })
   connection_start: Date;
 
-  @Property({ index: true })
+  /** The time the user left VC */
+  @Property({ index: true, comment: 'The time the user left VC' })
   connection_end?: Date;
 
-  @Property()
+  /** Wether or not the user is sharing their screen */
+  @Property({ comment: 'Wether or not the user is sharing their screen' })
   screen: boolean = false;
 
-  @Property()
+  /** Wether or not the user is sharing their camera */
+  @Property({ comment: 'Wether or not the user is sharing their camera' })
   camera: boolean = false;
 }

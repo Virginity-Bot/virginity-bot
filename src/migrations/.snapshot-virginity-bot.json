@@ -91,6 +91,7 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "comment": "Discord guild's snowflake identifier",
           "mappedType": "text"
         },
         "created_at": {
@@ -122,6 +123,7 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "comment": "Name of the Discord guild",
           "mappedType": "text"
         },
         "biggest_virgin_role_id": {
@@ -131,6 +133,7 @@
           "autoincrement": false,
           "primary": false,
           "nullable": true,
+          "comment": "ID of the biggest virgin role",
           "mappedType": "text"
         }
       },
@@ -226,6 +229,7 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "comment": "User's Discord username",
           "mappedType": "text"
         },
         "discriminator": {
@@ -235,6 +239,7 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "comment": "User's Discord discriminator",
           "mappedType": "text"
         },
         "nickname": {
@@ -244,6 +249,7 @@
           "autoincrement": false,
           "primary": false,
           "nullable": true,
+          "comment": "User's Discord guild-specific nickname",
           "mappedType": "text"
         },
         "cached_dur_in_vc": {
@@ -254,6 +260,7 @@
           "primary": false,
           "nullable": false,
           "default": "0",
+          "comment": "The cached total duration the user has spent in VC. Keep in mind this can be out of date!",
           "mappedType": "integer"
         }
       },
@@ -402,6 +409,7 @@
           "nullable": false,
           "length": 6,
           "default": "now()",
+          "comment": "The time the user entered VC",
           "mappedType": "datetime"
         },
         "connection_end": {
@@ -412,6 +420,7 @@
           "primary": false,
           "nullable": true,
           "length": 6,
+          "comment": "The time the user left VC",
           "mappedType": "datetime"
         },
         "screen": {
@@ -422,6 +431,7 @@
           "primary": false,
           "nullable": false,
           "default": "false",
+          "comment": "Wether or not the user is sharing their screen",
           "mappedType": "boolean"
         },
         "camera": {
@@ -432,6 +442,7 @@
           "primary": false,
           "nullable": false,
           "default": "false",
+          "comment": "Wether or not the user is sharing their camera",
           "mappedType": "boolean"
         }
       },
