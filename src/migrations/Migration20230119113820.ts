@@ -1,6 +1,6 @@
 import { Migration } from '@mikro-orm/migrations';
 
-export class Migration20230119082805 extends Migration {
+export class Migration20230119113820 extends Migration {
 
   async up(): Promise<void> {
     this.addSql('create table "deleted_record" ("id" uuid not null default uuid_generate_v4(), "deleted_at" timestamptz(0) not null default now(), "updated_at" timestamptz(0) not null default now(), "table_name" text not null, "object_id" uuid not null, "data" jsonb not null, constraint "deleted_record_pkey" primary key ("id"));');
@@ -10,7 +10,7 @@ export class Migration20230119082805 extends Migration {
     this.addSql('create index "guild_created_at_index" on "guild" ("created_at");');
     this.addSql('create index "guild_updated_at_index" on "guild" ("updated_at");');
 
-    this.addSql('create table "virgin" ("id" text not null, "guild_snowflake" text not null, "created_at" timestamptz(0) not null default now(), "updated_at" timestamptz(0) not null default now(), "username" text not null, "discriminator" text not null, "nickname" text not null, "cached_dur_in_vc" int not null default 0, constraint "virgin_pkey" primary key ("id", "guild_snowflake"));');
+    this.addSql('create table "virgin" ("id" text not null, "guild_snowflake" text not null, "created_at" timestamptz(0) not null default now(), "updated_at" timestamptz(0) not null default now(), "username" text not null, "discriminator" text not null, "nickname" text null, "cached_dur_in_vc" int not null default 0, constraint "virgin_pkey" primary key ("id", "guild_snowflake"));');
     this.addSql('create index "virgin_id_index" on "virgin" ("id");');
     this.addSql('create index "virgin_created_at_index" on "virgin" ("created_at");');
     this.addSql('create index "virgin_updated_at_index" on "virgin" ("updated_at");');

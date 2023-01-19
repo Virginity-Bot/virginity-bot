@@ -31,8 +31,9 @@ export class VirginEntity extends BaseEntity {
   @Property({ type: TextType, index: true })
   discriminator: string;
 
-  @Property({ type: TextType })
-  nickname: string;
+  // TODO(4): MikroORM's internal type checker thinks this is non-nullable if we don't specify `nullable`
+  @Property({ type: TextType, nullable: true })
+  nickname?: string;
 
   @Property({ index: true })
   cached_dur_in_vc: number = 0;

@@ -237,6 +237,15 @@
           "nullable": false,
           "mappedType": "text"
         },
+        "nickname": {
+          "name": "nickname",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
         "cached_dur_in_vc": {
           "name": "cached_dur_in_vc",
           "type": "int",

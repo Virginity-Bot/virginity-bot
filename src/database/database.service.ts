@@ -53,8 +53,8 @@ export class DatabaseService {
             id: member.id,
             username: member.user.username,
             discriminator: member.user.discriminator,
-            guild: guild.id,
             nickname: member.nickname,
+            guild: guild.id,
           });
         } else {
           throw err;
