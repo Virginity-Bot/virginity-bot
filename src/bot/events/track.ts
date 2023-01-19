@@ -41,11 +41,11 @@ export class Track {
       // Entering VC
       (old_state.channelId == null &&
         new_state.channelId != null &&
-        this.isEligable(new_state)) ||
+        this.isEligible(new_state)) ||
       // or unmuting / undeafening
       (old_state.channelId != null &&
-        !this.isEligable(old_state) &&
-        this.isEligable(new_state))
+        !this.isEligible(old_state) &&
+        this.isEligible(new_state))
     ) {
       // create new event
       const event = await this.database.openEvent(new_state, timestamp);
@@ -55,8 +55,8 @@ export class Track {
       (old_state.channelId != null && new_state.channelId == null) ||
       // or muting / deafening
       (old_state.channelId != null &&
-        this.isEligable(old_state) &&
-        !this.isEligable(new_state))
+        this.isEligible(old_state) &&
+        !this.isEligible(new_state))
     ) {
       // close old event
       const event = await this.database.closeEvent(
@@ -98,7 +98,7 @@ export class Track {
 
     await Promise.all(
       users_in_vc
-        .filter((user) => this.isEligable(user.voice))
+        .filter((user) => this.isEligible(user.voice))
         .map(async (user) => {
           const user_ent = await this.database.findOrCreateVirgin(
             user.guild,
@@ -132,7 +132,7 @@ export class Track {
     this.virginsRepo.flush();
   }
 
-  isEligable(state: VoiceState): boolean {
+  isEligible(state: VoiceState): boolean {
     return !state.deaf && !state.mute;
   }
 }
