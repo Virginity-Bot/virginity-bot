@@ -1,5 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ChannelType, Client, GuildMember, Role } from 'discord.js';
+import {
+  ChannelType,
+  Client,
+  Collection,
+  Guild,
+  GuildMember,
+  OAuth2Guild,
+  Role,
+} from 'discord.js';
 import { InjectDiscordClient } from '@discord-nestjs/core';
 import configuration from 'src/config/configuration';
 import { GuildEntity } from 'src/entities/guild.entity';
@@ -14,10 +22,13 @@ export class DiscordHelperService {
     private readonly client: Client,
   ) {}
 
-  async getUsersInVC(): Promise<GuildMember[]> {
-    const voice_channels = await this.client.guilds
-      .fetch()
-      .then((guilds) => Promise.all(guilds.map((guild) => guild.fetch())))
+  async getUsersInVC(guild_id?: string): Promise<GuildMember[]> {
+    const voice_channels = await (guild_id != null
+      ? this.client.guilds.fetch(guild_id).then((guild) => [guild])
+      : this.client.guilds
+          .fetch()
+          .then((guilds) => Promise.all(guilds.map((guild) => guild.fetch())))
+    )
       .then((guilds) =>
         Promise.all(
           guilds.map((guild) =>
