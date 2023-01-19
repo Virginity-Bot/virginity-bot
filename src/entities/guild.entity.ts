@@ -25,7 +25,4 @@ export class GuildEntity extends BaseEntity {
 
   @OneToMany(() => VirginEntity, (v) => v.guild)
   virgins = new Collection<VirginEntity>(this);
-
-  @OneToMany(() => VCEventEntity, (e) => e.guild)
-  vc_events = new Collection<VCEventEntity>(this);
 }

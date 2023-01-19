@@ -53,7 +53,7 @@ export class DatabaseService {
             id: member.id,
             username: member.user.username,
             discriminator: member.user.discriminator,
-            guild: { id: guild.id, name: guild.name },
+            guild: guild.id,
           });
         } else {
           throw err;
@@ -66,8 +66,7 @@ export class DatabaseService {
     const virgin = await this.findOrCreateVirgin(state.guild, state.member);
 
     const event = this.vcEventsRepo.create({
-      virgin: virgin.id,
-      guild: state.guild.id,
+      virgin: [virgin.id, state.guild.id],
       connection_start: timestamp,
       screen: state.streaming,
       camera: state.selfVideo,

@@ -116,8 +116,7 @@ export class Track {
         const res = await this.vcEventsRepo
           .findOneOrFail(
             {
-              virgin: user_ent.id,
-              guild: user.guild.id,
+              virgin: [user_ent.id, user.guild.id],
               // only find recently unclosed transactions
               // connection_start: { $gt: now_minus_24_hours },
               connection_end: null,
@@ -127,8 +126,7 @@ export class Track {
           .catch((err) => {
             if (err instanceof NotFoundError) {
               this.vcEventsRepo.create({
-                virgin: user_ent.id,
-                guild: user.guild.id,
+                virgin: [user_ent.id, user.guild.id],
                 // TODO(1): how do we get the user's state?
                 // camera: user,
                 // screen: ,

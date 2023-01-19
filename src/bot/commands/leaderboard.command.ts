@@ -87,9 +87,10 @@ export class LeaderboardCommand implements DiscordCommand {
     if (top_virgins.find((v) => v.id === interaction.user.id) == null) {
       // The requesting user didn't show up in the leaderboard
 
-      const requester = await this.virginsRepo.findOneOrFail(
+      const requester = await this.virginsRepo.findOneOrFail([
         interaction.user.id,
-      );
+        interaction.guildId,
+      ]);
 
       leaderboard.push('...');
       // TODO(2): how do we get the user's leaderboard position?

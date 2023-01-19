@@ -188,6 +188,15 @@
           "nullable": false,
           "mappedType": "text"
         },
+        "guild_snowflake": {
+          "name": "guild_snowflake",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamptz(0)",
@@ -221,15 +230,6 @@
         },
         "discriminator": {
           "name": "discriminator",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
-        "guild_snowflake": {
-          "name": "guild_snowflake",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
@@ -308,9 +308,10 @@
         {
           "keyName": "virgin_pkey",
           "columnNames": [
-            "id"
+            "id",
+            "guild_snowflake"
           ],
-          "composite": false,
+          "composite": true,
           "primary": true,
           "unique": true
         }
@@ -365,8 +366,8 @@
           "default": "now()",
           "mappedType": "datetime"
         },
-        "guild_snowflake": {
-          "name": "guild_snowflake",
+        "virgin_snowflake": {
+          "name": "virgin_snowflake",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
@@ -374,8 +375,8 @@
           "nullable": false,
           "mappedType": "text"
         },
-        "virgin_snowflake": {
-          "name": "virgin_snowflake",
+        "guild_snowflake": {
+          "name": "guild_snowflake",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
@@ -476,26 +477,16 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "vc_event_guild_snowflake_foreign": {
-          "constraintName": "vc_event_guild_snowflake_foreign",
+        "vc_event_virgin_snowflake_guild_snowflake_foreign": {
+          "constraintName": "vc_event_virgin_snowflake_guild_snowflake_foreign",
           "columnNames": [
+            "virgin_snowflake",
             "guild_snowflake"
           ],
           "localTableName": "public.vc_event",
           "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.guild",
-          "updateRule": "cascade"
-        },
-        "vc_event_virgin_snowflake_foreign": {
-          "constraintName": "vc_event_virgin_snowflake_foreign",
-          "columnNames": [
-            "virgin_snowflake"
-          ],
-          "localTableName": "public.vc_event",
-          "referencedColumnNames": [
-            "id"
+            "id",
+            "guild_snowflake"
           ],
           "referencedTableName": "public.virgin",
           "updateRule": "cascade"

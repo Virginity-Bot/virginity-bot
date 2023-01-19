@@ -16,10 +16,7 @@ export class VCEventEntity extends BaseEntity {
   @PrimaryKey({ type: UuidType, defaultRaw: 'uuid_generate_v4()' })
   id: string = v4();
 
-  @ManyToOne({ name: 'guild_snowflake' })
-  guild: GuildEntity;
-
-  @ManyToOne({ name: 'virgin_snowflake' })
+  @ManyToOne({ fieldNames: ['virgin_snowflake', 'guild_snowflake'] })
   virgin: VirginEntity;
 
   @Property({ defaultRaw: 'NOW()', index: true })

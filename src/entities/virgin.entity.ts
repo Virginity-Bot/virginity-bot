@@ -4,6 +4,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryKey,
+  PrimaryKeyType,
   Property,
   QueryOrder,
   TextType,
@@ -19,14 +20,16 @@ export class VirginEntity extends BaseEntity {
   @PrimaryKey({ type: TextType, index: true })
   id: string;
 
+  @ManyToOne({ name: 'guild_snowflake', primary: true })
+  guild: GuildEntity;
+
+  [PrimaryKeyType]?: [string, string];
+
   @Property({ type: TextType, index: true })
   username: string;
 
   @Property({ type: TextType, index: true })
   discriminator: string;
-
-  @ManyToOne({ name: 'guild_snowflake' })
-  guild: GuildEntity;
 
   @Property({ index: true })
   cached_dur_in_vc: number = 0;
