@@ -100,7 +100,9 @@ export class LeaderboardCommand implements DiscordCommand {
   }
 
   virginToLeaderboardLine(virgin: VirginEntity, pos: number | string): string {
-    return `**${pos}.** ${virgin.username} – \`${virgin.cached_dur_in_vc}\``;
+    return `**${pos}.** ${virgin.nickname ?? virgin.username} – \`${
+      virgin.cached_dur_in_vc
+    }\``;
   }
 
   async recalculateScores(guild_id: string) {
