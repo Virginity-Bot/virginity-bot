@@ -5,6 +5,8 @@ import {
   Client,
   embedLength,
   Events,
+  Guild,
+  GuildMember,
   InteractionCollector,
   time,
   VoiceState,
@@ -42,138 +44,53 @@ export class Track {
   async voiceStateUpdate(old_state: VoiceState, new_state: VoiceState) {
     const timestamp = new Date();
 
-    let streaming = 1;
-    let eligible = false;
-    let guildId = new_state.guild.id;
-    if (old_state.streaming) streaming = 2;
-    if (old_state.selfVideo) streaming = 3;
-    if (old_state.streaming && old_state.selfVideo) streaming = 4;
     if (
-      !new_state.mute &&
-      !new_state.deaf &&
-      new_state.member.id != configuration.bot
-    )
-      eligible = true;
-
-    if (
-      // User Join a voice channel
-      old_state.channelId == null &&
-      new_state.channelId != null &&
-      new_state.member.id != configuration.bot &&
-      eligible == true
+      // Entering VC
+      (old_state.channelId == null &&
+        new_state.channelId != null &&
+        this.isEligable(new_state)) ||
+      // or unmuting / undeafening
+      (old_state.channelId != null &&
+        !this.isEligable(old_state) &&
+        this.isEligable(new_state))
     ) {
-      const virgin: VirginEntity = await this.virginsRepo
-        .findOneOrFail({
-          $and: [{ guild: { $eq: guildId } }, { id: new_state.member.id }],
-        })
-        .catch(() => {
-          const newVirgin = this.virginsRepo.create({
-            id: new_state.member.id,
-            username: new_state.member.user.username,
-            discriminator: new_state.member.user.discriminator,
-            guild: guildId,
-          });
-
-          return newVirgin;
-        });
-      let vcEvent = this.vcEventsRepo.create({
-        guild: new_state.guild.id,
-        virgin: virgin.id,
-        screen: old_state.streaming ?? false,
-        camera: old_state.selfVideo ?? false,
-      });
-      virgin.vc_events.add(vcEvent);
-      await this.virginsRepo.persistAndFlush(virgin);
+      // create new event
+      const event = await this.openEvent(new_state, timestamp);
+      await this.vcEventsRepo.persistAndFlush(event);
     } else if (
-      // User switches voice channel
-      old_state.channelId !== null &&
-      new_state.channelId !== null &&
-      old_state.channelId != new_state.channelId &&
-      eligible == true
+      // Leaving VC
+      (old_state.channelId != null && new_state.channelId == null) ||
+      // or muting / deafening
+      (old_state.channelId != null &&
+        this.isEligable(old_state) &&
+        !this.isEligable(new_state))
     ) {
-    } else if (
-      // User disconnects
-      old_state.channelId != null &&
-      new_state.channelId == null &&
-      new_state.member.id != configuration.bot &&
-      eligible == true
-    ) {
-      const virgin: VirginEntity = await this.virginsRepo
-        .findOneOrFail({
-          $and: [{ guild: new_state.guild.id }, { id: new_state.member.id }],
-        })
-        .catch((err) => {
-          if (err instanceof NotFoundError) {
-            return this.virginsRepo.create({
-              id: new_state.member.id,
-              username: new_state.member.user.username,
-              discriminator: new_state.member.user.discriminator,
-              guild: { id: new_state.guild.id, name: new_state.guild.name },
-            });
-          } else {
-            throw err;
-          }
-        });
-
-      const event = await this.findEventToClose(virgin);
-
-      if (event == null) {
-        this.logger.warn(
-          `Virgin ${virgin.id} tried to leave VC, but did not have any open vc_events`,
-        );
-        return;
-      }
-
-      event.connection_end = timestamp;
-
-      const score = this.calculateScoreForEvent(event);
-      this.logger.log(
-        `Giving ${virgin.username}#${virgin.discriminator} of ${new_state.guild.name} ${score} points`,
+      // close old event
+      const event = await this.closeEvent(
+        new_state.guild,
+        new_state.member,
+        timestamp,
       );
-
-      virgin.cached_dur_in_vc += score;
-
-      await this.virginsRepo.persistAndFlush(virgin);
+      await this.vcEventsRepo.persistAndFlush(event);
     } else if (
-      //Someone is entering or exiting streaming states
-      old_state.channelId == new_state.channelId &&
-      new_state.member.id != configuration.bot &&
-      eligible == true
+      // Switching VC
+      old_state.channelId != null &&
+      new_state.channelId == null
     ) {
-      const virgin: VirginEntity = await this.virginsRepo
-        .findOneOrFail({
-          $and: [{ guild: { $eq: guildId } }, { id: new_state.member.id }],
-        })
-        .catch(() => {
-          const newVirgin = this.virginsRepo.create({
-            id: new_state.member.id,
-            username: new_state.member.user.username,
-            discriminator: new_state.member.user.discriminator,
-            guild: guildId,
-          });
+      // we can just ignore this
+    } else if (
+      // Score multiplier change
+      old_state.streaming != new_state.streaming ||
+      old_state.selfVideo != new_state.selfVideo
+    ) {
+      const events = [
+        // close old event
+        await this.closeEvent(new_state.guild, new_state.member, timestamp),
+        // create new event
+        await this.openEvent(new_state, timestamp),
+      ];
 
-          return newVirgin;
-        });
-      let vcEvent = this.vcEventsRepo.create({
-        guild: new_state.guild.id,
-        virgin: virgin.id,
-        screen: old_state.streaming,
-        camera: old_state.selfVideo,
-      });
-      const date = new Date();
-      const events = await virgin.vc_events.loadItems();
-      let streamingBonus = 1;
-      if (old_state.streaming) streamingBonus = 2;
-      if (old_state.selfVideo) streamingBonus = 3;
-      if (old_state.streaming && old_state.selfVideo) streamingBonus = 5;
-
-      virgin.cached_dur_in_vc =
-        virgin.cached_dur_in_vc +
-        (+millisecondsToMinutes(date.getTime()) -
-          +millisecondsToMinutes(events[0].connection_start.getTime())) *
-          streamingBonus;
-      virgin.vc_events.add(vcEvent);
-      await this.virginsRepo.persistAndFlush(virgin);
+      await this.vcEventsRepo.persistAndFlush(events);
     }
   }
 
@@ -247,6 +164,10 @@ export class Track {
     this.virginsRepo.flush();
   }
 
+  isEligable(state: VoiceState): boolean {
+    return !state.deaf && !state.mute;
+  }
+
   async findEventToClose(virgin: VirginEntity): Promise<VCEventEntity> {
     // TODO: limit this to one result?
     const events = await virgin.vc_events.loadItems({
@@ -266,5 +187,68 @@ export class Track {
         differenceInMinutes(event.connection_end, event.connection_start),
       ) * score_multiplier
     );
+  }
+
+  findOrCreateVirgin(guild: Guild, member: GuildMember): Promise<VirginEntity> {
+    return this.virginsRepo
+      .findOneOrFail({
+        guild: guild.id,
+        id: member.id,
+      })
+      .catch((err) => {
+        if (err instanceof NotFoundError) {
+          return this.virginsRepo.create({
+            id: member.id,
+            username: member.user.username,
+            discriminator: member.user.discriminator,
+            guild: { id: guild.id, name: guild.name },
+          });
+        } else {
+          throw err;
+        }
+      });
+  }
+
+  async openEvent(state: VoiceState, timestamp: Date): Promise<VCEventEntity> {
+    // TODO: maybe we don't actually need to talk to the DB right here?
+    const virgin = await this.findOrCreateVirgin(state.guild, state.member);
+
+    const event = this.vcEventsRepo.create({
+      virgin: virgin.id,
+      guild: state.guild.id,
+      connection_start: timestamp,
+      screen: state.streaming,
+      camera: state.selfVideo,
+    });
+
+    return event;
+  }
+
+  async closeEvent(
+    guild: Guild,
+    member: GuildMember,
+    timestamp: Date,
+  ): Promise<VCEventEntity> {
+    // TODO: maybe we don't actually need to talk to the DB right here?
+    const virgin = await this.findOrCreateVirgin(guild, member);
+    const event = await this.findEventToClose(virgin);
+
+    if (event == null) {
+      this.logger.warn(
+        `Virgin ${virgin.id} tried to leave VC, but did not have any open vc_events`,
+      );
+      return;
+    }
+
+    event.connection_end = timestamp;
+
+    const score = this.calculateScoreForEvent(event);
+    this.logger.log(
+      `Giving ${virgin.username}#${virgin.discriminator} of ${guild.name} ${score} points`,
+    );
+
+    virgin.cached_dur_in_vc += score;
+
+    return event;
   }
 }
