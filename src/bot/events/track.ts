@@ -13,6 +13,7 @@ import millisecondsToMinutes from 'date-fns/millisecondsToMinutes';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
 import { InjectRepository } from '@mikro-orm/nestjs';
+import configuration from 'src/config/configuration';
 
 @Injectable()
 export class Track {
@@ -33,7 +34,6 @@ export class Track {
     let streaming = 1;
     let eligible = false;
     let guildId = new_state.guild.id;
-    const bot = process.env.BOT;
     if (old_state.streaming) streaming = 2;
     if (old_state.selfVideo) streaming = 3;
     if (old_state.streaming && old_state.selfVideo) streaming = 4;
@@ -43,7 +43,7 @@ export class Track {
     if (
       old_state.channelId == null &&
       new_state.channelId != null &&
-      new_state.member.id != bot &&
+      new_state.member.id != configuration.bot &&
       eligible == true
     ) {
       // User Join a voice channel
@@ -81,7 +81,7 @@ export class Track {
     } else if (
       old_state.channelId != null &&
       new_state.channelId == null &&
-      new_state.member.id != bot &&
+      new_state.member.id != configuration.bot &&
       eligible == true
     ) {
       const virgin: VirginEntity = await this.virginsRepo
@@ -121,7 +121,7 @@ export class Track {
       await this.virginsRepo.persistAndFlush(virgin);
     } else if (
       old_state.channelId == new_state.channelId &&
-      new_state.member.id != bot &&
+      new_state.member.id != configuration.bot &&
       eligible == true
     ) {
       //Someone is entering or exiting streaming states
