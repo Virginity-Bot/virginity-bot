@@ -26,8 +26,6 @@ export class IntroMusic {
     private readonly virgins: EntityRepository<VirginEntity>,
     @InjectRepository(GuildEntity)
     private readonly guilds: EntityRepository<GuildEntity>,
-    @InjectDiscordClient()
-    private readonly client: Client,
   ) {}
 
   @On('voiceStateUpdate')

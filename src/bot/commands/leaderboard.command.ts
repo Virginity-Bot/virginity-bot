@@ -2,6 +2,7 @@ import {
   Command,
   CommandExecutionContext,
   DiscordCommand,
+  InjectDiscordClient,
 } from '@discord-nestjs/core';
 import {
   ButtonInteraction,
@@ -10,13 +11,22 @@ import {
   MessagePayload,
   StringSelectMenuInteraction,
   EmbedBuilder,
+  Client,
+  Role,
+  GuildMember,
+  ColorResolvable,
 } from 'discord.js';
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { UseRequestContext, MikroORM } from '@mikro-orm/core';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
 import { VirginEntity } from 'src/entities/virgin.entity';
+import { GuildEntity } from 'src/entities/guild.entity';
+import configuration from 'src/config/configuration';
+import { VCEventEntity } from 'src/entities/vc-event.entity';
+import { DiscordHelperService } from '../discord-helper.service';
+import { DatabaseService } from 'src/database/database.service';
 
 @Command({
   name: 'leaderboard',
@@ -26,8 +36,16 @@ import { VirginEntity } from 'src/entities/virgin.entity';
 export class LeaderboardCommand implements DiscordCommand {
   constructor(
     private readonly orm: MikroORM,
+    @InjectRepository(GuildEntity)
+    private readonly guilds: EntityRepository<GuildEntity>,
     @InjectRepository(VirginEntity)
     private readonly virginsRepo: EntityRepository<VirginEntity>,
+    @InjectRepository(VCEventEntity)
+    private readonly vc_events: EntityRepository<VCEventEntity>,
+    @InjectDiscordClient()
+    private readonly client: Client,
+    private readonly database: DatabaseService,
+    private readonly discord_helper: DiscordHelperService,
   ) {}
 
   @UseRequestContext()
@@ -38,70 +56,70 @@ export class LeaderboardCommand implements DiscordCommand {
     >,
   ): Promise<MessagePayload> {
     const boardEmbed = new EmbedBuilder()
-      .setColor('#0099ff')
-      .setTitle('Leader Board')
+      .setColor(configuration.role.color)
+      .setTitle(`Biggest Virgins of ${interaction.guild.name}`)
       .setAuthor({
         name: 'Virginity Bot',
         iconURL: 'https://i.imgur.com/X9AWcYV.jpg',
         url: 'https://github.com/EdgarSaldivar/VirginityBot',
-      })
-      .setThumbnail('https://i.imgur.com/X9AWcYV.jpg')
-      .setTimestamp();
+      });
 
     const guildSnowflake = interaction.guildId;
 
-    try {
-      const virgins = await this.virginsRepo.find({
-        guild: { id: guildSnowflake },
-      });
+    await this.recalculateScores();
 
-      virgins.sort((a, b) => b.cached_dur_in_vc - a.cached_dur_in_vc);
-      for (let i = 0; i < virgins.length; i++) {
-        boardEmbed.addFields({
-          name: i + 1 + ') ' + virgins[i].username,
-          value: virgins[i].cached_dur_in_vc.toString(),
-        });
-      }
-      const roles = await interaction.guild?.roles.fetch();
-      if (
-        roles?.find(
-          (element) =>
-            element.name == 'Chonkiest Virgin the World Has Ever Seen',
-        )
-      ) {
-        let mem = await interaction.guild?.members.cache.find(
-          (member) =>
-            member.roles.cache.has(
-              'Chonkiest Virgin the World Has Ever Seen',
-            ) === true,
-        );
-        mem?.roles.remove('Chonkiest Virgin the World Has Ever Seen');
-        let members = await interaction.guild.members.cache;
-        mem = await members?.find((element) => element.id == virgins[0].id);
-        let role = roles?.find(
-          (element) =>
-            element.name == 'Chonkiest Virgin the World Has Ever Seen',
-        );
-        await mem?.roles.add(role!);
-      } else {
-        let role = await interaction.guild.roles.create({
-          name: 'Chonkiest Virgin the World Has Ever Seen',
-          color: 'Blue',
-          reason: 'we needed a chonky boi',
-        });
-        //await interaction.guild?.roles.resolveId
-        let members = await interaction.guild?.members.cache;
-        let mem = members?.find((element) => element.id == virgins[0].id);
-        await mem?.roles.add(role!);
-      }
-      await interaction.reply({ embeds: [boardEmbed] });
-    } catch (e) {
-      console.log(e);
-      await interaction.reply('No Virgins :(');
+    const top_virgins = await this.virginsRepo.find(
+      { guild: guildSnowflake },
+      { orderBy: [{ cached_dur_in_vc: -1 }], limit: 10 },
+    );
+    await this.discord_helper.assignBiggestVirginRole(top_virgins[0]);
+    await this.guilds.flush();
+
+    let leaderboard = top_virgins.map((virgin, i) =>
+      this.virginToLeaderboardLine(virgin, i + 1),
+    );
+
+    if (top_virgins.find((v) => v.id === interaction.user.id) == null) {
+      // The requesting user didn't show up in the leaderboard
+
+      const requester = await this.virginsRepo.findOneOrFail(
+        interaction.user.id,
+      );
+
+      leaderboard.push('...');
+      // TODO(2): how do we get the user's leaderboard position?
+      leaderboard.push(this.virginToLeaderboardLine(requester, 0));
     }
 
-    return new MessagePayload(interaction.channel, {
-      content: 'Hello, World!',
-    });
+    boardEmbed.setDescription(leaderboard.join('\n'));
+    return new MessagePayload(interaction.channel, { embeds: [boardEmbed] });
+  }
+
+  virginToLeaderboardLine(virgin: VirginEntity, pos: number): string {
+    return `**${pos}.** ${virgin.username} – \`${virgin.cached_dur_in_vc}\``;
+  }
+
+  async recalculateScores() {
+    const timestamp = new Date();
+    const users_in_vc = await this.discord_helper.getUsersInVC();
+
+    await Promise.all(
+      users_in_vc.map(async (user) => {
+        const old_event = await this.database.closeEvent(
+          user.guild,
+          user,
+          timestamp,
+        );
+        this.vc_events.create({
+          ...old_event,
+          connection_start: timestamp,
+          connection_end: null,
+        });
+      }),
+    );
+
+    // TODO(0): actually calculate the scores
+
+    this.vc_events.flush();
   }
 }

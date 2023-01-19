@@ -16,6 +16,8 @@ import { sub, differenceInMinutes } from 'date-fns';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
 import configuration from 'src/config/configuration';
+import { DatabaseService } from 'src/database/database.service';
+import { DiscordHelperService } from '../discord-helper.service';
 
 @Injectable()
 export class Track {
@@ -27,15 +29,14 @@ export class Track {
     private readonly virginsRepo: EntityRepository<VirginEntity>,
     @InjectRepository(VCEventEntity)
     private readonly vcEventsRepo: EntityRepository<VCEventEntity>,
-    @InjectDiscordClient()
-    private readonly client: Client,
+    private readonly database: DatabaseService,
+    private readonly discord_helper: DiscordHelperService,
   ) {}
 
   @On(Events.VoiceStateUpdate)
   @UseRequestContext()
   async voiceStateUpdate(old_state: VoiceState, new_state: VoiceState) {
     const timestamp = new Date();
-
     if (
       // Entering VC
       (old_state.channelId == null &&
@@ -47,7 +48,7 @@ export class Track {
         this.isEligable(new_state))
     ) {
       // create new event
-      const event = await this.openEvent(new_state, timestamp);
+      const event = await this.database.openEvent(new_state, timestamp);
       await this.vcEventsRepo.persistAndFlush(event);
     } else if (
       // Leaving VC
@@ -58,7 +59,7 @@ export class Track {
         !this.isEligable(new_state))
     ) {
       // close old event
-      const event = await this.closeEvent(
+      const event = await this.database.closeEvent(
         new_state.guild,
         new_state.member,
         timestamp,
@@ -77,11 +78,14 @@ export class Track {
     ) {
       const events = [
         // close old event
-        await this.closeEvent(new_state.guild, new_state.member, timestamp),
+        await this.database.closeEvent(
+          new_state.guild,
+          new_state.member,
+          timestamp,
+        ),
         // create new event
-        await this.openEvent(new_state, timestamp),
+        await this.database.openEvent(new_state, timestamp),
       ];
-
       await this.vcEventsRepo.persistAndFlush(events);
     }
   }
@@ -89,30 +93,11 @@ export class Track {
   @On(Events.ClientReady)
   @UseRequestContext()
   async ready(client: Client): Promise<void> {
-    const voice_channels = await client.guilds
-      .fetch()
-      .then((guilds) => Promise.all(guilds.map((guild) => guild.fetch())))
-      .then((guilds) =>
-        Promise.all(
-          guilds.map((guild) =>
-            guild.channels
-              .fetch()
-              .then((channels) => channels.map((channel) => channel)),
-          ),
-        ),
-      )
-      .then((channels) => channels.flat())
-      .then((channels) =>
-        channels.filter(
-          (c) =>
-            c.type === ChannelType.GuildVoice && c.id !== c.guild.afkChannelId,
-        ),
-      );
-
     const now_minus_24_hours = sub(new Date(), { days: 1 });
-    const users = voice_channels.map((vc) => vc.members.map((m) => m)).flat();
+    const users_in_vc = await this.discord_helper.getUsersInVC();
+
     await Promise.all(
-      users.map(async (user) => {
+      users_in_vc.map(async (user) => {
         const user_ent = await this.virginsRepo
           .findOneOrFail({ id: user.id })
           .catch((err) => {
@@ -159,5 +144,4 @@ export class Track {
   isEligable(state: VoiceState): boolean {
     return !state.deaf && !state.mute;
   }
-
 }
