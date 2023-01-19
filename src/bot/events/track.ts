@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectDiscordClient, On } from '@discord-nestjs/core';
 import {
   Client,
@@ -17,6 +17,8 @@ import configuration from 'src/config/configuration';
 
 @Injectable()
 export class Track {
+  private readonly logger = new Logger(Track.name);
+
   constructor(
     private readonly orm: MikroORM,
     @InjectRepository(VirginEntity)
