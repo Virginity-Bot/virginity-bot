@@ -33,8 +33,6 @@ export class IntroMusic {
   @On('voiceStateUpdate')
   @UseRequestContext()
   async voiceStateUpdate(old_state: VoiceState, new_state: VoiceState) {
-    this.logger.log(`Playing intro music maybe?`);
-
     if (
       new_state.channelId != null &&
       new_state.channelId != old_state.channelId
