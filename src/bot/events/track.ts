@@ -77,11 +77,10 @@ export class Track {
           return newVirgin;
         });
       let vcEvent = this.vcEventsRepo.create({
-        guild: new_state.guild,
-        virgin: virgin,
-        connection_start: new Date(),
-        screen: old_state.streaming,
-        camera: old_state.selfVideo,
+        guild: new_state.guild.id,
+        virgin: virgin.id,
+        screen: old_state.streaming ?? false,
+        camera: old_state.selfVideo ?? false,
       });
       virgin.vc_events.add(vcEvent);
       await this.virginsRepo.persistAndFlush(virgin);
@@ -160,9 +159,8 @@ export class Track {
           return newVirgin;
         });
       let vcEvent = this.vcEventsRepo.create({
-        guild: new_state.guild,
-        virgin: virgin,
-        connection_start: new Date(),
+        guild: new_state.guild.id,
+        virgin: virgin.id,
         screen: old_state.streaming,
         camera: old_state.selfVideo,
       });
