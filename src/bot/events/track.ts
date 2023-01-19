@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectDiscordClient, On } from '@discord-nestjs/core';
 import {
+  ChannelType,
   Client,
   embedLength,
   Events,
@@ -39,9 +40,8 @@ export class Track {
   @On(Events.VoiceStateUpdate)
   @UseRequestContext()
   async voiceStateUpdate(old_state: VoiceState, new_state: VoiceState) {
-    console.log('Someone did a thing in VC. Give em Points');
-    console.log(arguments);
     const timestamp = new Date();
+
     let streaming = 1;
     let eligible = false;
     let guildId = new_state.guild.id;
@@ -179,5 +179,75 @@ export class Track {
       virgin.vc_events.add(vcEvent);
       await this.virginsRepo.persistAndFlush(virgin);
     }
+  }
+
+  @On(Events.ClientReady)
+  @UseRequestContext()
+  async ready(client: Client): Promise<void> {
+    const voice_channels = await client.guilds
+      .fetch()
+      .then((guilds) => Promise.all(guilds.map((guild) => guild.fetch())))
+      .then((guilds) =>
+        Promise.all(
+          guilds.map((guild) =>
+            guild.channels
+              .fetch()
+              .then((channels) => channels.map((channel) => channel)),
+          ),
+        ),
+      )
+      .then((channels) => channels.flat())
+      .then((channels) =>
+        channels.filter(
+          (c) =>
+            c.type === ChannelType.GuildVoice && c.id !== c.guild.afkChannelId,
+        ),
+      );
+
+    const now_minus_24_hours = sub(new Date(), { days: 1 });
+    const users = voice_channels.map((vc) => vc.members.map((m) => m)).flat();
+    await Promise.all(
+      users.map(async (user) => {
+        const user_ent = await this.virginsRepo
+          .findOneOrFail({ id: user.id })
+          .catch((err) => {
+            if (err instanceof NotFoundError) {
+              return this.virginsRepo.create({
+                id: user.id,
+                username: user.user.username,
+                discriminator: user.user.discriminator,
+                guild: { id: user.guild.id, name: user.guild.name },
+              });
+            } else {
+              throw err;
+            }
+          });
+
+        const res = await this.vcEventsRepo
+          .findOneOrFail(
+            {
+              virgin: user_ent.id,
+              guild: user.guild.id,
+              // only find recently unclosed transactions
+              // connection_start: { $gt: now_minus_24_hours },
+              connection_end: null,
+            },
+            { orderBy: [{ connection_start: 1 }] },
+          )
+          .catch((err) => {
+            if (err instanceof NotFoundError) {
+              this.vcEventsRepo.create({
+                virgin: user_ent.id,
+                guild: user.guild.id,
+                // TODO(1): how do we get the user's state?
+                // camera: user,
+                // screen: ,
+              });
+            }
+          });
+      }),
+    );
+
+    this.virginsRepo.flush();
   }
 }
