@@ -11,6 +11,7 @@ import { GuildEntity } from './guild.entity';
 import { VirginEntity } from './virgin.entity';
 import { BaseEntity } from './base.entity';
 
+// TODO(2): formalize individual virgin_snowflake and guild_snowflake relation to relevant tables
 @Entity({ tableName: 'vc_event' })
 export class VCEventEntity extends BaseEntity {
   @PrimaryKey({ type: UuidType, defaultRaw: 'uuid_generate_v4()' })
