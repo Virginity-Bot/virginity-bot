@@ -114,7 +114,7 @@ export class DatabaseService {
           )}'s score did not match our expected value from calculations!`,
           `Expected: ${virgin.cached_dur_in_vc}`,
           `Actual: ${total_score}`,
-        ].join('\n'),
+        ].join(' '),
       );
     }
 

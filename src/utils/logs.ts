@@ -27,5 +27,5 @@ export function userLogHeader(): string {
       break;
   }
 
-  return `${user.username}#${user.discriminator} of "${guild.id}"`;
+  return `${user.username}#${user.discriminator} of "${guild.name}"`;
 }
