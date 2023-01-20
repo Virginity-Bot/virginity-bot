@@ -38,6 +38,7 @@ export class Migration20230119113820 extends Migration {
     this.addSql('alter table "virgin" add constraint "virgin_guild_snowflake_foreign" foreign key ("guild_snowflake") references "guild" ("id") on update cascade;');
 
     this.addSql('alter table "vc_event" add constraint "vc_event_virgin_snowflake_guild_snowflake_foreign" foreign key ("virgin_snowflake", "guild_snowflake") references "virgin" ("id", "guild_snowflake") on update cascade;');
+    this.addSql('alter table "vc_event" add constraint "vc_event_guild_snowflake_foreign" add foreign key ("guild_snowflake") references "guild" ("id");')
   }
 
   async down(): Promise<void> {
