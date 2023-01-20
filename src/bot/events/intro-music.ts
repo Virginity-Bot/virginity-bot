@@ -38,8 +38,7 @@ export class IntroMusic {
       const guild_ent = await this.guilds.findOneOrFail(new_state.guild.id);
       if (
         // TODO: does this actually check if the user has the role?
-        new_state.member.roles.resolveId(guild_ent.biggest_virgin_role_id) !=
-        null
+        new_state.member.roles.resolve(guild_ent.biggest_virgin_role_id) != null
       ) {
         await this.playIntroMusic(new_state.guild, new_state.channelId);
       }
