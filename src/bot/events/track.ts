@@ -37,6 +37,11 @@ export class Track {
   @On(Events.VoiceStateUpdate)
   @UseRequestContext()
   async voiceStateUpdate(old_state: VoiceState, new_state: VoiceState) {
+    if (new_state.member.user.bot) {
+      // User is a bot, so we don't need to track them.
+      return;
+    }
+
     this.logger.debug(`${userLogHeader(new_state)} caused a VC event.`);
 
     const timestamp = new Date();
