@@ -15,6 +15,7 @@ import {
   Role,
   GuildMember,
   ColorResolvable,
+  APIEmbedField,
 } from 'discord.js';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
@@ -57,12 +58,7 @@ export class LeaderboardCommand implements DiscordCommand {
   ): Promise<MessagePayload> {
     const boardEmbed = new EmbedBuilder()
       .setColor(configuration.role.color)
-      .setTitle(`Biggest Virgins of ${interaction.guild.name}`)
-      .setAuthor({
-        name: 'Virginity Bot',
-        iconURL: 'https://i.imgur.com/X9AWcYV.jpg',
-        url: 'https://github.com/EdgarSaldivar/VirginityBot',
-      });
+      .setTitle(`Biggest Virgins of ${interaction.guild.name}`);
 
     await this.recalculateScores(interaction.guildId);
 
@@ -78,8 +74,20 @@ export class LeaderboardCommand implements DiscordCommand {
     await this.discord_helper.assignBiggestVirginRole(top_virgins[0]);
     await this.guilds.flush();
 
-    let leaderboard = top_virgins.map((virgin, i) =>
-      this.virginToLeaderboardLine(virgin, i + 1),
+    const fields = top_virgins.reduce(
+      (fields, virgin, i) => {
+        fields[0].value.push(
+          `**${i + 1}.** ${i === 0 ? '**' : ''}${
+            virgin.nickname ?? virgin.username
+          }${i === 0 ? '** 👑' : ''}`,
+        );
+        fields[1].value.push(`${virgin.cached_dur_in_vc}`);
+        return fields;
+      },
+      <[APIEmbedFieldArray, APIEmbedFieldArray]>[
+        { name: ' ', value: [], inline: true },
+        { name: ' ', value: [], inline: true },
+      ],
     );
 
     if (top_virgins.find((v) => v.id === interaction.user.id) == null) {
@@ -90,12 +98,25 @@ export class LeaderboardCommand implements DiscordCommand {
         interaction.guildId,
       ]);
 
-      leaderboard.push('...');
-      // TODO(2): how do we get the user's leaderboard position?
-      leaderboard.push(this.virginToLeaderboardLine(requester, '?'));
+      const qb = this.virginsRepo.qb();
+      const requester_place = await qb
+        .raw<Promise<{ rows: { array_position: number } }>>(
+          `SELECT ARRAY_POSITION(ARRAY(SELECT id FROM virgin WHERE guild_snowflake = ? ORDER BY cached_dur_in_vc DESC), ?)`,
+          [requester.guild.id, requester.id],
+        )
+        .then((res) => res.rows[0].array_position);
+
+      fields[0].value.push('...');
+      fields[1].value.push('');
+      fields[0].value.push(
+        `**${requester_place}.** ${requester.nickname ?? requester.username}`,
+      );
+      fields[1].value.push(requester.cached_dur_in_vc);
     }
 
-    boardEmbed.setDescription(leaderboard.join('\n'));
+    boardEmbed.addFields(
+      fields.map((field) => ({ ...field, value: field.value.join('\n') })),
+    );
     return new MessagePayload(interaction.channel, { embeds: [boardEmbed] });
   }
 
@@ -132,3 +153,5 @@ export class LeaderboardCommand implements DiscordCommand {
     await this.vc_events.persistAndFlush(events);
   }
 }
+
+type APIEmbedFieldArray = APIEmbedField & { value: (string | number)[] };
