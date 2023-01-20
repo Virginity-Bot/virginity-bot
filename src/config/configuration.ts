@@ -20,11 +20,6 @@ export default {
   // TODO: WTF is this?
   bot: process.env.BOT,
   discord_token: process.env.DISCORD_TOKEN,
-  // TODO: WTF is this?
-  guild_id: process.env.GUILD_ID,
-  // TODO: WTF is this?
-  client_id: process.env.CLIENT_ID,
-  // });
 
   score: {
     multiplier: {
