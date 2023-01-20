@@ -27,5 +27,6 @@ import { UpdateUsers } from './events/update-users';
     UpdatedGuilds,
     UpdateUsers,
   ],
+  exports: [DiscordModule.forFeature(), DiscordHelperService],
 })
 export class BotModule {}
