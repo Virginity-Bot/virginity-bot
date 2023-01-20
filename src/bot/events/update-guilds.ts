@@ -8,7 +8,7 @@ import { EntityRepository } from '@mikro-orm/postgresql';
 import { GuildEntity } from 'src/entities/guild.entity';
 
 @Injectable()
-export class CreateWitnessedGuilds {
+export class UpdatedGuilds {
   constructor(
     private readonly orm: MikroORM,
     @InjectRepository(GuildEntity)

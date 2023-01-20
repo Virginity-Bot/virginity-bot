@@ -5,7 +5,7 @@ import { DatabaseModule } from 'src/database/database.module';
 import { LeaderboardCommand } from './commands/leaderboard.command';
 
 import { DiscordHelperService } from './discord-helper.service';
-import { CreateWitnessedGuilds } from './events/create-witnessed-guilds';
+import { UpdatedGuilds } from './events/update-guilds';
 import { IntroMusic } from './events/intro-music';
 import { Track } from './events/track';
 import { UpdateUsers } from './events/update-users';
@@ -24,7 +24,7 @@ import { UpdateUsers } from './events/update-users';
 
     IntroMusic,
     Track,
-    CreateWitnessedGuilds,
+    UpdatedGuilds,
     UpdateUsers,
   ],
 })
