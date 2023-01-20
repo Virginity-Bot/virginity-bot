@@ -3,7 +3,7 @@ import { Migration } from '@mikro-orm/migrations';
 export class Migration20230119113820 extends Migration {
 
   async up(): Promise<void> {
-    this.addSql('create table "deleted_record" ("id" uuid not null default uuid_generate_v4(), "deleted_at" timestamptz(0) not null default now(), "updated_at" timestamptz(0) not null default now(), "table_name" text not null, "object_id" uuid not null, "data" jsonb not null, constraint "deleted_record_pkey" primary key ("id"));');
+    this.addSql('create table "deleted_record" ("id" uuid not null default uuid_generate_v4(), "deleted_at" timestamptz(0) not null default now(), "updated_at" timestamptz(0) not null default now(), "table_name" text not null, "object_id" text not null, "data" jsonb not null, constraint "deleted_record_pkey" primary key ("id"));');
 
     this.addSql('create table "guild" ("id" text not null, "created_at" timestamptz(0) not null default now(), "updated_at" timestamptz(0) not null default now(), "name" text not null, "biggest_virgin_role_id" text null, constraint "guild_pkey" primary key ("id"));');
     this.addSql('comment on column "guild"."id" is \'Discord guild\'\'s snowflake identifier\';');

@@ -21,7 +21,7 @@ export class DeletedRecord {
   @Property({ type: TextType })
   table_name: string;
 
-  @Property({ type: UuidType })
+  @Property({ type: TextType })
   object_id: string;
 
   @Property({ type: 'jsonb' })
