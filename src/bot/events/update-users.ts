@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { On } from '@discord-nestjs/core';
 import { Events, GuildMember } from 'discord.js';
 import { InjectRepository } from '@mikro-orm/nestjs';
@@ -6,9 +6,12 @@ import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
 import { VirginEntity } from 'src/entities/virgin.entity';
+import { userLogHeader } from 'src/utils/logs';
 
 @Injectable()
 export class UpdateUsers {
+  private readonly logger = new Logger(UpdateUsers.name);
+
   constructor(
     private readonly orm: MikroORM,
     @InjectRepository(VirginEntity)
@@ -21,6 +24,8 @@ export class UpdateUsers {
     old_member: GuildMember,
     new_member: GuildMember,
   ): Promise<void> {
+    this.logger.debug(`${userLogHeader(old_member)} was updated.`);
+
     await this.virgins.nativeUpdate(
       { id: new_member.id, guild: new_member.guild.id },
       {

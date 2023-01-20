@@ -7,6 +7,7 @@ import { VCEventEntity } from 'src/entities/vc-event.entity';
 import { Guild, GuildMember, VoiceState } from 'discord.js';
 import configuration from 'src/config/configuration';
 import { differenceInMinutes } from 'date-fns';
+import { userLogHeader } from 'src/utils/logs';
 
 @Injectable()
 export class DatabaseService {
@@ -97,7 +98,7 @@ export class DatabaseService {
     // TODO(1): this should probably just recalculate their whole score
     const additional_score = this.calculateScoreForEvent(event);
     this.logger.log(
-      `Giving ${virgin.username}#${virgin.discriminator} of ${guild.name} ${additional_score} points`,
+      `Giving ${userLogHeader(virgin, guild)} ${additional_score} points`,
     );
 
     virgin.cached_dur_in_vc += additional_score;
@@ -105,11 +106,16 @@ export class DatabaseService {
     const total_score = await this.calculateScore(virgin.id, guild.id);
 
     if (virgin.cached_dur_in_vc != total_score) {
-      this.logger.warn([
-        `Score mismatch! User ${virgin.username}#${virgin.discriminator} of "${guild.name}"'s score did not match our expected value from calculations!`,
-        `Expected: ${virgin.cached_dur_in_vc}`,
-        `Actual: ${total_score}`,
-      ]);
+      this.logger.warn(
+        [
+          `Score mismatch! User ${userLogHeader(
+            virgin,
+            guild,
+          )}'s score did not match our expected value from calculations!`,
+          `Expected: ${virgin.cached_dur_in_vc}`,
+          `Actual: ${total_score}`,
+        ].join('\n'),
+      );
     }
 
     // virgin.cached_dur_in_vc = total_score;

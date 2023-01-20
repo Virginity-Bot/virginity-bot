@@ -18,6 +18,7 @@ import { VCEventEntity } from 'src/entities/vc-event.entity';
 import configuration from 'src/config/configuration';
 import { DatabaseService } from 'src/database/database.service';
 import { DiscordHelperService } from '../discord-helper.service';
+import { userLogHeader } from 'src/utils/logs';
 
 @Injectable()
 export class Track {
@@ -36,6 +37,8 @@ export class Track {
   @On(Events.VoiceStateUpdate)
   @UseRequestContext()
   async voiceStateUpdate(old_state: VoiceState, new_state: VoiceState) {
+    this.logger.debug(`${userLogHeader(new_state)} caused a VC event.`);
+
     const timestamp = new Date();
     if (
       // Entering VC
