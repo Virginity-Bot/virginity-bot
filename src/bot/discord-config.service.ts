@@ -22,6 +22,7 @@ export class DiscordConfigService implements DiscordOptionsFactory {
           GatewayIntentBits.GuildMembers,
         ],
       },
+      failOnLogin: true,
     };
   }
 }
