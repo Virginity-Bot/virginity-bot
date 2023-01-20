@@ -1,1 +1,0 @@
-inherit_from: 'node_modules/@iunu-inc/code-style/.rubocop.yml'
