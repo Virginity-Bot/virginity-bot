@@ -79,13 +79,30 @@ export class DiscordHelperService {
       (await guild.roles.fetch()).find(
         (role) => role.name === configuration.role.name,
       ) ??
-      (await guild.roles.create({
-        name: configuration.role.name,
-        color: configuration.role.color,
-        unicodeEmoji: configuration.role.emoji,
-        hoist: true,
-        mentionable: true,
-      }));
+      (await guild.roles
+        .create({
+          name: configuration.role.name,
+          color: configuration.role.color,
+          unicodeEmoji: configuration.role.emoji,
+          hoist: true,
+          mentionable: true,
+        })
+        .then(async (role) => {
+          // TODO(2): does this actually work?
+          // await role.setPosition(0);
+          return role;
+        }));
+
+    if (role.name !== configuration.role.name) {
+      await role.setName(configuration.role.name);
+    }
+    if (role.color !== configuration.role.color) {
+      await role.setColor(configuration.role.color);
+    }
+    // TODO(3): check if the guild is boosted enough to set role emojis
+    // if (role.unicodeEmoji !== configuration.role.emoji) {
+    //   await role.setUnicodeEmoji(configuration.role.emoji);
+    // }
 
     guild_ent.biggest_virgin_role_id = role.id;
 
