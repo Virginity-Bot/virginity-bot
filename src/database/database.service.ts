@@ -170,7 +170,7 @@ export class DatabaseService {
             virgin_snowflake: virgin_id,
             guild_snowflake: guild_id,
           })
-          .whereRaw('vc_event.connection_start > guild.last_reset')
+          .whereRaw('vc_event.connection_start >= guild.last_reset')
           .whereNotNull('vc_event.connection_end'),
       )
       .groupBy(['vc_event.virgin_snowflake', 'vc_event.guild_snowflake']);
