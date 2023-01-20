@@ -14,6 +14,7 @@ import { InjectDiscordClient, On } from '@discord-nestjs/core';
 import configuration from 'src/config/configuration';
 import { GuildEntity } from 'src/entities/guild.entity';
 import { VirginEntity } from 'src/entities/virgin.entity';
+import { userLogHeader } from 'src/utils/logs';
 
 @Injectable()
 export class DiscordHelperService {
@@ -94,12 +95,13 @@ export class DiscordHelperService {
   async assignBiggestVirginRole(biggest_virgin: VirginEntity) {
     const role = await this.findOrCreateBiggestVirginRole(biggest_virgin.guild);
 
-    // TODO(1): does this work if we miss the cache?
-    const guild = this.client.guilds.resolve(biggest_virgin.guild.id);
-    const member = guild.members.resolve(biggest_virgin.id);
+    const guild = await this.client.guilds.fetch(biggest_virgin.guild.id);
+    const member = await guild.members.fetch(biggest_virgin.id);
 
     await Promise.all(role.members.map((m) => m.roles.remove(role.id)));
 
     await member.roles.add(role.id);
+
+    this.logger.debug(`Crowning ${userLogHeader(member)}.`);
   }
 }
