@@ -152,9 +152,9 @@ export class DatabaseService {
         'guild_snowflake',
         qb.raw(
           `SUM(FLOOR(
-            EXTRACT(EPOCH FROM connection_end - connection_start) / 60
-            * (CASE WHEN screen THEN :screen_mult: ELSE 1 END)
-            * (CASE WHEN camera THEN :camera_mult: ELSE 1 END)
+            EXTRACT(EPOCH FROM vc_event.connection_end - vc_event.connection_start) / 60
+            * (CASE WHEN vc_event.screen THEN :screen_mult: ELSE 1 END)
+            * (CASE WHEN vc_event.camera THEN :camera_mult: ELSE 1 END)
           ))`,
           {
             screen_mult: configuration.score.multiplier.screen,
@@ -163,15 +163,17 @@ export class DatabaseService {
         ),
       ])
       .from('vc_event')
+      .join('guild', 'guild.id', 'vc_event.guild_snowflake')
       .where((b) =>
         b
           .where({
             virgin_snowflake: virgin_id,
             guild_snowflake: guild_id,
           })
-          .whereNotNull('connection_end'),
+          .whereRaw('vc_event.connection_start > guild.last_reset')
+          .whereNotNull('vc_event.connection_end'),
       )
-      .groupBy(['virgin_snowflake', 'guild_snowflake']);
+      .groupBy(['vc_event.virgin_snowflake', 'vc_event.guild_snowflake']);
 
     return res[0]?.sum ?? 0;
   }
