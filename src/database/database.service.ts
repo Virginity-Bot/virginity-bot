@@ -94,6 +94,8 @@ export class DatabaseService {
     }
 
     event.connection_end = timestamp;
+    // TODO: once our scoring lines up 100%, remove this flush
+    await this.vcEventsRepo.flush();
 
     // TODO(1): this should probably just recalculate their whole score
     const additional_score = this.calculateScoreForEvent(event);
@@ -112,8 +114,8 @@ export class DatabaseService {
             virgin,
             guild,
           )}'s score did not match our expected value from calculations!`,
-          `Expected: ${virgin.cached_dur_in_vc}`,
-          `Actual: ${total_score}`,
+          `Cached: ${virgin.cached_dur_in_vc}`,
+          `Calculated SQL: ${total_score}`,
         ].join(' '),
       );
     }
@@ -133,7 +135,15 @@ export class DatabaseService {
         'virgin_snowflake',
         'guild_snowflake',
         qb.raw(
-          `SUM (FLOOR(EXTRACT(EPOCH FROM connection_end - connection_start) / 60))`,
+          `SUM(FLOOR(
+            EXTRACT(EPOCH FROM connection_end - connection_start) / 60
+            * (CASE WHEN screen THEN :screen_mult: ELSE 1 END)
+            * (CASE WHEN camera THEN :camera_mult: ELSE 1 END)
+          ))`,
+          {
+            screen_mult: configuration.score.multiplier.screen,
+            camera_mult: configuration.score.multiplier.camera,
+          },
         ),
       ])
       .from('vc_event')
