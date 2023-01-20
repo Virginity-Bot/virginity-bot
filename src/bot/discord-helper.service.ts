@@ -46,6 +46,10 @@ export class DiscordHelperService {
     this.logger.log(`Invite the bot to your server using this link: ${link}`);
   }
 
+  /**
+   * Gets all guild members in voice channels at the moment. A guild ID can be
+   * specified to just get that guild's members.
+   */
   async getUsersInVC(guild_id?: string): Promise<GuildMember[]> {
     const voice_channels = await (guild_id != null
       ? this.client.guilds.fetch(guild_id).then((guild) => [guild])
@@ -73,6 +77,9 @@ export class DiscordHelperService {
     return voice_channels.map((vc) => vc.members.map((m) => m)).flat();
   }
 
+  /**
+   * Finds or creates the biggest virgin role in a given guild.
+   */
   async findOrCreateBiggestVirginRole(guild_ent: GuildEntity): Promise<Role> {
     const guild = this.client.guilds.resolve(guild_ent.id);
     const role =
@@ -109,6 +116,10 @@ export class DiscordHelperService {
     return role;
   }
 
+  /**
+   * Asssigns the biggest virgin role to a specified virgin, while also
+   * clearing the role from any pre-existing members.
+   */
   async assignBiggestVirginRole(biggest_virgin: VirginEntity) {
     const role = await this.findOrCreateBiggestVirginRole(biggest_virgin.guild);
 

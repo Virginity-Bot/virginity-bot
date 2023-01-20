@@ -21,8 +21,11 @@ export class DatabaseService {
     private readonly vcEventsRepo: EntityRepository<VCEventEntity>,
   ) {}
 
+  /**
+   * Finds the most recent unclosed event for a given virgin.
+   */
   async findEventToClose(virgin: VirginEntity): Promise<VCEventEntity> {
-    // TODO: limit this to one result?
+    // TODO(1): limit this to one result?
     const events = await virgin.vc_events.loadItems({
       where: { connection_end: null },
       orderBy: [{ connection_start: -1 }],
@@ -42,6 +45,9 @@ export class DatabaseService {
     );
   }
 
+  /**
+   * Finds (or if none found creates) a virgin record.
+   */
   findOrCreateVirgin(guild: Guild, member: GuildMember): Promise<VirginEntity> {
     return this.virginsRepo
       .findOneOrFail({
@@ -63,6 +69,9 @@ export class DatabaseService {
       });
   }
 
+  /**
+   * Creates a new open vc_event for a user based on the given voice state.
+   */
   async openEvent(state: VoiceState, timestamp: Date): Promise<VCEventEntity> {
     // TODO: maybe we don't actually need to talk to the DB right here?
     const virgin = await this.findOrCreateVirgin(state.guild, state.member);
@@ -77,6 +86,10 @@ export class DatabaseService {
     return event;
   }
 
+  /**
+   * Finds the latest open event for a given user, closes it, and recalculates
+   * the user's score.
+   */
   async closeEvent(
     guild: Guild,
     member: GuildMember,
@@ -125,6 +138,9 @@ export class DatabaseService {
     return event;
   }
 
+  /**
+   * Calculates a user's score. Does not update `virgin.cached_dur_in_vc`!
+   */
   async calculateScore(virgin_id: string, guild_id: string): Promise<number> {
     // TODO(2): is there a better place to get a query builder from?
     const qb = this.vcEventsRepo.createQueryBuilder();

@@ -140,6 +140,9 @@ export class Track {
     this.virginsRepo.flush();
   }
 
+  /**
+   * Evaluates whether or not a given voice state is eligible to earn score.
+   */
   isEligible(state: VoiceState): boolean {
     return !state.deaf && !state.mute;
   }
