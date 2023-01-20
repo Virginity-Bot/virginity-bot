@@ -9,6 +9,7 @@ import { UpdatedGuilds } from './events/update-guilds';
 import { IntroMusic } from './events/intro-music';
 import { Track } from './events/track';
 import { UpdateUsers } from './events/update-users';
+import { LeaderboardService } from './leaderboard.service';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { UpdateUsers } from './events/update-users';
   ],
   providers: [
     DiscordHelperService,
+    LeaderboardService,
 
     LeaderboardCommand,
 
@@ -27,6 +29,10 @@ import { UpdateUsers } from './events/update-users';
     UpdatedGuilds,
     UpdateUsers,
   ],
-  exports: [DiscordModule.forFeature(), DiscordHelperService],
+  exports: [
+    DiscordModule.forFeature(),
+    DiscordHelperService,
+    LeaderboardService,
+  ],
 })
 export class BotModule {}

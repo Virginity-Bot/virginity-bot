@@ -28,6 +28,7 @@ import configuration from 'src/config/configuration';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
 import { DiscordHelperService } from '../discord-helper.service';
 import { DatabaseService } from 'src/database/database.service';
+import { LeaderboardService } from '../leaderboard.service';
 
 @Command({
   name: 'leaderboard',
@@ -47,6 +48,7 @@ export class LeaderboardCommand implements DiscordCommand {
     private readonly client: Client,
     private readonly database: DatabaseService,
     private readonly discord_helper: DiscordHelperService,
+    private readonly leaderboard: LeaderboardService,
   ) {}
 
   @UseRequestContext()
@@ -56,59 +58,14 @@ export class LeaderboardCommand implements DiscordCommand {
       ButtonInteraction<CacheType> | StringSelectMenuInteraction<CacheType>
     >,
   ): Promise<MessagePayload> {
-    const boardEmbed = new EmbedBuilder()
-      .setColor(configuration.role.color)
-      .setTitle(`Biggest Virgins of ${interaction.guild.name}`);
-
     await this.recalculateScores(interaction.guildId);
 
-    const top_virgins = await this.virginsRepo.find(
-      { guild: interaction.guildId },
-      { orderBy: [{ cached_dur_in_vc: -1 }], limit: 10 },
-    );
-    if (top_virgins.length === 0) {
-      boardEmbed.setDescription('No virgins 😭');
-      return new MessagePayload(interaction.channel, { embeds: [boardEmbed] });
-    }
-
-    await this.discord_helper.assignBiggestVirginRole(top_virgins[0]);
-    await this.guilds.flush();
-
-    const fields = top_virgins.reduce(
-      (fields, virgin, i) => {
-        fields[0].value.push(this.virginToLeaderboardLine(virgin, i + 1));
-        return fields;
-      },
-      <[APIEmbedFieldArray]>[{ name: ' ', value: [], inline: true }],
+    const leaderboard = await this.leaderboard.buildLeaderboardEmbed(
+      interaction.guild,
+      interaction.user,
     );
 
-    if (top_virgins.find((v) => v.id === interaction.user.id) == null) {
-      // The requesting user didn't show up in the leaderboard
-
-      const requester = await this.virginsRepo.findOneOrFail([
-        interaction.user.id,
-        interaction.guildId,
-      ]);
-
-      const qb = this.virginsRepo.qb();
-      const requester_place = await qb
-        .raw<Promise<{ rows: { array_position: number } }>>(
-          `SELECT ARRAY_POSITION(ARRAY(SELECT id FROM virgin WHERE guild_snowflake = ? ORDER BY cached_dur_in_vc DESC), ?)`,
-          [requester.guild.id, requester.id],
-        )
-        .then((res) => res.rows[0].array_position);
-
-      fields[0].value.push('...');
-      // TODO: is requester_place 0-indexed?
-      fields[0].value.push(
-        this.virginToLeaderboardLine(requester, requester_place),
-      );
-    }
-
-    boardEmbed.addFields(
-      fields.map((field) => ({ ...field, value: field.value.join('\n') })),
-    );
-    return new MessagePayload(interaction.channel, { embeds: [boardEmbed] });
+    return new MessagePayload(interaction.channel, { embeds: [leaderboard] });
   }
 
   virginToLeaderboardLine(virgin: VirginEntity, pos: number | string): string {
@@ -146,5 +103,3 @@ export class LeaderboardCommand implements DiscordCommand {
     await this.vc_events.persistAndFlush(events);
   }
 }
-
-type APIEmbedFieldArray = APIEmbedField & { value: (string | number)[] };
