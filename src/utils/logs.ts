@@ -5,7 +5,7 @@ export function userLogHeader(state: VoiceState): string;
 export function userLogHeader(member: GuildMember): string;
 export function userLogHeader(virgin: VirginEntity, guild: Guild): string;
 export function userLogHeader(): string {
-  let user: User;
+  let user: User | VirginEntity;
   let guild: Guild;
 
   switch (arguments.length) {
@@ -21,7 +21,7 @@ export function userLogHeader(): string {
       }
       break;
     case 2:
-      const [virgin, _guild] = arguments;
+      const [virgin, _guild] = arguments as any as [VirginEntity, Guild];
       user = virgin;
       guild = _guild;
       break;
