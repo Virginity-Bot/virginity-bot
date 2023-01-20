@@ -32,4 +32,11 @@ export class GuildEntity extends BaseEntity {
 
   @OneToMany(() => VirginEntity, (v) => v.guild)
   virgins = new Collection<VirginEntity>(this);
+
+  /** Timestamp when the last reset ocurred */
+  @Property({
+    defaultRaw: 'NOW()',
+    comment: 'Timestamp when the last reset ocurred',
+  })
+  last_reset: Date = new Date();
 }
