@@ -173,6 +173,6 @@ export class DatabaseService {
       )
       .groupBy(['virgin_snowflake', 'guild_snowflake']);
 
-    return res[0]?.sum;
+    return res[0]?.sum ?? 0;
   }
 }
