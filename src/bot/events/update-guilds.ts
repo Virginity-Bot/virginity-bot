@@ -6,6 +6,7 @@ import { MikroORM, NotFoundError, UseRequestContext } from '@mikro-orm/core';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
 import { GuildEntity } from 'src/entities/guild.entity';
+import { DiscordHelperService } from '../discord-helper.service';
 
 @Injectable()
 export class UpdatedGuilds {
@@ -13,6 +14,7 @@ export class UpdatedGuilds {
     private readonly orm: MikroORM,
     @InjectRepository(GuildEntity)
     private readonly guildRepo: EntityRepository<GuildEntity>,
+    private readonly discord_helper: DiscordHelperService,
     @InjectDiscordClient()
     private readonly client: Client,
   ) {}
@@ -22,13 +24,18 @@ export class UpdatedGuilds {
   async ready(client: Client): Promise<void> {
     // TODO(5): consider deleting guilds that aren't active anymore
     // TODO(4): paginate this
-    for (const [_, guild] of await client.guilds.fetch()) {
-      this.guildRepo.upsert({
-        id: guild.id,
-        name: guild.name,
-        updatedAt: new Date(),
-      });
-    }
+    const guilds = await client.guilds.fetch();
+    await Promise.all(
+      guilds.map(async (guild) => {
+        const guild_ent = await this.guildRepo.upsert({
+          id: guild.id,
+          name: guild.name,
+          updatedAt: new Date(),
+        });
+
+        await this.discord_helper.findOrCreateBiggestVirginRole(guild_ent);
+      }),
+    );
 
     return await this.guildRepo.flush();
   }
