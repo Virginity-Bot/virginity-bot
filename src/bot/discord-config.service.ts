@@ -19,6 +19,7 @@ export class DiscordConfigService implements DiscordOptionsFactory {
           GatewayIntentBits.Guilds,
           GatewayIntentBits.GuildMessages,
           GatewayIntentBits.GuildVoiceStates,
+          GatewayIntentBits.GuildMembers,
         ],
       },
     };

@@ -8,6 +8,7 @@ import { DiscordHelperService } from './discord-helper.service';
 import { CreateWitnessedGuilds } from './events/create-witnessed-guilds';
 import { IntroMusic } from './events/intro-music';
 import { Track } from './events/track';
+import { UpdateUsers } from './events/update-users';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { Track } from './events/track';
     IntroMusic,
     Track,
     CreateWitnessedGuilds,
+    UpdateUsers,
   ],
 })
 export class BotModule {}
