@@ -76,18 +76,10 @@ export class LeaderboardCommand implements DiscordCommand {
 
     const fields = top_virgins.reduce(
       (fields, virgin, i) => {
-        fields[0].value.push(
-          `**${i + 1}.** ${i === 0 ? '**' : ''}${
-            virgin.nickname ?? virgin.username
-          }${i === 0 ? '** 👑' : ''}`,
-        );
-        fields[1].value.push(`${virgin.cached_dur_in_vc}`);
+        fields[0].value.push(this.virginToLeaderboardLine(virgin, i + 1));
         return fields;
       },
-      <[APIEmbedFieldArray, APIEmbedFieldArray]>[
-        { name: ' ', value: [], inline: true },
-        { name: ' ', value: [], inline: true },
-      ],
+      <[APIEmbedFieldArray]>[{ name: ' ', value: [], inline: true }],
     );
 
     if (top_virgins.find((v) => v.id === interaction.user.id) == null) {
@@ -107,11 +99,10 @@ export class LeaderboardCommand implements DiscordCommand {
         .then((res) => res.rows[0].array_position);
 
       fields[0].value.push('...');
-      fields[1].value.push('');
+      // TODO: is requester_place 0-indexed?
       fields[0].value.push(
-        `**${requester_place}.** ${requester.nickname ?? requester.username}`,
+        this.virginToLeaderboardLine(requester, requester_place),
       );
-      fields[1].value.push(requester.cached_dur_in_vc);
     }
 
     boardEmbed.addFields(
@@ -121,9 +112,9 @@ export class LeaderboardCommand implements DiscordCommand {
   }
 
   virginToLeaderboardLine(virgin: VirginEntity, pos: number | string): string {
-    return `**${pos}.** ${virgin.nickname ?? virgin.username} – \`${
-      virgin.cached_dur_in_vc
-    }\``;
+    return `**${pos}.** ${pos === 1 ? '**' : ''}${
+      virgin.nickname ?? virgin.username
+    }${pos === 1 ? '** 👑' : ''} — ${virgin.cached_dur_in_vc}`;
   }
 
   async recalculateScores(guild_id: string) {
