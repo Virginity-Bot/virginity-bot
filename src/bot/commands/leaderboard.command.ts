@@ -114,7 +114,9 @@ export class LeaderboardCommand implements DiscordCommand {
   virginToLeaderboardLine(virgin: VirginEntity, pos: number | string): string {
     return `**${pos}.** ${pos === 1 ? '**' : ''}${
       virgin.nickname ?? virgin.username
-    }${pos === 1 ? '** 👑' : ''} — ${virgin.cached_dur_in_vc}`;
+    }${pos === 1 ? `** ${configuration.role.emoji}` : ''} — ${
+      virgin.cached_dur_in_vc
+    }`;
   }
 
   async recalculateScores(guild_id: string) {
