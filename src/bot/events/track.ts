@@ -73,6 +73,7 @@ export class Track {
         timestamp,
       );
       await this.vcEventsRepo.persistAndFlush(event);
+      // TODO(0): calculate new biggest virgin
     } else if (
       // Switching VC
       old_state.channelId != null &&

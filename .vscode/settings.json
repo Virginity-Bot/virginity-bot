@@ -12,6 +12,10 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
 
+  "todo-tree.highlights.defaultHighlight": {
+    "type": "tag-and-subTag"
+  },
+
   "dash.languageIdToDocsetMap": {
     "typescript": [
       "angularjs",
