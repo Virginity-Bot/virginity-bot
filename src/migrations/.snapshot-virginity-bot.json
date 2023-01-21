@@ -49,12 +49,12 @@
         },
         "object_id": {
           "name": "object_id",
-          "type": "uuid",
+          "type": "text",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "mappedType": "uuid"
+          "mappedType": "text"
         },
         "data": {
           "name": "data",

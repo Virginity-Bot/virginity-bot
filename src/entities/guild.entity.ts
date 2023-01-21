@@ -8,7 +8,6 @@ import {
 } from '@mikro-orm/core';
 
 import { BaseEntity } from './base.entity';
-import { VCEventEntity } from './vc-event.entity';
 import { VirginEntity } from './virgin.entity';
 
 @Entity({ tableName: 'guild' })
