@@ -38,10 +38,10 @@ export class DatabaseService {
     if (event.screen) score_multiplier *= configuration.score.multiplier.screen;
     if (event.camera) score_multiplier *= configuration.score.multiplier.camera;
 
-    return (
+    return Math.floor(
       Math.abs(
         differenceInMinutes(event.connection_end, event.connection_start),
-      ) * score_multiplier
+      ) * score_multiplier,
     );
   }
 
