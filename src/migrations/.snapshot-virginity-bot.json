@@ -136,6 +136,16 @@
           "comment": "ID of the biggest virgin role",
           "mappedType": "text"
         },
+        "bot_channel_id": {
+          "name": "bot_channel_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "comment": "ID of the virginity-bot channel",
+          "mappedType": "text"
+        },
         "last_reset": {
           "name": "last_reset",
           "type": "timestamptz(0)",

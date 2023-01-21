@@ -30,6 +30,10 @@ export class GuildEntity extends BaseEntity {
   @Property({ type: TextType, comment: 'ID of the biggest virgin role' })
   biggest_virgin_role_id?: string;
 
+  /** ID of the virginity-bot channel */
+  @Property({ type: TextType, comment: 'ID of the virginity-bot channel' })
+  bot_channel_id?: string;
+
   @OneToMany(() => VirginEntity, (v) => v.guild)
   virgins = new Collection<VirginEntity>(this);
 
