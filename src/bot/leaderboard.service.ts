@@ -74,7 +74,6 @@ export class LeaderboardService {
           .then((res) => res.rows[0].array_position);
 
         fields[0].value.push('...');
-        // TODO: is requester_place 0-indexed?
         fields[0].value.push(
           this.virginToLeaderboardLine(requester_ent, requester_place),
         );
