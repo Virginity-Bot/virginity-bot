@@ -13,6 +13,7 @@ import {
 import { GuildEntity } from './guild.entity';
 import { BaseEntity } from './base.entity';
 import { VCEventEntity } from './vc-event.entity';
+import { VirginSettingsEntity } from './virgin-settings.entity';
 
 @Entity({ tableName: 'virgin' })
 export class VirginEntity extends BaseEntity {
@@ -63,4 +64,8 @@ export class VirginEntity extends BaseEntity {
     orderBy: { connection_start: QueryOrder.DESC },
   })
   vc_events = new Collection<VCEventEntity>(this);
+
+  /** The user's cross-guild settings */
+  @OneToMany(() => VirginSettingsEntity, (e) => e.virgin_guilds)
+  settings: VirginSettingsEntity;
 }

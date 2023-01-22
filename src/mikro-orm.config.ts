@@ -4,8 +4,9 @@ import { Logger } from '@nestjs/common';
 
 import configuration from './config/configuration';
 
-import { VirginEntity } from './entities/virgin.entity';
 import { GuildEntity } from './entities/guild.entity';
+import { VirginEntity } from './entities/virgin.entity';
+import { VirginSettingsEntity } from './entities/virgin-settings.entity';
 import { VCEventEntity } from './entities/vc-event.entity';
 import { DeletedRecord } from './entities/deleted-record.entity';
 
@@ -14,7 +15,13 @@ const config: Options = {
   metadataProvider: TsMorphMetadataProvider,
   logger: Logger.log.bind(logger),
 
-  entities: [VirginEntity, GuildEntity, VCEventEntity, DeletedRecord],
+  entities: [
+    GuildEntity,
+    VirginEntity,
+    VirginSettingsEntity,
+    VCEventEntity,
+    DeletedRecord,
+  ],
 
   type: configuration.db.type,
   clientUrl: configuration.db.url,
