@@ -38,7 +38,9 @@ export class IntroMusic {
       const guild_ent = await this.guilds.findOneOrFail(new_state.guild.id);
       if (
         // TODO: does this actually check if the user has the role?
-        new_state.member.roles.resolve(guild_ent.biggest_virgin_role_id) != null
+        guild_ent.biggest_virgin_role_id == null ||
+        new_state.member?.roles.resolve(guild_ent.biggest_virgin_role_id) !=
+          null
       ) {
         await this.playIntroMusic(new_state.guild, new_state.channelId);
       }
@@ -66,7 +68,7 @@ export class IntroMusic {
           inlineVolume: true,
         },
       );
-      resource.volume.setVolume(0.3);
+      resource.volume?.setVolume(0.3);
 
       connection.subscribe(player);
       player.play(resource);

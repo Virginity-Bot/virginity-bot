@@ -1,5 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { MikroORM, NotFoundError, UseRequestContext } from '@mikro-orm/core';
+import {
+  MikroORM,
+  NotFoundError,
+  RequiredEntityData,
+  UseRequestContext,
+} from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import { VirginEntity } from 'src/entities/virgin.entity';
@@ -34,6 +39,9 @@ export class DatabaseService {
   }
 
   calculateScoreForEvent(event: VCEventEntity): number {
+    if (event.connection_end == null)
+      throw new Error(`Event ${event.id} is missing a connection_end`);
+
     let score_multiplier = 1;
     if (event.screen) score_multiplier *= configuration.score.multiplier.screen;
     if (event.camera) score_multiplier *= configuration.score.multiplier.camera;
@@ -60,9 +68,9 @@ export class DatabaseService {
             id: member.id,
             username: member.user.username,
             discriminator: member.user.discriminator,
-            nickname: member.nickname,
+            nickname: member.nickname ?? undefined,
             guild: guild.id,
-          });
+          } as Partial<RequiredEntityData<VirginEntity>> as any);
         } else {
           throw err;
         }
@@ -74,14 +82,14 @@ export class DatabaseService {
    */
   async openEvent(state: VoiceState, timestamp: Date): Promise<VCEventEntity> {
     // TODO: maybe we don't actually need to talk to the DB right here?
-    const virgin = await this.findOrCreateVirgin(state.guild, state.member);
+    const virgin = await this.findOrCreateVirgin(state.guild, state.member!);
 
     const event = this.vcEventsRepo.create({
       virgin: [virgin.id, state.guild.id],
       connection_start: timestamp,
-      screen: state.streaming,
-      camera: state.selfVideo,
-    });
+      screen: state.streaming ?? false,
+      camera: state.selfVideo ?? false,
+    } as Partial<RequiredEntityData<VCEventEntity>> as any);
 
     return event;
   }
@@ -94,7 +102,7 @@ export class DatabaseService {
     guild: Guild,
     member: GuildMember,
     timestamp: Date,
-  ): Promise<VCEventEntity> {
+  ): Promise<VCEventEntity | undefined> {
     // TODO: maybe we don't actually need to talk to the DB right here?
     const virgin = await this.findOrCreateVirgin(guild, member);
     const event = await this.findEventToClose(virgin);

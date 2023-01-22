@@ -5,14 +5,14 @@ export function userLogHeader(state: VoiceState): string;
 export function userLogHeader(member: GuildMember): string;
 export function userLogHeader(virgin: VirginEntity, guild: Guild): string;
 export function userLogHeader(): string {
-  let user: User | VirginEntity;
-  let guild: Guild;
+  let user!: User | VirginEntity;
+  let guild!: Guild;
 
   switch (arguments.length) {
     case 1:
       if (arguments[0] instanceof VoiceState) {
         const state = arguments[0];
-        user = state.member.user;
+        user = state.member!.user;
         guild = state.guild;
       } else if (arguments[0] instanceof GuildMember) {
         const member = arguments[0];

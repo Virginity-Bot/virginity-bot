@@ -51,7 +51,9 @@ export class LeaderboardService {
         fields[0].value.push(this.virginToLeaderboardLine(virgin, i + 1));
         return fields;
       },
-      <[APIEmbedFieldArray]>[{ name: ' ', value: [], inline: true }],
+      <[APIEmbedFieldArray]>[
+        { name: ' ', value: [] as string[], inline: true },
+      ],
     );
 
     if (requester != null) {

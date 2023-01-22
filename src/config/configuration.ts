@@ -18,8 +18,8 @@ export default {
   port: parseInt(process.env.PORT ?? '3000'),
 
   // TODO: WTF is this?
-  bot: process.env.BOT,
-  discord_token: process.env.DISCORD_TOKEN,
+  bot: process.env.BOT!,
+  discord_token: process.env.DISCORD_TOKEN!,
 
   score: {
     multiplier: {

@@ -66,7 +66,7 @@ export class TasksService {
                 .then((channels) =>
                   channels.filter(
                     (channel): channel is TextChannel =>
-                      channel.type === ChannelType.GuildText,
+                      channel?.type === ChannelType.GuildText,
                   ),
                 ),
             ])
@@ -79,7 +79,7 @@ export class TasksService {
         ]);
 
         // TODO(1): add some text to explain why this message was sent
-        await channel.send({ embeds: [leaderboard] });
+        await channel?.send({ embeds: [leaderboard] });
 
         // reset scores
         guild.last_reset = new Date();

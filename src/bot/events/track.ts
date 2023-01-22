@@ -1,21 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectDiscordClient, On } from '@discord-nestjs/core';
+import { On } from '@discord-nestjs/core';
+import { Client, Events, VoiceState } from 'discord.js';
 import {
-  ChannelType,
-  Client,
-  Events,
-  Guild,
-  GuildMember,
-  VoiceState,
-} from 'discord.js';
-import { MikroORM, NotFoundError, UseRequestContext } from '@mikro-orm/core';
+  MikroORM,
+  NotFoundError,
+  UseRequestContext,
+  RequiredEntityData,
+} from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import { sub, differenceInMinutes } from 'date-fns';
 
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
-import configuration from 'src/config/configuration';
 import { DatabaseService } from 'src/database/database.service';
 import { DiscordHelperService } from '../discord-helper.service';
 import { userLogHeader } from 'src/utils/logs';
@@ -37,7 +34,7 @@ export class Track {
   @On(Events.VoiceStateUpdate)
   @UseRequestContext()
   async voiceStateUpdate(old_state: VoiceState, new_state: VoiceState) {
-    if (new_state.member.user.bot) {
+    if (new_state.member?.user.bot) {
       // User is a bot, so we don't need to track them.
       return;
     }
@@ -69,10 +66,10 @@ export class Track {
       // close old event
       const event = await this.database.closeEvent(
         new_state.guild,
-        new_state.member,
+        new_state.member!,
         timestamp,
       );
-      await this.vcEventsRepo.persistAndFlush(event);
+      if (event != null) await this.vcEventsRepo.persistAndFlush(event);
       // TODO(0): calculate new biggest virgin
     } else if (
       // Switching VC
@@ -89,7 +86,7 @@ export class Track {
         // close old event
         await this.database.closeEvent(
           new_state.guild,
-          new_state.member,
+          new_state.member!,
           timestamp,
         ),
         // create new event
@@ -128,9 +125,9 @@ export class Track {
               if (err instanceof NotFoundError) {
                 this.vcEventsRepo.create({
                   virgin: [user_ent.id, user.guild.id],
-                  camera: user.voice?.selfVideo,
-                  screen: user.voice?.streaming,
-                });
+                  camera: user.voice?.selfVideo ?? false,
+                  screen: user.voice?.streaming ?? false,
+                } as Partial<RequiredEntityData<VCEventEntity>> as any);
               } else {
                 throw err;
               }

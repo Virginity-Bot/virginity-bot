@@ -27,6 +27,10 @@ export class DiscordHelperService {
 
   @On(Events.ClientReady)
   async logInviteURL(client: Client): Promise<void> {
+    if (client.application == null) {
+      throw new Error(`Discord.JS not yet initialized.`);
+    }
+
     let permissions =
       PermissionsBitField.Flags.ManageRoles +
       PermissionsBitField.Flags.ManageChannels +
@@ -70,11 +74,14 @@ export class DiscordHelperService {
       .then((channels) =>
         channels.filter(
           (c) =>
-            c.type === ChannelType.GuildVoice && c.id !== c.guild.afkChannelId,
+            c?.type === ChannelType.GuildVoice && c.id !== c.guild.afkChannelId,
         ),
       );
 
-    return voice_channels.map((vc) => vc.members.map((m) => m)).flat();
+    return voice_channels
+      .map((vc) => vc?.members.map((m) => m))
+      .flat()
+      .filter((m): m is GuildMember => m != null);
   }
 
   /**
@@ -82,6 +89,9 @@ export class DiscordHelperService {
    */
   async findOrCreateBiggestVirginRole(guild_ent: GuildEntity): Promise<Role> {
     const guild = this.client.guilds.resolve(guild_ent.id);
+    if (guild == null)
+      throw new Error(`Could not access guild ${guild_ent.id}`);
+
     const role =
       (await guild.roles.fetch()).find(
         (role) => role.name === configuration.role.name,
@@ -94,7 +104,7 @@ export class DiscordHelperService {
           hoist: true,
           mentionable: true,
         })
-        .then(async (role) => {
+        .then<Role>(async (role) => {
           // TODO(2): does this actually work?
           // await role.setPosition(0);
           return role;

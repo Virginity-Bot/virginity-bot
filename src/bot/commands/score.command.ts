@@ -28,9 +28,9 @@ export class ScoreCommand implements DiscordCommand {
     >,
   ): Promise<MessagePayload> {
     const userScore = this.virginsRepo.findOneOrFail({
-      id: interaction.member.user.id,
+      id: interaction.member!.user.id,
     });
-    return new MessagePayload(interaction.channel, {
+    return new MessagePayload(interaction.channel!, {
       content: `You Score is: ${userScore}!`,
     });
   }

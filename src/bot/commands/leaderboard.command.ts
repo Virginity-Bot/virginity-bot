@@ -58,14 +58,14 @@ export class LeaderboardCommand implements DiscordCommand {
       ButtonInteraction<CacheType> | StringSelectMenuInteraction<CacheType>
     >,
   ): Promise<MessagePayload> {
-    await this.recalculateScores(interaction.guildId);
+    await this.recalculateScores(interaction.guildId!);
 
     const leaderboard = await this.leaderboard.buildLeaderboardEmbed(
-      interaction.guild,
+      interaction.guild!,
       interaction.user,
     );
 
-    return new MessagePayload(interaction.channel, { embeds: [leaderboard] });
+    return new MessagePayload(interaction.channel!, { embeds: [leaderboard] });
   }
 
   virginToLeaderboardLine(virgin: VirginEntity, pos: number | string): string {
@@ -94,7 +94,7 @@ export class LeaderboardCommand implements DiscordCommand {
             id: null,
             virgin: [old_event.virgin.id, old_event.virgin.guild.id],
             connection_start: timestamp,
-            connection_end: null,
+            connection_end: undefined,
           });
         }
       }),

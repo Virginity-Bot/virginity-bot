@@ -2,7 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { InjectDiscordClient, On } from '@discord-nestjs/core';
 import { Client, Events, Guild } from 'discord.js';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { MikroORM, NotFoundError, UseRequestContext } from '@mikro-orm/core';
+import {
+  MikroORM,
+  NotFoundError,
+  RequiredEntityData,
+  UseRequestContext,
+} from '@mikro-orm/core';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
 import { GuildEntity } from 'src/entities/guild.entity';
@@ -46,7 +51,7 @@ export class UpdatedGuilds {
     this.guildRepo.create({
       id: guild.id,
       name: guild.name,
-    });
+    } as Partial<RequiredEntityData<GuildEntity>> as any);
 
     return await this.guildRepo.flush();
   }
