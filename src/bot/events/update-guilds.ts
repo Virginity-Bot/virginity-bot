@@ -35,7 +35,7 @@ export class UpdatedGuilds {
         const guild_ent = await this.guildRepo.upsert({
           id: guild.id,
           name: guild.name,
-          updatedAt: new Date(),
+          updated_at: new Date(),
         });
 
         await this.discord_helper.findOrCreateBiggestVirginRole(guild_ent);
@@ -62,7 +62,7 @@ export class UpdatedGuilds {
     this.guildRepo.upsert({
       id: old_guild.id,
       name: new_guild.name,
-      updatedAt: new Date(),
+      updated_at: new Date(),
     });
 
     return await this.guildRepo.flush();

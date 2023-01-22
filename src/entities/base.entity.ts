@@ -2,8 +2,8 @@ import { Property } from '@mikro-orm/core';
 
 export abstract class BaseEntity {
   @Property({ defaultRaw: 'NOW()', index: true })
-  createdAt: Date = new Date();
+  created_at: Date = new Date();
 
   @Property({ defaultRaw: 'NOW()', index: true, onUpdate: () => new Date() })
-  updatedAt: Date = new Date();
+  updated_at: Date = new Date();
 }
