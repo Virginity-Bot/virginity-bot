@@ -1,0 +1,24 @@
+# compiled output
+/dist
+/temp
+/build
+
+# dependencies
+/node_modules
+
+# OS
+.DS_Store
+
+# config
+/.vscode
+
+# git
+/.git
+.gitignore
+
+# self
+.dockerignore
+docker-compose*.yaml
+
+# secrets
+*.env
