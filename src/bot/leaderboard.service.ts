@@ -83,6 +83,7 @@ export class LeaderboardService {
     board_embed.addFields(
       fields.map((field) => ({ ...field, value: field.value.join('\n') })),
     );
+    // TODO(2): add some flavor text in an additional nameless embed
     return board_embed;
   }
 

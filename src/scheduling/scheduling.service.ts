@@ -60,6 +60,12 @@ export class TasksService {
           this.leaderboard.buildLeaderboardEmbed(guild_ent),
           this.discord_helper.findOrCreateVirginityBotChannel(guild_ent),
         ]);
+        // TODO(4): "week" here assumes that our `score.reset_schedule` remains weekly
+        leaderboard.setTitle(`Last week's biggest virgins:`);
+        leaderboard.addFields({
+          name: ' ',
+          value: 'Scores have now been reset 😇',
+        });
 
         // TODO(1): add some text to explain why this message was sent
         await channel.send({ embeds: [leaderboard] });
