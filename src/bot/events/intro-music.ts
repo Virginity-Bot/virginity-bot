@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectDiscordClient, On } from '@discord-nestjs/core';
-import { Client, Guild, VoiceState } from 'discord.js';
+import { On } from '@discord-nestjs/core';
+import { Guild, VoiceState } from 'discord.js';
 import {
   createAudioResource,
   joinVoiceChannel,
@@ -13,8 +13,9 @@ import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
-import { VirginEntity } from 'src/entities/virgin.entity';
 import { GuildEntity } from 'src/entities/guild.entity';
+import { VirginEntity } from 'src/entities/virgin.entity';
+import { VirginSettingsEntity } from 'src/entities/virgin-settings.entity';
 
 @Injectable()
 export class IntroMusic {
@@ -24,6 +25,8 @@ export class IntroMusic {
     private readonly orm: MikroORM,
     @InjectRepository(VirginEntity)
     private readonly virgins: EntityRepository<VirginEntity>,
+    @InjectRepository(VirginSettingsEntity)
+    private readonly virgin_settings: EntityRepository<VirginSettingsEntity>,
     @InjectRepository(GuildEntity)
     private readonly guilds: EntityRepository<GuildEntity>,
   ) {}
@@ -42,12 +45,24 @@ export class IntroMusic {
         new_state.member?.roles.resolve(guild_ent.biggest_virgin_role_id) !=
           null
       ) {
-        await this.playIntroMusic(new_state.guild, new_state.channelId);
+        const virgin_settings = await this.virgin_settings.findOne({
+          virgin_guilds: { id: new_state.member!.id },
+          // virgin_snowflake: new_state.member!.id,
+        });
+        await this.playIntroMusic(
+          new_state.guild,
+          new_state.channelId,
+          virgin_settings,
+        );
       }
     }
   }
 
-  playIntroMusic(guild: Guild, channel_id: string): Promise<void> {
+  playIntroMusic(
+    guild: Guild,
+    channel_id: string,
+    virgin_settings?: VirginSettingsEntity | null,
+  ): Promise<void> {
     return new Promise<void>((res, rej) => {
       const connection = joinVoiceChannel({
         channelId: channel_id,
@@ -62,7 +77,7 @@ export class IntroMusic {
       });
 
       const resource = createAudioResource(
-        'assets/assets_entrance_theme.opus',
+        `assets/${virgin_settings?.intro_song ?? 'entrance_theme.opus'}`,
         {
           metadata: { title: 'The Biggest Virgin!' },
           inlineVolume: true,
