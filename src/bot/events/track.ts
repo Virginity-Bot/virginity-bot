@@ -39,8 +39,6 @@ export class Track {
       return;
     }
 
-    this.logger.debug(`${userLogHeader(new_state)} caused a VC event.`);
-
     const timestamp = new Date();
     if (
       // Entering VC
@@ -52,6 +50,9 @@ export class Track {
         !this.isEligible(old_state) &&
         this.isEligible(new_state))
     ) {
+      this.logger.debug(
+        `${userLogHeader(new_state)} entered VC or unmuted / undeafened.`,
+      );
       // create new event
       const event = await this.database.openEvent(new_state, timestamp);
       await this.vcEventsRepo.persistAndFlush(event);
@@ -63,6 +64,9 @@ export class Track {
         this.isEligible(old_state) &&
         !this.isEligible(new_state))
     ) {
+      this.logger.debug(
+        `${userLogHeader(new_state)} left VC or muted / deafened.`,
+      );
       // close old event
       const event = await this.database.closeEvent(
         new_state.guild,
@@ -76,12 +80,16 @@ export class Track {
       old_state.channelId != null &&
       new_state.channelId == null
     ) {
+      this.logger.debug(`${userLogHeader(new_state)} switched VC channels.`);
       // we can just ignore this
     } else if (
       // Score multiplier change
       old_state.streaming != new_state.streaming ||
       old_state.selfVideo != new_state.selfVideo
     ) {
+      this.logger.debug(
+        `${userLogHeader(new_state)} caused a score multiplier change.`,
+      );
       const events = [
         // close old event
         await this.database.closeEvent(
@@ -93,6 +101,12 @@ export class Track {
         await this.database.openEvent(new_state, timestamp),
       ];
       await this.vcEventsRepo.persistAndFlush(events);
+    } else {
+      this.logger.debug([
+        `${userLogHeader(new_state)} made an unrecognized action.`,
+        old_state,
+        new_state,
+      ]);
     }
   }
 
