@@ -3,25 +3,15 @@ import { Cron } from '@nestjs/schedule';
 import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
-import { VirginEntity } from 'src/entities/virgin.entity';
-import { VCEventEntity } from 'src/entities/vc-event.entity';
-import {
-  ChannelType,
-  Client,
-  Collection,
-  Guild,
-  GuildChannel,
-  GuildMember,
-  NonThreadGuildBasedChannel,
-  TextChannel,
-  VoiceState,
-} from 'discord.js';
-import configuration from 'src/config/configuration';
-import { userLogHeader } from 'src/utils/logs';
-import { GuildEntity } from 'src/entities/guild.entity';
 import { InjectDiscordClient } from '@discord-nestjs/core';
+import { Client } from 'discord.js';
+
+import configuration from 'src/config/configuration';
 import { LeaderboardService } from 'src/bot/leaderboard.service';
 import { DiscordHelperService } from 'src/bot/discord-helper.service';
+import { GuildEntity } from 'src/entities/guild.entity';
+import { VirginEntity } from 'src/entities/virgin.entity';
+import { VCEventEntity } from 'src/entities/vc-event.entity';
 
 @Injectable()
 export class TasksService {
@@ -67,7 +57,6 @@ export class TasksService {
           value: 'Scores have now been reset 😇',
         });
 
-        // TODO(1): add some text to explain why this message was sent
         await channel.send({ embeds: [leaderboard] });
 
         // reset scores
