@@ -39,6 +39,7 @@ export class UpdatedGuilds {
         });
 
         await this.discord_helper.findOrCreateBiggestVirginRole(guild_ent);
+        await this.discord_helper.findOrCreateVirginityBotChannel(guild_ent);
       }),
     );
 
@@ -48,10 +49,13 @@ export class UpdatedGuilds {
   @On(Events.GuildCreate)
   @UseRequestContext()
   async guildJoined(guild: Guild): Promise<void> {
-    this.guildRepo.create({
+    const guild_ent = await this.guildRepo.upsert({
       id: guild.id,
       name: guild.name,
-    } as Partial<RequiredEntityData<GuildEntity>> as any);
+    });
+
+    await this.discord_helper.findOrCreateBiggestVirginRole(guild_ent);
+    await this.discord_helper.findOrCreateVirginityBotChannel(guild_ent);
 
     return await this.guildRepo.flush();
   }

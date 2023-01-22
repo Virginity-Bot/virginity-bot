@@ -7,13 +7,13 @@ import {
 } from '@discord-nestjs/core';
 import { GatewayIntentBits } from 'discord.js';
 
-import config from '../config/configuration';
+import configuration from '../config/configuration';
 
 @Injectable()
 export class DiscordConfigService implements DiscordOptionsFactory {
   createDiscordOptions(): DiscordModuleOption {
     return {
-      token: config.discord_token,
+      token: configuration.discord_token,
       discordClientOptions: {
         intents: [
           GatewayIntentBits.Guilds,

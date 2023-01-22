@@ -2,13 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import {
   ChannelType,
   Client,
-  Collection,
   Events,
-  Guild,
   GuildMember,
-  OAuth2Guild,
   PermissionsBitField,
   Role,
+  TextChannel,
 } from 'discord.js';
 import { InjectDiscordClient, On } from '@discord-nestjs/core';
 import configuration from 'src/config/configuration';
@@ -124,6 +122,45 @@ export class DiscordHelperService {
     guild_ent.biggest_virgin_role_id = role.id;
 
     return role;
+  }
+
+  /**
+   * Finds or creates the virginity bot text channel in a given guild.
+   */
+  async findOrCreateVirginityBotChannel(
+    guild_ent: GuildEntity,
+  ): Promise<TextChannel> {
+    const guild = this.client.guilds.resolve(guild_ent.id);
+    if (guild == null)
+      throw new Error(`Could not access guild ${guild_ent.id}`);
+
+    const channel =
+      (guild_ent.bot_channel_id != null
+        ? ((await guild.channels.fetch(
+            guild_ent.bot_channel_id,
+          )) as TextChannel)
+        : null) ??
+      (await guild.channels
+        .fetch()
+        .then((channels) =>
+          channels.filter(
+            (channel): channel is TextChannel =>
+              channel?.type === ChannelType.GuildText,
+          ),
+        )
+        .then(
+          (channels) =>
+            channels.find((channel) => channel.name === 'virginity-bot') ??
+            channels.find((channel) => channel.name === 'general') ??
+            guild.systemChannel,
+        )) ??
+      (await guild.channels.create<ChannelType.GuildText>({
+        type: ChannelType.GuildText,
+        name: configuration.channel.name,
+        topic: configuration.channel.description,
+      }));
+
+    return channel;
   }
 
   /**

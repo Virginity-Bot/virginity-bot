@@ -32,4 +32,11 @@ export default {
     color: (process.env.ROLE_COLOR ?? '#DA8C80') as ColorResolvable,
     emoji: process.env.ROLE_EMOJI ?? '👑',
   },
+
+  channel: {
+    name: process.env.CHANNEL_NAME ?? 'virginity-bot',
+    description:
+      process.env.CHANNEL_DESCRIPTION ??
+      'Compete with other virgins to claim the honor of being the biggest virgin.',
+  },
 };
