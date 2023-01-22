@@ -102,6 +102,12 @@ export class DiscordHelperService {
           hoist: true,
           mentionable: true,
         })
+        .then<Role>((role) => {
+          this.logger.debug(
+            `Created virginity-bot text channel in guild "${guild.name}"`,
+          );
+          return role;
+        })
         .then<Role>(async (role) => {
           // TODO(2): does this actually work?
           // await role.setPosition(0);
@@ -154,11 +160,18 @@ export class DiscordHelperService {
             channels.find((channel) => channel.name === 'general') ??
             guild.systemChannel,
         )) ??
-      (await guild.channels.create<ChannelType.GuildText>({
-        type: ChannelType.GuildText,
-        name: configuration.channel.name,
-        topic: configuration.channel.description,
-      }));
+      (await guild.channels
+        .create<ChannelType.GuildText>({
+          type: ChannelType.GuildText,
+          name: configuration.channel.name,
+          topic: configuration.channel.description,
+        })
+        .then<TextChannel>((guild) => {
+          this.logger.debug(
+            `Created virginity-bot text channel in guild "${guild.name}"`,
+          );
+          return guild;
+        }));
 
     return channel;
   }
