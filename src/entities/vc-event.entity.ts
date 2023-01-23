@@ -39,4 +39,8 @@ export class VCEventEntity extends BaseEntity {
   /** Whether or not the user is sharing their camera */
   @Property({ comment: 'Whether or not the user is sharing their camera' })
   camera: boolean = false;
+
+  /** Whether or not the user has a game open */
+  @Property({ comment: 'Whether or not the user has a game open' })
+  gaming: boolean = false;
 }
