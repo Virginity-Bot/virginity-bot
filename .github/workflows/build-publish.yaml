@@ -1,0 +1,54 @@
+name: 'Build & Publish Container images'
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'master'
+
+# TODO: what perms do we actually need?
+permissions:
+  contents: 'read'
+
+jobs:
+  build:
+    runs-on: 'ubuntu-latest'
+    environment: 'production'
+    steps:
+      - name: 'Checkout Repository 🛎️'
+        uses: 'actions/checkout@v3'
+
+      - name: 'Build 🏗️'
+        run: 'docker build -f Dockerfile bot .'
+
+      - name: 'Cache build 🧩'
+        uses: 'iunu/cache-build-artifact@v1'
+
+  publish:
+    runs-on: 'ubuntu-latest'
+    environment: 'production'
+    permissions:
+      packages: 'write'
+    steps:
+      - name: 'Get cached build 🧩'
+        uses: 'iunu/retrieve-build-artifact@v1'
+      - name: 'Login to GitHub Container Registry 🔑'
+        uses: 'docker/login-action@v1'
+        with:
+          registry: 'ghcr.io'
+          username: '${{ github.repository_owner }}'
+          password: '${{ secrets.GITHUB_TOKEN }}'
+
+      - name: Publish to Registry
+        run: |
+          REPO=ghcr.io/$(echo ${{ github.repository }} | tr '[A-Z]' '[a-z]')
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "master" ] && VERSION=latest
+
+          echo $REPO
+          echo $VERSION
+
+          docker tag bot $REPO/bot:$VERSION
+          docker push $REPO/bot:$VERSION
