@@ -23,6 +23,7 @@ export default {
     multiplier: {
       screen: parseFloat(process.env.SCORE_MULTIPLIER_SCREEN ?? '1.5'),
       camera: parseFloat(process.env.SCORE_MULTIPLIER_CAMERA ?? '1.5'),
+      gaming: parseFloat(process.env.SCORE_MULTIPLIER_CAMERA ?? '1.5'),
     },
     reset_schedule: process.env.SCORE_RESET_SCHEDULE ?? '0 2 * * Tue',
   },

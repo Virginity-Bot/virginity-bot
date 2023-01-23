@@ -42,9 +42,10 @@ export class DatabaseService {
     if (event.connection_end == null)
       throw new Error(`Event ${event.id} is missing a connection_end`);
 
-    let score_multiplier = 1;
-    if (event.screen) score_multiplier *= configuration.score.multiplier.screen;
-    if (event.camera) score_multiplier *= configuration.score.multiplier.camera;
+    const score_multiplier =
+      (event.screen ? configuration.score.multiplier.screen : 1) *
+      (event.camera ? configuration.score.multiplier.camera : 1) *
+      (event.gaming ? configuration.score.multiplier.gaming : 1);
 
     return Math.floor(
       Math.abs(
@@ -163,10 +164,12 @@ export class DatabaseService {
             EXTRACT(EPOCH FROM vc_event.connection_end - vc_event.connection_start) / 60
             * (CASE WHEN vc_event.screen THEN :screen_mult: ELSE 1 END)
             * (CASE WHEN vc_event.camera THEN :camera_mult: ELSE 1 END)
+            * (CASE WHEN vc_event.gaming THEN :gaming_mult: ELSE 1 END)
           ))`,
           {
             screen_mult: configuration.score.multiplier.screen,
             camera_mult: configuration.score.multiplier.camera,
+            gaming_mult: configuration.score.multiplier.gaming,
           },
         ),
       ])
