@@ -10,14 +10,6 @@
       "name": "Attach",
       "skipFiles": ["<node_internals>/**"],
       "restart": true
-    },
-    {
-      "type": "node",
-      "request": "attach",
-      "name": "Jest Attach",
-      "skipFiles": ["<node_internals>/**"],
-      "restart": true,
-      "continueOnAttach": true
     }
   ]
 }

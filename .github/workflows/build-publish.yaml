@@ -1,0 +1,117 @@
+name: 'Build & Publish Container images'
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'master'
+
+permissions:
+  contents: 'read'
+
+jobs:
+  build:
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: 'Checkout Repository 🛎️'
+        uses: 'actions/checkout@v3'
+      - name: 'Use Node.js 📗'
+        uses: 'actions/setup-node@v3'
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+      - name: 'Install packages 📥'
+        run: 'npm install'
+
+      - name: 'Build 🏗'
+        run: 'NODE_ENV=production npm run build'
+
+      - name: 'Cache build 🧩'
+        uses: 'iunu/cache-build-artifact@v1'
+        with:
+          archive-name: 'build'
+
+  lint:
+    needs: 'build'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: 'Get cached build 🧩'
+        uses: 'iunu/retrieve-build-artifact@v1'
+        with:
+          archive-name: 'build'
+      - name: 'Use Node.js 📗'
+        uses: 'actions/setup-node@v3'
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+
+      - name: 'Lint 🚨'
+        run: 'npm run lint'
+
+  test:
+    needs: 'build'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: 'Get cached build 🧩'
+        uses: 'iunu/retrieve-build-artifact@v1'
+        with:
+          archive-name: 'build'
+      - name: 'Use Node.js 📗'
+        uses: 'actions/setup-node@v3'
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+
+      - name: 'Test 🧪'
+        run: 'npm run test'
+
+  build-container:
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: 'Checkout Repository 🛎️'
+        uses: 'actions/checkout@v3'
+
+      - name: 'Build container 🐳'
+        run: 'docker build -f Dockerfile bot .'
+
+      - name: 'Cache container 🧩'
+        uses: 'iunu/cache-build-artifact@v1'
+        with:
+          archive-name: 'container'
+
+  publish:
+    needs:
+      - 'build-container'
+      - 'lint'
+      - 'test'
+    runs-on: 'ubuntu-latest'
+    permissions:
+      packages: 'write'
+    steps:
+      - name: 'Get cached container 🧩'
+        uses: 'iunu/retrieve-build-artifact@v1'
+        with:
+          archive-name: 'container'
+      - name: 'Login to GitHub Container Registry 🔑'
+        uses: 'docker/login-action@v1'
+        with:
+          registry: 'ghcr.io'
+          username: '${{ github.repository_owner }}'
+          password: '${{ secrets.GITHUB_TOKEN }}'
+
+      - name: 'Publish to Registry 💨'
+        run: |
+          REPO=ghcr.io/$(echo ${{ github.repository }} | tr '[A-Z]' '[a-z]')
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "master" ] && VERSION=latest
+
+          echo $REPO
+          echo $VERSION
+
+          docker tag bot $REPO/bot:$VERSION
+          docker push $REPO/bot:$VERSION

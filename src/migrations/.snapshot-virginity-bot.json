@@ -1,0 +1,659 @@
+{
+  "namespaces": [
+    "public"
+  ],
+  "name": "public",
+  "tables": [
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "uuid_generate_v4()",
+          "mappedType": "uuid"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "table_name": {
+          "name": "table_name",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "object_id": {
+          "name": "object_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "data": {
+          "name": "data",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "json"
+        }
+      },
+      "name": "deleted_record",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "deleted_record_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "comment": "Discord guild's snowflake identifier",
+          "mappedType": "text"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "comment": "Name of the Discord guild",
+          "mappedType": "text"
+        },
+        "biggest_virgin_role_id": {
+          "name": "biggest_virgin_role_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "comment": "ID of the biggest virgin role",
+          "mappedType": "text"
+        },
+        "bot_channel_id": {
+          "name": "bot_channel_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "comment": "ID of the virginity-bot channel",
+          "mappedType": "text"
+        },
+        "last_reset": {
+          "name": "last_reset",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "comment": "Timestamp when the last reset ocurred",
+          "mappedType": "datetime"
+        }
+      },
+      "name": "guild",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "keyName": "guild_id_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "created_at"
+          ],
+          "composite": false,
+          "keyName": "guild_created_at_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "updated_at"
+          ],
+          "composite": false,
+          "keyName": "guild_updated_at_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "guild_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "guild_snowflake": {
+          "name": "guild_snowflake",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "username": {
+          "name": "username",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "comment": "User's Discord username",
+          "mappedType": "text"
+        },
+        "discriminator": {
+          "name": "discriminator",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "comment": "User's Discord discriminator",
+          "mappedType": "text"
+        },
+        "nickname": {
+          "name": "nickname",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "comment": "User's Discord guild-specific nickname",
+          "mappedType": "text"
+        },
+        "cached_dur_in_vc": {
+          "name": "cached_dur_in_vc",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "0",
+          "comment": "The cached total duration the user has spent in VC. Keep in mind this can be out of date!",
+          "mappedType": "integer"
+        }
+      },
+      "name": "virgin",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "keyName": "virgin_id_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "created_at"
+          ],
+          "composite": false,
+          "keyName": "virgin_created_at_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "updated_at"
+          ],
+          "composite": false,
+          "keyName": "virgin_updated_at_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "username"
+          ],
+          "composite": false,
+          "keyName": "virgin_username_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "discriminator"
+          ],
+          "composite": false,
+          "keyName": "virgin_discriminator_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "cached_dur_in_vc"
+          ],
+          "composite": false,
+          "keyName": "virgin_cached_dur_in_vc_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "virgin_pkey",
+          "columnNames": [
+            "id",
+            "guild_snowflake"
+          ],
+          "composite": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "virgin_guild_snowflake_foreign": {
+          "constraintName": "virgin_guild_snowflake_foreign",
+          "columnNames": [
+            "guild_snowflake"
+          ],
+          "localTableName": "public.virgin",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.guild",
+          "updateRule": "cascade"
+        }
+      }
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "uuid_generate_v4()",
+          "mappedType": "uuid"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "virgin_snowflake": {
+          "name": "virgin_snowflake",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "guild_snowflake": {
+          "name": "guild_snowflake",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "connection_start": {
+          "name": "connection_start",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "comment": "The time the user entered VC",
+          "mappedType": "datetime"
+        },
+        "connection_end": {
+          "name": "connection_end",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "comment": "The time the user left VC",
+          "mappedType": "datetime"
+        },
+        "screen": {
+          "name": "screen",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "false",
+          "comment": "Whether or not the user is sharing their screen",
+          "mappedType": "boolean"
+        },
+        "camera": {
+          "name": "camera",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "false",
+          "comment": "Whether or not the user is sharing their camera",
+          "mappedType": "boolean"
+        },
+        "gaming": {
+          "name": "gaming",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "false",
+          "comment": "Whether or not the user has a game open",
+          "mappedType": "boolean"
+        }
+      },
+      "name": "vc_event",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "created_at"
+          ],
+          "composite": false,
+          "keyName": "vc_event_created_at_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "updated_at"
+          ],
+          "composite": false,
+          "keyName": "vc_event_updated_at_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "connection_start"
+          ],
+          "composite": false,
+          "keyName": "vc_event_connection_start_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "connection_end"
+          ],
+          "composite": false,
+          "keyName": "vc_event_connection_end_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "vc_event_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "vc_event_virgin_snowflake_guild_snowflake_foreign": {
+          "constraintName": "vc_event_virgin_snowflake_guild_snowflake_foreign",
+          "columnNames": [
+            "virgin_snowflake",
+            "guild_snowflake"
+          ],
+          "localTableName": "public.vc_event",
+          "referencedColumnNames": [
+            "id",
+            "guild_snowflake"
+          ],
+          "referencedTableName": "public.virgin",
+          "updateRule": "cascade"
+        }
+      }
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "uuid_generate_v4()",
+          "mappedType": "uuid"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "virgin_snowflake": {
+          "name": "virgin_snowflake",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "intro_song": {
+          "name": "intro_song",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "title_when_leader": {
+          "name": "title_when_leader",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        }
+      },
+      "name": "virgin_settings",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "created_at"
+          ],
+          "composite": false,
+          "keyName": "virgin_settings_created_at_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "updated_at"
+          ],
+          "composite": false,
+          "keyName": "virgin_settings_updated_at_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "virgin_settings_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "virgin_settings_virgin_snowflake_foreign": {
+          "constraintName": "virgin_settings_virgin_snowflake_foreign",
+          "columnNames": [
+            "virgin_snowflake"
+          ],
+          "localTableName": "public.virgin_settings",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.virgin",
+          "updateRule": "cascade"
+        }
+      }
+    }
+  ]
+}

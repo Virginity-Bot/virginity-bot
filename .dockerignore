@@ -1,10 +1,24 @@
-/node_modules
-/.vscode
-*.env
+# compiled output
+/dist
+/temp
 /build
-docker-compose.*yaml
+
+# dependencies
+/node_modules
+
+# OS
 .DS_Store
-.dockerignore
-/git
+
+# config
+/.vscode
+
+# git
+/.git
 .gitignore
 
+# self
+.dockerignore
+docker-compose*.yaml
+
+# secrets
+*.env

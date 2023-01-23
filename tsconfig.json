@@ -1,27 +1,23 @@
 {
-  "extends": "./node_modules/gts/tsconfig-google.json",
   "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "build",
-    "experimentalDecorators": true,
-    "allowJs": true,
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
     "emitDecoratorMetadata": true,
-    "esModuleInterop": true,
-    "target": "es2022",
-    "module": "NodeNext",
-    "resolveJsonModule": true,
-    "moduleResolution": "Node",
-    "baseUrl": "./",
+    "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "noStrictGenericChecks": true,
+    "target": "es2017",
     "sourceMap": true,
-    "strictBindCallApply": true,
-    "strictFunctionTypes": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
     "strictNullChecks": true,
-    "useUnknownInCatchVariables": true
-  },
-  "ts-node": {
-    "files": true
-  },
-  "include": ["src/", "test/**/*.ts", "environment.d.ts"]
+    "noImplicitAny": false,
+    "strictBindCallApply": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    // MikroORM wants this
+    "useDefineForClassFields": false
+  }
 }

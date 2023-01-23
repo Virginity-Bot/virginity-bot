@@ -1,4 +1,4 @@
-ARG USER=virgin
+ARG USER=vbot
 ARG APP_DIR=/home/${USER}/app
 ARG NODE_VERSION=18
 
@@ -28,6 +28,7 @@ LABEL maintainer="louis@orleans.io"
 ARG USER
 ARG APP_DIR
 ARG PORT=3000
+
 EXPOSE $PORT/tcp
 
 RUN useradd "$USER" --create-home;

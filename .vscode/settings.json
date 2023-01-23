@@ -11,5 +11,35 @@
   "[ruby]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "cSpell.words": ["mikro"]
+
+  "todo-tree.highlights.defaultHighlight": {
+    "type": "tag-and-subTag"
+  },
+
+  "dash.languageIdToDocsetMap": {
+    "typescript": [
+      "angularjs",
+      "angularts",
+      "chai",
+      "date-fns",
+      "express",
+      "extjs",
+      "jasmine",
+      "javascript",
+      "jsdoc",
+      "knex",
+      "lodash",
+      "moment",
+      "nodejs",
+      "require",
+      "rxjs",
+      "sinon",
+      "typescript",
+      "underscore"
+    ],
+    "yaml": ["yaml", "chef", "ansible", "jinja"],
+    "dockerfile": ["docker"]
+  },
+
+  "cSpell.words": ["Chonkiest", "chonky"]
 }
