@@ -32,11 +32,11 @@ export class VCEventEntity extends BaseEntity {
   @Property({ index: true, comment: 'The time the user left VC' })
   connection_end?: Date;
 
-  /** Wether or not the user is sharing their screen */
-  @Property({ comment: 'Wether or not the user is sharing their screen' })
+  /** Whether or not the user is sharing their screen */
+  @Property({ comment: 'Whether or not the user is sharing their screen' })
   screen: boolean = false;
 
-  /** Wether or not the user is sharing their camera */
-  @Property({ comment: 'Wether or not the user is sharing their camera' })
+  /** Whether or not the user is sharing their camera */
+  @Property({ comment: 'Whether or not the user is sharing their camera' })
   camera: boolean = false;
 }

@@ -28,8 +28,8 @@ export class Migration20230119113820 extends Migration {
     this.addSql('create table "vc_event" ("id" uuid not null default uuid_generate_v4(), "created_at" timestamptz(0) not null default now(), "updated_at" timestamptz(0) not null default now(), "virgin_snowflake" text not null, "guild_snowflake" text not null, "connection_start" timestamptz(0) not null default now(), "connection_end" timestamptz(0) null, "screen" boolean not null default false, "camera" boolean not null default false, constraint "vc_event_pkey" primary key ("id"));');
     this.addSql('comment on column "vc_event"."connection_start" is \'The time the user entered VC\';');
     this.addSql('comment on column "vc_event"."connection_end" is \'The time the user left VC\';');
-    this.addSql('comment on column "vc_event"."screen" is \'Wether or not the user is sharing their screen\';');
-    this.addSql('comment on column "vc_event"."camera" is \'Wether or not the user is sharing their camera\';');
+    this.addSql('comment on column "vc_event"."screen" is \'Whether or not the user is sharing their screen\';');
+    this.addSql('comment on column "vc_event"."camera" is \'Whether or not the user is sharing their camera\';');
     this.addSql('create index "vc_event_created_at_index" on "vc_event" ("created_at");');
     this.addSql('create index "vc_event_updated_at_index" on "vc_event" ("updated_at");');
     this.addSql('create index "vc_event_connection_start_index" on "vc_event" ("connection_start");');

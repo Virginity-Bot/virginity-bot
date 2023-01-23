@@ -453,7 +453,7 @@
           "primary": false,
           "nullable": false,
           "default": "false",
-          "comment": "Wether or not the user is sharing their screen",
+          "comment": "Whether or not the user is sharing their screen",
           "mappedType": "boolean"
         },
         "camera": {
@@ -464,7 +464,7 @@
           "primary": false,
           "nullable": false,
           "default": "false",
-          "comment": "Wether or not the user is sharing their camera",
+          "comment": "Whether or not the user is sharing their camera",
           "mappedType": "boolean"
         }
       },
