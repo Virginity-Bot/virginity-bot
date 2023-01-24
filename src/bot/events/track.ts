@@ -78,7 +78,7 @@ export class Track {
     } else if (
       // Switching VC
       old_state.channelId != null &&
-      new_state.channelId == null
+      new_state.channelId != null
     ) {
       this.logger.debug(`${userLogHeader(new_state)} switched VC channels.`);
       // we can just ignore this
