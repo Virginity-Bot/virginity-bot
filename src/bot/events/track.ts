@@ -9,7 +9,6 @@ import {
 } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
-import { sub, differenceInMinutes } from 'date-fns';
 
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
@@ -34,7 +33,7 @@ export class Track {
   @On(Events.VoiceStateUpdate)
   @UseRequestContext()
   async voiceStateUpdate(old_state: VoiceState, new_state: VoiceState) {
-    if (new_state.member?.user.bot) {
+    if (new_state.member == null || new_state.member.user.bot) {
       // User is a bot, so we don't need to track them.
       return;
     }
@@ -70,7 +69,7 @@ export class Track {
       // close old event
       const event = await this.database.closeEvent(
         new_state.guild,
-        new_state.member!,
+        new_state.member,
         timestamp,
       );
       if (event != null) await this.vcEventsRepo.persistAndFlush(event);
@@ -84,8 +83,8 @@ export class Track {
       // we can just ignore this
     } else if (
       // Score multiplier change
-      old_state.streaming != new_state.streaming ||
-      old_state.selfVideo != new_state.selfVideo
+      old_state.streaming !== new_state.streaming ||
+      old_state.selfVideo !== new_state.selfVideo
     ) {
       this.logger.debug(
         `${userLogHeader(new_state)} caused a score multiplier change.`,
@@ -94,7 +93,7 @@ export class Track {
         // close old event
         await this.database.closeEvent(
           new_state.guild,
-          new_state.member!,
+          new_state.member,
           timestamp,
         ),
         // create new event
@@ -113,7 +112,7 @@ export class Track {
   @On(Events.ClientReady)
   @UseRequestContext()
   async ready(client: Client): Promise<void> {
-    const now_minus_24_hours = sub(new Date(), { days: 1 });
+    // const now_minus_24_hours = sub(new Date(), { days: 1 });
     const users_in_vc = await this.discord_helper.getUsersInVC();
 
     await Promise.all(
@@ -125,7 +124,7 @@ export class Track {
             user,
           );
 
-          const res = await this.vcEventsRepo
+          await this.vcEventsRepo
             .findOneOrFail(
               {
                 virgin: [user_ent.id, user.guild.id],
@@ -141,7 +140,7 @@ export class Track {
                   virgin: [user_ent.id, user.guild.id],
                   camera: user.voice?.selfVideo ?? false,
                   screen: user.voice?.streaming ?? false,
-                } as Partial<RequiredEntityData<VCEventEntity>> as any);
+                } as Partial<RequiredEntityData<VCEventEntity>> as VCEventEntity);
               } else {
                 throw err;
               }

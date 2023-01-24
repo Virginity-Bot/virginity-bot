@@ -29,7 +29,7 @@ export class DiscordHelperService {
       throw new Error(`Discord.JS not yet initialized.`);
     }
 
-    let permissions =
+    const permissions =
       PermissionsBitField.Flags.ManageRoles +
       PermissionsBitField.Flags.ManageChannels +
       // TODO: do we need this to get slash commands?

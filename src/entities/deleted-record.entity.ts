@@ -25,5 +25,5 @@ export class DeletedRecord {
   object_id: string;
 
   @Property({ type: 'jsonb' })
-  data: Record<string, any>;
+  data: Record<string, unknown>;
 }

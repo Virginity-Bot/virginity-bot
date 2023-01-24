@@ -35,25 +35,27 @@ export class IntroMusic {
   @UseRequestContext()
   async voiceStateUpdate(old_state: VoiceState, new_state: VoiceState) {
     if (
-      new_state.channelId != null &&
-      new_state.channelId != old_state.channelId
+      new_state.channelId == null ||
+      new_state.channelId === old_state.channelId ||
+      new_state.member == null
     ) {
-      const guild_ent = await this.guilds.findOneOrFail(new_state.guild.id);
-      if (
-        guild_ent.biggest_virgin_role_id == null ||
-        new_state.member?.roles.resolve(guild_ent.biggest_virgin_role_id) !=
-          null
-      ) {
-        const virgin_settings = await this.virgin_settings.findOne({
-          virgin_guilds: { id: new_state.member!.id },
-          // virgin_snowflake: new_state.member!.id,
-        });
-        await this.playIntroMusic(
-          new_state.guild,
-          new_state.channelId,
-          virgin_settings,
-        );
-      }
+      return;
+    }
+
+    const guild_ent = await this.guilds.findOneOrFail(new_state.guild.id);
+    if (
+      guild_ent.biggest_virgin_role_id == null ||
+      new_state.member?.roles.resolve(guild_ent.biggest_virgin_role_id) != null
+    ) {
+      const virgin_settings = await this.virgin_settings.findOne({
+        virgin_guilds: { id: new_state.member.id },
+        // virgin_snowflake: new_state.member!.id,
+      });
+      await this.playIntroMusic(
+        new_state.guild,
+        new_state.channelId,
+        virgin_settings,
+      );
     }
   }
 
@@ -62,7 +64,7 @@ export class IntroMusic {
     channel_id: string,
     virgin_settings?: VirginSettingsEntity | null,
   ): Promise<void> {
-    return new Promise<void>((res, rej) => {
+    return new Promise<void>((resolve) => {
       const connection = joinVoiceChannel({
         channelId: channel_id,
         guildId: guild.id,
@@ -89,7 +91,7 @@ export class IntroMusic {
       player.on(AudioPlayerStatus.Idle, () => {
         player.stop();
         connection.destroy();
-        res();
+        resolve();
       });
     });
   }

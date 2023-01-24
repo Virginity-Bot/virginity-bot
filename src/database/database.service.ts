@@ -1,10 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import {
-  MikroORM,
-  NotFoundError,
-  RequiredEntityData,
-  UseRequestContext,
-} from '@mikro-orm/core';
+import { MikroORM, NotFoundError, RequiredEntityData } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import { VirginEntity } from 'src/entities/virgin.entity';
@@ -71,7 +66,7 @@ export class DatabaseService {
             discriminator: member.user.discriminator,
             nickname: member.nickname ?? undefined,
             guild: guild.id,
-          } as Partial<RequiredEntityData<VirginEntity>> as any);
+          } as Partial<RequiredEntityData<VirginEntity>> as VirginEntity);
         } else {
           throw err;
         }
@@ -82,15 +77,19 @@ export class DatabaseService {
    * Creates a new open vc_event for a user based on the given voice state.
    */
   async openEvent(state: VoiceState, timestamp: Date): Promise<VCEventEntity> {
+    if (state.member == null) {
+      this.logger.error([`State.member was null somehow`, state]);
+      throw new Error(`State.member was null somehow`);
+    }
     // TODO: maybe we don't actually need to talk to the DB right here?
-    const virgin = await this.findOrCreateVirgin(state.guild, state.member!);
+    const virgin = await this.findOrCreateVirgin(state.guild, state.member);
 
     const event = this.vcEventsRepo.create({
       virgin: [virgin.id, state.guild.id],
       connection_start: timestamp,
       screen: state.streaming ?? false,
       camera: state.selfVideo ?? false,
-    } as Partial<RequiredEntityData<VCEventEntity>> as any);
+    } as Partial<RequiredEntityData<VCEventEntity>> as VCEventEntity);
 
     return event;
   }
@@ -121,15 +120,13 @@ export class DatabaseService {
 
     // TODO(1): this should probably just recalculate their whole score
     const additional_score = this.calculateScoreForEvent(event);
-    this.logger.log(
+    this.logger.debug(
       `Giving ${userLogHeader(virgin, guild)} ${additional_score} points`,
     );
 
-    virgin.cached_dur_in_vc += additional_score;
-
     const total_score = await this.calculateScore(virgin.id, guild.id);
 
-    if (virgin.cached_dur_in_vc != total_score) {
+    if (virgin.cached_dur_in_vc + additional_score !== total_score) {
       this.logger.warn(
         [
           `Score mismatch! User ${userLogHeader(
@@ -141,6 +138,9 @@ export class DatabaseService {
         ].join(' '),
       );
     }
+
+    // TODO: remove this once `calculateScore` writes to the DB on its own
+    virgin.cached_dur_in_vc = total_score;
 
     // virgin.cached_dur_in_vc = total_score;
 
@@ -154,6 +154,7 @@ export class DatabaseService {
     // TODO(2): is there a better place to get a query builder from?
     const qb = this.vcEventsRepo.createQueryBuilder();
 
+    // TODO: write result to DB
     const res = await qb
       .getKnex()
       .select([

@@ -11,6 +11,8 @@ import configuration from 'src/config/configuration';
 import { DiscordHelperService } from './discord-helper.service';
 import { DatabaseService } from 'src/database/database.service';
 
+type APIEmbedFieldArray = APIEmbedField & { value: (string | number)[] };
+
 @Injectable()
 export class LeaderboardService {
   constructor(
@@ -95,5 +97,3 @@ export class LeaderboardService {
     }`;
   }
 }
-
-type APIEmbedFieldArray = APIEmbedField & { value: (string | number)[] };

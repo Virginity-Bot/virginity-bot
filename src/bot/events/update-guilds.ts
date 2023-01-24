@@ -2,12 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectDiscordClient, On } from '@discord-nestjs/core';
 import { Client, Events, Guild } from 'discord.js';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import {
-  MikroORM,
-  NotFoundError,
-  RequiredEntityData,
-  UseRequestContext,
-} from '@mikro-orm/core';
+import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
 import { GuildEntity } from 'src/entities/guild.entity';
@@ -43,7 +38,7 @@ export class UpdatedGuilds {
       }),
     );
 
-    return await this.guildRepo.flush();
+    return this.guildRepo.flush();
   }
 
   @On(Events.GuildCreate)
@@ -57,7 +52,7 @@ export class UpdatedGuilds {
     await this.discord_helper.findOrCreateBiggestVirginRole(guild_ent);
     await this.discord_helper.findOrCreateVirginityBotChannel(guild_ent);
 
-    return await this.guildRepo.flush();
+    return this.guildRepo.flush();
   }
 
   @On(Events.GuildUpdate)
@@ -69,7 +64,7 @@ export class UpdatedGuilds {
       updated_at: new Date(),
     });
 
-    return await this.guildRepo.flush();
+    return this.guildRepo.flush();
   }
 
   @On(Events.GuildDelete)

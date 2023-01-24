@@ -7,7 +7,6 @@ import {
 } from '@mikro-orm/core';
 import { v4 } from 'uuid';
 
-import { GuildEntity } from './guild.entity';
 import { VirginEntity } from './virgin.entity';
 import { BaseEntity } from './base.entity';
 

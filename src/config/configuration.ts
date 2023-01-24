@@ -1,13 +1,20 @@
+/* eslint no-process-env: "off" */
+
 // TODO: switch to using @nestjs/config
 import { ColorResolvable } from 'discord.js';
 import { config } from 'dotenv';
 
 config();
 
-// export default () => ({
-export default {
+const configuration = {
   db: {
-    type: (process.env.DATABASE_TYPE ?? 'postgresql') as any,
+    type: (process.env.DATABASE_TYPE ?? 'postgresql') as
+      | 'postgresql'
+      | 'mongo'
+      | 'mysql'
+      | 'mariadb'
+      | 'sqlite'
+      | 'better-sqlite',
     url: process.env.DATABASE_URL,
     pool: {
       min: parseInt(process.env.DATABASE_POOL_MIN ?? '1'),
@@ -17,7 +24,7 @@ export default {
 
   port: parseInt(process.env.PORT ?? '3000'),
 
-  discord_token: process.env.DISCORD_TOKEN!,
+  discord_token: process.env.DISCORD_TOKEN as string,
 
   score: {
     multiplier: {
@@ -41,3 +48,5 @@ export default {
       'Compete with other virgins to claim the honor of being the biggest virgin.',
   },
 };
+
+export default configuration;

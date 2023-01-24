@@ -10,14 +10,9 @@ import {
   ChatInputCommandInteraction,
   MessagePayload,
   StringSelectMenuInteraction,
-  EmbedBuilder,
   Client,
-  Role,
-  GuildMember,
-  ColorResolvable,
-  APIEmbedField,
 } from 'discord.js';
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { UseRequestContext, MikroORM } from '@mikro-orm/core';
 import { EntityRepository } from '@mikro-orm/postgresql';
@@ -36,6 +31,8 @@ import { LeaderboardService } from '../leaderboard.service';
 })
 @Injectable()
 export class LeaderboardCommand implements DiscordCommand {
+  private readonly logger = new Logger(LeaderboardCommand.name);
+
   constructor(
     private readonly orm: MikroORM,
     @InjectRepository(GuildEntity)
@@ -58,14 +55,22 @@ export class LeaderboardCommand implements DiscordCommand {
       ButtonInteraction<CacheType> | StringSelectMenuInteraction<CacheType>
     >,
   ): Promise<MessagePayload> {
-    await this.recalculateScores(interaction.guildId!);
+    if (interaction.guildId == null || interaction.guild == null) {
+      this.logger.error([`interaction.guildId was null somehow`, interaction]);
+      throw new Error(`interaction.guildId was null somehow`);
+    } else if (interaction.channel == null) {
+      this.logger.error([`interaction.channel was null somehow`, interaction]);
+      throw new Error(`interaction.channel was null somehow`);
+    }
+
+    await this.recalculateScores(interaction.guildId);
 
     const leaderboard = await this.leaderboard.buildLeaderboardEmbed(
-      interaction.guild!,
+      interaction.guild,
       interaction.user,
     );
 
-    return new MessagePayload(interaction.channel!, { embeds: [leaderboard] });
+    return new MessagePayload(interaction.channel, { embeds: [leaderboard] });
   }
 
   virginToLeaderboardLine(virgin: VirginEntity, pos: number | string): string {
