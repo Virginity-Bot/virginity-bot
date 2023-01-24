@@ -2,6 +2,22 @@ extends:
   - '@iunu-inc'
   - '@iunu-inc/node'
   - '@iunu-inc/typescript'
+  - 'plugin:import/typescript'
 root: true
 # parserOptions:
 #   ecmaVersion:
+ignorePatterns: ['/src/migrations']
+rules:
+  'no-warning-comments': 'off'
+  'import/extensions': 'off'
+  '@typescript-eslint/no-inferrable-types': 'off'
+  'no-useless-constructor': 'off'
+  'consistent-return': 'off'
+  'require-await': 'off'
+  'no-shadow': 'off'
+  '@typescript-eslint/no-unused-vars': ['warn', { 'args': 'none' }]
+  'promise/no-nesting': 'off'
+  'require-atomic-updates': ['warn', { 'allowProperties': true }]
+settings:
+  'import/resolver':
+    typescript:
