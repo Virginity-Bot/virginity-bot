@@ -88,22 +88,20 @@ jobs:
           # Use Docker `latest` tag convention
           [ "$VERSION" == "main" ] || [ "$VERSION" == "master" ] && VERSION=latest
 
-          echo "REPO=$REPO" >> "$GITHUB_OUTPUT"
-          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "IMAGE_TAG=$REPO/bot:$VERSION" >> "$GITHUB_OUTPUT"
+          echo "image_tag=$REPO/bot:$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: 'Build container 🐳'
         uses: 'docker/build-push-action@v3'
         with:
           file: 'Dockerfile'
           build-args: 'NODE_VERSION=${{ steps.node-version.outputs.node_version }}'
-          tags: 'bot,${{ steps.tag-image.outputs.IMAGE_TAG }}'
+          tags: 'bot,${{ steps.tag-image.outputs.image_tag }}'
           cache-from: 'type=gha'
           cache-to: 'type=gha,mode=max'
 
     outputs:
       node_version: '${{ steps.node-version.outputs.node_version }}'
-      image_tag: '${{ steps.tag-image.outputs.IMAGE_TAG }}'
+      image_tag: '${{ steps.tag-image.outputs.image_tag }}'
 
   publish:
     needs:
