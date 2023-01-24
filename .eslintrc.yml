@@ -18,6 +18,7 @@ rules:
   '@typescript-eslint/no-unused-vars': ['warn', { 'args': 'none' }]
   'promise/no-nesting': 'off'
   'require-atomic-updates': ['warn', { 'allowProperties': true }]
+  'import/no-cycle': 'off'
 settings:
   'import/resolver':
     typescript:
