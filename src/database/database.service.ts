@@ -189,6 +189,6 @@ export class DatabaseService {
       )
       .groupBy(['vc_event.virgin_snowflake', 'vc_event.guild_snowflake']);
 
-    return res[0]?.sum ?? 0;
+    return parseInt(res[0]?.sum ?? '0');
   }
 }
