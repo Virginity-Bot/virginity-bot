@@ -22,6 +22,10 @@ const configuration = {
     },
   },
 
+  mikro_orm: {
+    cache_dir: process.env.MIKRO_ORM_CACHE_DIR ?? `${process.cwd()}/temp`,
+  },
+
   port: parseInt(process.env.PORT ?? '3000'),
 
   discord_token: process.env.DISCORD_TOKEN as string,

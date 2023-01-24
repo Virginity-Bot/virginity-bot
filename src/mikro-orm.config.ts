@@ -29,6 +29,10 @@ const config: Options = {
     min: configuration.db.pool.min,
     max: configuration.db.pool.max,
   },
+
+  cache: {
+    options: { cacheDir: configuration.mikro_orm.cache_dir },
+  },
 };
 
 export default config;
