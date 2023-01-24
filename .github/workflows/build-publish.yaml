@@ -118,13 +118,7 @@ jobs:
           username: '${{ github.repository_owner }}'
           password: '${{ secrets.GITHUB_TOKEN }}'
 
-
-
-
-
       - name: 'Publish to Registry 💨'
-        # run: |
-        #   docker push $REPO/bot:$VERSION
         uses: 'docker/build-push-action@v3'
         with:
           push: true
