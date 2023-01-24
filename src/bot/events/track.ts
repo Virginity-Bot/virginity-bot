@@ -13,7 +13,7 @@ import { EntityRepository } from '@mikro-orm/postgresql';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
 import { DatabaseService } from 'src/database/database.service';
-import { DiscordHelperService } from '../discord-helper.service';
+import { DiscordHelperService } from 'src/bot/discord-helper.service';
 import { userLogHeader } from 'src/utils/logs';
 
 @Injectable()

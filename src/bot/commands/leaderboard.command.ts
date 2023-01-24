@@ -21,8 +21,8 @@ import { VirginEntity } from 'src/entities/virgin.entity';
 import { GuildEntity } from 'src/entities/guild.entity';
 import configuration from 'src/config/configuration';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
-import { DiscordHelperService } from '../discord-helper.service';
 import { DatabaseService } from 'src/database/database.service';
+import { DiscordHelperService } from '../discord-helper.service';
 import { LeaderboardService } from '../leaderboard.service';
 
 @Command({

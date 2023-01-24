@@ -2,11 +2,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import { MikroORM, NotFoundError, RequiredEntityData } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
+import { Guild, GuildMember, VoiceState } from 'discord.js';
+import { differenceInMinutes } from 'date-fns';
+
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
-import { Guild, GuildMember, VoiceState } from 'discord.js';
 import configuration from 'src/config/configuration';
-import { differenceInMinutes } from 'date-fns';
 import { userLogHeader } from 'src/utils/logs';
 
 @Injectable()
