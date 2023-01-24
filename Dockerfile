@@ -39,6 +39,6 @@ COPY --from=builder ${APP_DIR} ${APP_DIR}/
 RUN npm clean-install --omit=dev
 
 USER ${USER}
-CMD npm run start
+CMD npm run start:prod
 
 # HEALTHCHECK CMD curl --fail localhost:${PORT}/health || exit 1
