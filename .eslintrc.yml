@@ -1,4 +1,7 @@
-extends: '@iunu-inc'
+extends:
+  - '@iunu-inc'
+  - '@iunu-inc/node'
+  - '@iunu-inc/typescript'
 root: true
 # parserOptions:
 #   ecmaVersion:
