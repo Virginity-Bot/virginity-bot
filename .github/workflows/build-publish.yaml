@@ -86,14 +86,18 @@ jobs:
 
           echo "REPO=$REPO" >> "$GITHUB_OUTPUT"
           echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "IMAGE_TAG=$REPO/bot:$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: 'Build container 🐳'
         uses: 'docker/build-push-action@v3'
         with:
           file: 'Dockerfile'
-          tags: 'bot,${{ steps.tag-image.outputs.REPO }}/bot:${{ steps.tag-image.outputs.VERSION }}'
+          tags: 'bot,${{ steps.tag-image.outputs.IMAGE_TAG }}'
           cache-from: 'type=gha'
           cache-to: 'type=gha,mode=max'
+
+    outputs:
+      image_tag: '${{ steps.tag-image.outputs.IMAGE_TAG }}'
 
   publish:
     needs:
@@ -124,5 +128,5 @@ jobs:
         uses: 'docker/build-push-action@v3'
         with:
           push: true
-          tags: '${{ steps.tag-image.outputs.REPO }}/bot:${{ steps.tag-image.outputs.VERSION }}'
+          tags: '${{ needs.build-container.outputs.image_tag }}'
           cache-from: 'type=gha'
