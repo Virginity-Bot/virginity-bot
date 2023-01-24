@@ -105,8 +105,9 @@ jobs:
           path: '/tmp/bot.image'
       - name: 'Import cached build 🪃'
         run: |
+          ls -lha /tmp
+          ls -lha /build-*/
           docker import "/tmp/bot.image/build-${{ github.sha }}/bot.image.tar" bot:latest
-
       - name: 'Login to GitHub Container Registry 🔑'
         uses: 'docker/login-action@v1'
         with:
