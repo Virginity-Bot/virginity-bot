@@ -75,7 +75,10 @@ jobs:
         uses: 'actions/checkout@v3'
 
       - name: 'Build container 🐳'
-        run: 'docker build . --file Dockerfile --tag bot'
+        uses: 'docker/build-push-action@v3'
+        with:
+          file: 'Dockerfile'
+          tags: 'bot'
 
       - name: 'Tar container 🤐'
         run: 'docker save bot:latest --output /tmp/bot.image.tar'
@@ -111,16 +114,24 @@ jobs:
           username: '${{ github.repository_owner }}'
           password: '${{ secrets.GITHUB_TOKEN }}'
 
-      - name: 'Publish to Registry 💨'
+      - name: 'Tag image 🏷️'
+        id: 'tag-image'
         run: |
           REPO=ghcr.io/$(echo ${{ github.repository }} | tr '[A-Z]' '[a-z]')
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
 
           # Use Docker `latest` tag convention
-          [ "$VERSION" == "master" ] && VERSION=latest
+          [ "$VERSION" == "main" ] || [ "$VERSION" == "master" ] && VERSION=latest
 
-          echo $REPO
-          echo $VERSION
+          echo "REPO=$REPO" >> "$GITHUB_OUTPUT"
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
 
           docker tag bot $REPO/bot:$VERSION
-          docker push $REPO/bot:$VERSION
+
+      - name: 'Publish to Registry 💨'
+        # run: |
+        #   docker push $REPO/bot:$VERSION
+        uses: 'docker/build-push-action@v3'
+        with:
+          push: true
+          tags: '${{ steps.tag-image.outputs.REPO }}/bot:${{ steps.tag-image.outputs.VERSION }}'
