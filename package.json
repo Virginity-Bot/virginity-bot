@@ -41,6 +41,7 @@
     "@nestjs/schedule": "^2.1.0",
     "date-fns": "^2.29.3",
     "discord.js": "^14.7.1",
+    "dotenv": "^16.0.3",
     "ffmpeg-static": "^5.1.0",
     "opusscript": "^0.0.8",
     "reflect-metadata": "^0.1.13",
