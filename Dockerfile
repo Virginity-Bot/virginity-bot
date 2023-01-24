@@ -27,9 +27,6 @@ LABEL maintainer="louis@orleans.io"
 
 ARG USER
 ARG APP_DIR
-ARG PORT=3000
-
-EXPOSE $PORT/tcp
 
 RUN useradd "$USER" --create-home;
 WORKDIR ${APP_DIR}
@@ -39,6 +36,9 @@ COPY --from=builder ${APP_DIR} ${APP_DIR}/
 RUN npm clean-install --omit=dev
 
 ENV MIKRO_ORM_CACHE_DIR=/tmp/mikroorm-cache
+
+ARG PORT=3000
+EXPOSE $PORT/tcp
 
 USER ${USER}
 CMD npm run start:prod
