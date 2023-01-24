@@ -39,6 +39,7 @@ ENV MIKRO_ORM_CACHE_DIR=/tmp/mikroorm-cache
 
 ARG PORT=3000
 EXPOSE $PORT/tcp
+ENV PORT $PORT
 
 USER ${USER}
 CMD npm run start:prod
