@@ -75,7 +75,7 @@ jobs:
         uses: 'actions/checkout@v3'
 
       - name: 'Build container 🐳'
-        run: 'docker build -f Dockerfile bot .'
+        run: 'docker build . -f Dockerfile -t bot'
 
       - name: 'Cache container 🧩'
         uses: 'iunu/cache-build-artifact@v1'
