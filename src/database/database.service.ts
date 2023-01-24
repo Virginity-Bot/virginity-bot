@@ -125,16 +125,17 @@ export class DatabaseService {
       `Giving ${userLogHeader(virgin, guild)} ${additional_score} points`,
     );
 
+    const additive_score = virgin.cached_dur_in_vc + additional_score;
     const total_score = await this.calculateScore(virgin.id, guild.id);
 
-    if (virgin.cached_dur_in_vc + additional_score !== total_score) {
+    if (additive_score !== total_score) {
       this.logger.warn(
         [
           `Score mismatch! User ${userLogHeader(
             virgin,
             guild,
           )}'s score did not match our expected value from calculations!`,
-          `Cached: ${virgin.cached_dur_in_vc}`,
+          `Cached: ${additive_score}`,
           `Calculated SQL: ${total_score}`,
         ].join(' '),
       );
