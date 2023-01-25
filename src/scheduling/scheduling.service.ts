@@ -45,7 +45,7 @@ export class TasksService {
       guilds.map(async (guild_ent) => {
         // TODO: close all open events and start new ones in-place
 
-        //Getting the Biggest Virgin for the announcement
+        // Getting the Biggest Virgin for the announcement
         const top_virgins = await this.virgins.find(
           { guild: guild_ent.id },
           { orderBy: [{ cached_dur_in_vc: -1 }], limit: 10 },
