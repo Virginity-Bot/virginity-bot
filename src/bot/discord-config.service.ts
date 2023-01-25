@@ -20,6 +20,7 @@ export class DiscordConfigService implements DiscordOptionsFactory {
           GatewayIntentBits.GuildMessages,
           GatewayIntentBits.GuildVoiceStates,
           GatewayIntentBits.GuildMembers,
+          GatewayIntentBits.GuildPresences,
         ],
       },
       failOnLogin: true,

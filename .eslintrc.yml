@@ -19,6 +19,7 @@ rules:
   'promise/no-nesting': 'off'
   'require-atomic-updates': ['warn', { 'allowProperties': true }]
   'import/no-cycle': 'off'
+  'lines-between-class-members': 'off'
 settings:
   'import/resolver':
     typescript:
