@@ -62,23 +62,36 @@ export class LeaderboardService {
       if (top_virgins.find((v) => v.id === requester.id) == null) {
         // The requesting user didn't show up in the leaderboard
 
-        const requester_ent = await this.virginsRepo.findOneOrFail([
+        const requester_ent = await this.virginsRepo.findOne([
           requester.id,
           guild.id,
         ]);
 
-        const qb = this.virginsRepo.qb();
-        const requester_place = await qb
-          .raw<Promise<{ rows: { array_position: number } }>>(
-            `SELECT ARRAY_POSITION(ARRAY(SELECT id FROM virgin WHERE guild_snowflake = ? ORDER BY cached_dur_in_vc DESC), ?)`,
-            [requester_ent.guild.id, requester_ent.id],
-          )
-          .then((res) => res.rows[0].array_position);
-
         fields[0].value.push('...');
-        fields[0].value.push(
-          this.virginToLeaderboardLine(requester_ent, requester_place),
-        );
+
+        if (requester_ent == null) {
+          fields[0].value.push(
+            this.virginToLeaderboardLine(
+              {
+                username: requester.username,
+                cached_dur_in_vc: 0,
+              },
+              '?',
+            ),
+          );
+        } else {
+          const qb = this.virginsRepo.qb();
+          const requester_place = await qb
+            .raw<Promise<{ rows: { array_position: number } }>>(
+              `SELECT ARRAY_POSITION(ARRAY(SELECT id FROM virgin WHERE guild_snowflake = ? ORDER BY cached_dur_in_vc DESC), ?)`,
+              [requester_ent.guild.id, requester_ent.id],
+            )
+            .then((res) => res.rows[0].array_position);
+
+          fields[0].value.push(
+            this.virginToLeaderboardLine(requester_ent, requester_place),
+          );
+        }
       }
     }
 
@@ -89,7 +102,10 @@ export class LeaderboardService {
     return board_embed;
   }
 
-  virginToLeaderboardLine(virgin: VirginEntity, pos: number | string): string {
+  virginToLeaderboardLine(
+    virgin: Pick<VirginEntity, 'username' | 'nickname' | 'cached_dur_in_vc'>,
+    pos: number | string,
+  ): string {
     return `**${pos}.** ${pos === 1 ? '**' : ''}${
       virgin.nickname ?? virgin.username
     }${pos === 1 ? `** ${configuration.role.emoji}` : ''} — ${
