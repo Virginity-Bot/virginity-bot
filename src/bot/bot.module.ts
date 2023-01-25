@@ -10,6 +10,7 @@ import { IntroMusic } from './events/intro-music';
 import { Track } from './events/track';
 import { UpdateUsers } from './events/update-users';
 import { LeaderboardService } from './leaderboard.service';
+import { ScoreCommand } from './commands/score.command';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { LeaderboardService } from './leaderboard.service';
     LeaderboardService,
 
     LeaderboardCommand,
+    ScoreCommand,
 
     IntroMusic,
     Track,

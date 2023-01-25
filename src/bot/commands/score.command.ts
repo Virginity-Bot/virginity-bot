@@ -11,6 +11,7 @@ import {
   MessagePayload,
   StringSelectMenuInteraction,
 } from 'discord.js';
+import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
@@ -18,16 +19,19 @@ import { VirginEntity } from 'src/entities/virgin.entity';
 
 @Command({
   name: 'score',
-  description: 'Replies with the users score.',
+  description: `Replies with the virgin's score.`,
 })
 @Injectable()
 export class ScoreCommand implements DiscordCommand {
   private readonly logger = new Logger(ScoreCommand.name);
 
   constructor(
+    private readonly orm: MikroORM,
     @InjectRepository(VirginEntity)
-    private readonly virginsRepo: EntityRepository<VirginEntity>,
+    private readonly virgins: EntityRepository<VirginEntity>,
   ) {}
+
+  @UseRequestContext()
   async handler(
     interaction: ChatInputCommandInteraction<CacheType>,
     ctx: CommandExecutionContext<
@@ -40,13 +44,19 @@ export class ScoreCommand implements DiscordCommand {
     } else if (interaction.channel == null) {
       this.logger.error([`interaction.channel was null somehow`, interaction]);
       throw new Error(`interaction.channel was null somehow`);
+    } else if (interaction.guild == null) {
+      this.logger.error([`interaction.guild was null somehow`, interaction]);
+      throw new Error(`interaction.guild was null somehow`);
     }
 
-    const userScore = this.virginsRepo.findOneOrFail({
-      id: interaction.member.user.id,
-    });
+    // TODO: account for in-progress VC events
+    const caller = await this.virgins.findOne([
+      interaction.member.user.id,
+      interaction.guild.id,
+    ]);
+    // TODO(2): add flavor text
     return new MessagePayload(interaction.channel, {
-      content: `You Score is: ${userScore}!`,
+      content: `Your score is: ${caller?.cached_dur_in_vc ?? 0}.`,
     });
   }
 }
