@@ -16,6 +16,8 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
 import { VirginEntity } from 'src/entities/virgin.entity';
+import { VCEventEntity } from 'src/entities/vc-event.entity';
+import { DatabaseService } from 'src/database/database.service';
 
 @Command({
   name: 'score',
@@ -29,6 +31,9 @@ export class ScoreCommand implements DiscordCommand {
     private readonly orm: MikroORM,
     @InjectRepository(VirginEntity)
     private readonly virgins: EntityRepository<VirginEntity>,
+    @InjectRepository(VCEventEntity)
+    private readonly vc_events: EntityRepository<VCEventEntity>,
+    private readonly database: DatabaseService,
   ) {}
 
   @UseRequestContext()
@@ -49,11 +54,24 @@ export class ScoreCommand implements DiscordCommand {
       throw new Error(`interaction.guild was null somehow`);
     }
 
-    // TODO: account for in-progress VC events
+    const timestamp = new Date(interaction.createdTimestamp);
+
+    const in_prog_event = await this.database.closeEvent(
+      interaction.guild,
+      interaction.member,
+      timestamp,
+    );
+
+    if (in_prog_event != null) {
+      await this.database.openEvent(in_prog_event, null, timestamp);
+      await this.vc_events.flush();
+    }
+
     const caller = await this.virgins.findOne([
       interaction.member.user.id,
       interaction.guild.id,
     ]);
+
     // TODO(2): add flavor text
     return new MessagePayload(interaction.channel, {
       content: `Your score is: ${caller?.cached_dur_in_vc ?? 0}.`,

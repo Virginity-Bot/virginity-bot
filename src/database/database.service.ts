@@ -2,7 +2,14 @@ import { Injectable, Logger } from '@nestjs/common';
 import { MikroORM, NotFoundError, RequiredEntityData } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
-import { Guild, GuildMember, VoiceState } from 'discord.js';
+import {
+  APIInteractionGuildMember,
+  Client,
+  Guild,
+  GuildMember,
+  VoiceState,
+} from 'discord.js';
+import { InjectDiscordClient } from '@discord-nestjs/core';
 import { differenceInMinutes } from 'date-fns';
 
 import { VirginEntity } from 'src/entities/virgin.entity';
@@ -22,6 +29,8 @@ export class DatabaseService {
     @InjectRepository(VCEventEntity)
     private readonly vcEventsRepo: EntityRepository<VCEventEntity>,
     private readonly discord_helper: DiscordHelperService,
+    @InjectDiscordClient()
+    private readonly discord_client: Client,
   ) {}
 
   /**
@@ -55,20 +64,35 @@ export class DatabaseService {
   /**
    * Finds (or if none found creates) a virgin record.
    */
-  findOrCreateVirgin(guild: Guild, member: GuildMember): Promise<VirginEntity> {
+  findOrCreateVirgin(
+    guild: Guild,
+    member: GuildMember | APIInteractionGuildMember,
+  ): Promise<VirginEntity> {
     return this.virginsRepo
       .findOneOrFail({
         guild: guild.id,
-        id: member.id,
+        id: member.user.id,
       })
-      .catch((err) => {
+      .catch(async (err) => {
         if (err instanceof NotFoundError) {
+          let nickname;
+          if ('nickname' in (member as GuildMember)) {
+            nickname = (member as GuildMember).nickname;
+          } else {
+            nickname =
+              (
+                await (
+                  await this.discord_client.guilds.fetch(guild.id)
+                ).members.fetch(member.user.id)
+              ).nickname ?? undefined;
+          }
+
           return this.virginsRepo.create({
-            id: member.id,
+            id: member.user.id,
+            guild: guild.id,
             username: member.user.username,
             discriminator: member.user.discriminator,
-            nickname: member.nickname ?? undefined,
-            guild: guild.id,
+            nickname,
           } as Partial<RequiredEntityData<VirginEntity>> as VirginEntity);
         } else {
           throw err;
@@ -139,7 +163,7 @@ export class DatabaseService {
    */
   async closeEvent(
     guild: Guild,
-    member: GuildMember,
+    member: GuildMember | APIInteractionGuildMember,
     timestamp: Date,
   ): Promise<VCEventEntity | undefined> {
     // TODO: maybe we don't actually need to talk to the DB right here?
