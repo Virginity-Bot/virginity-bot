@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Inject, Module } from '@nestjs/common';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 
 import config from 'src/mikro-orm.config'; // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -7,6 +7,7 @@ import { VirginEntity } from 'src/entities/virgin.entity';
 import { VirginSettingsEntity } from 'src/entities/virgin-settings.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
 import { DatabaseService } from 'src/database/database.service';
+import { BotModule } from 'src/bot/bot.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { DatabaseService } from 'src/database/database.service';
         VCEventEntity,
       ],
     }),
+    forwardRef(() => BotModule),
   ],
   providers: [DatabaseService],
   exports: [MikroOrmModule, DatabaseService],
