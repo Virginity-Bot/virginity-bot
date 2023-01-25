@@ -1,5 +1,5 @@
 import { DiscordModule } from '@discord-nestjs/core';
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { DiscordConfigService } from 'src/bot/discord-config.service';
 import { DatabaseModule } from 'src/database/database.module';
 import { LeaderboardCommand } from './commands/leaderboard.command';
@@ -16,7 +16,7 @@ import { LeaderboardService } from './leaderboard.service';
     DiscordModule.forRootAsync({
       useClass: DiscordConfigService,
     }),
-    DatabaseModule,
+    forwardRef(() => DatabaseModule),
   ],
   providers: [
     DiscordHelperService,

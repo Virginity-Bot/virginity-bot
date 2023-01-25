@@ -1,14 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { On } from '@discord-nestjs/core';
-import {
-  Activity,
-  ActivityType,
-  Client,
-  Events,
-  Presence,
-  PresenceUpdateStatus,
-  VoiceState,
-} from 'discord.js';
+import { Client, Events, Presence, VoiceState } from 'discord.js';
 import {
   MikroORM,
   NotFoundError,
@@ -147,9 +139,10 @@ export class Track {
     }
 
     const old_game_activities =
-      old_presence?.activities.filter(this.activityGamingFilter) ?? [];
+      old_presence?.activities.filter(this.discord_helper.activityGamingTest) ??
+      [];
     const new_game_activities = new_presence.activities.filter(
-      this.activityGamingFilter,
+      this.discord_helper.activityGamingTest,
     );
 
     if (
@@ -229,8 +222,9 @@ export class Track {
                   camera: user.voice?.selfVideo ?? false,
                   screen: user.voice?.streaming ?? false,
                   gaming:
-                    (user.presence?.activities.filter(this.activityGamingFilter)
-                      .length ?? 0) > 0,
+                    (user.presence?.activities.filter(
+                      this.discord_helper.activityGamingTest,
+                    ).length ?? 0) > 0,
                 } as Partial<RequiredEntityData<VCEventEntity>> as VCEventEntity);
               } else {
                 throw err;
@@ -247,10 +241,5 @@ export class Track {
    */
   isEligible(state: VoiceState): boolean {
     return !state.deaf && !state.mute;
-  }
-
-  activityGamingFilter(a: Activity): boolean {
-    // TODO(3): should we allow other activity types?
-    return a.type === ActivityType.Playing;
   }
 }

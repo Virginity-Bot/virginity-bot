@@ -1,5 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
+  Activity,
+  ActivityType,
   ChannelType,
   Client,
   Events,
@@ -177,7 +179,7 @@ export class DiscordHelperService {
   }
 
   /**
-   * Asssigns the biggest virgin role to a specified virgin, while also
+   * Assigns the biggest virgin role to a specified virgin, while also
    * clearing the role from any pre-existing members.
    */
   async assignBiggestVirginRole(biggest_virgin: VirginEntity) {
@@ -191,5 +193,14 @@ export class DiscordHelperService {
     await member.roles.add(role.id);
 
     this.logger.debug(`Crowning ${userLogHeader(member)}.`);
+  }
+
+  /**
+   * Tests whether an activity counts as a "gaming" activity.
+   * Useful as a predicate for `Array::filter`.
+   */
+  activityGamingTest(a: Activity): boolean {
+    // TODO(3): should we allow other activity types?
+    return a.type === ActivityType.Playing;
   }
 }
