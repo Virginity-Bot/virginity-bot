@@ -64,8 +64,7 @@ export class TasksService {
 
         await channel.send({ embeds: [leaderboard] });
         await channel.send(
-          "Congrats to this week's Chonkiest Virgin: " +
-            top_virgins[0].nickname,
+          `Congrats to this week's Chonkiest Virgin: ${top_virgins[0].nickname}`,
         );
 
         // reset scores
