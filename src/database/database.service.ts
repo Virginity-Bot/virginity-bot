@@ -9,6 +9,7 @@ import { VirginEntity } from 'src/entities/virgin.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
 import configuration from 'src/config/configuration';
 import { userLogHeader } from 'src/utils/logs';
+import { DiscordHelperService } from 'src/bot/discord-helper.service';
 
 @Injectable()
 export class DatabaseService {
@@ -20,6 +21,7 @@ export class DatabaseService {
     private readonly virginsRepo: EntityRepository<VirginEntity>,
     @InjectRepository(VCEventEntity)
     private readonly vcEventsRepo: EntityRepository<VCEventEntity>,
+    private readonly discord_helper: DiscordHelperService,
   ) {}
 
   /**
@@ -101,6 +103,10 @@ export class DatabaseService {
           connection_start: timestamp,
           screen: state.streaming ?? false,
           camera: state.selfVideo ?? false,
+          gaming:
+            (state.member.presence?.activities.filter(
+              this.discord_helper.activityGamingTest,
+            ).length ?? 0) > 0,
         } as Partial<RequiredEntityData<VCEventEntity>> as VCEventEntity);
 
         return event;
