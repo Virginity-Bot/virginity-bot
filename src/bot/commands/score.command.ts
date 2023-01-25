@@ -1,3 +1,4 @@
+import { Injectable, Logger } from '@nestjs/common';
 import {
   Command,
   CommandExecutionContext,
@@ -10,8 +11,9 @@ import {
   MessagePayload,
   StringSelectMenuInteraction,
 } from 'discord.js';
-import { Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
+
 import { VirginEntity } from 'src/entities/virgin.entity';
 
 @Command({
@@ -22,7 +24,10 @@ import { VirginEntity } from 'src/entities/virgin.entity';
 export class ScoreCommand implements DiscordCommand {
   private readonly logger = new Logger(ScoreCommand.name);
 
-  constructor(private readonly virginsRepo: EntityRepository<VirginEntity>) {}
+  constructor(
+    @InjectRepository(VirginEntity)
+    private readonly virginsRepo: EntityRepository<VirginEntity>,
+  ) {}
   async handler(
     interaction: ChatInputCommandInteraction<CacheType>,
     ctx: CommandExecutionContext<

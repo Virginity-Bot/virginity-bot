@@ -179,7 +179,7 @@ export class DiscordHelperService {
   }
 
   /**
-   * Asssigns the biggest virgin role to a specified virgin, while also
+   * Assigns the biggest virgin role to a specified virgin, while also
    * clearing the role from any pre-existing members.
    */
   async assignBiggestVirginRole(biggest_virgin: VirginEntity) {

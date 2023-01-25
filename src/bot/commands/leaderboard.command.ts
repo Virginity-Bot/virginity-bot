@@ -1,3 +1,4 @@
+import { Injectable, Logger } from '@nestjs/common';
 import {
   Command,
   CommandExecutionContext,
@@ -12,7 +13,6 @@ import {
   StringSelectMenuInteraction,
   Client,
 } from 'discord.js';
-import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { UseRequestContext, MikroORM } from '@mikro-orm/core';
 import { EntityRepository } from '@mikro-orm/postgresql';
