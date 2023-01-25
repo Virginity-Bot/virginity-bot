@@ -146,12 +146,11 @@ export class Track {
       return;
     }
 
-    const type_filter = (a: Activity): boolean =>
-      // TODO(3): should we allow other activity types?
-      a.type === ActivityType.Playing;
     const old_game_activities =
-      old_presence?.activities.filter(type_filter) ?? [];
-    const new_game_activities = new_presence.activities.filter(type_filter);
+      old_presence?.activities.filter(this.activityGamingFilter) ?? [];
+    const new_game_activities = new_presence.activities.filter(
+      this.activityGamingFilter,
+    );
 
     if (
       // Something non-game related changes
@@ -229,6 +228,9 @@ export class Track {
                   virgin: [user_ent.id, user.guild.id],
                   camera: user.voice?.selfVideo ?? false,
                   screen: user.voice?.streaming ?? false,
+                  gaming:
+                    (user.presence?.activities.filter(this.activityGamingFilter)
+                      .length ?? 0) > 0,
                 } as Partial<RequiredEntityData<VCEventEntity>> as VCEventEntity);
               } else {
                 throw err;
@@ -245,5 +247,10 @@ export class Track {
    */
   isEligible(state: VoiceState): boolean {
     return !state.deaf && !state.mute;
+  }
+
+  activityGamingFilter(a: Activity): boolean {
+    // TODO(3): should we allow other activity types?
+    return a.type === ActivityType.Playing;
   }
 }
