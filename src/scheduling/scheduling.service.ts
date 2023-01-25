@@ -45,6 +45,11 @@ export class TasksService {
       guilds.map(async (guild_ent) => {
         // TODO: close all open events and start new ones in-place
 
+        //Getting the Biggest Virgin for the announcement
+        const top_virgins = await this.virgins.find(
+          { guild: guild_ent.id },
+          { orderBy: [{ cached_dur_in_vc: -1 }], limit: 10 },
+        );
         // send leaderboard to guild's vbot channel
         const [leaderboard, channel] = await Promise.all([
           this.leaderboard.buildLeaderboardEmbed(guild_ent),
@@ -58,6 +63,10 @@ export class TasksService {
         });
 
         await channel.send({ embeds: [leaderboard] });
+        await channel.send(
+          "Congrats to this week's Chonkiest Virgin: " +
+            top_virgins[0].nickname,
+        );
 
         // reset scores
         guild_ent.last_reset = new Date();
