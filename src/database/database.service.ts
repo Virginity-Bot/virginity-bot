@@ -82,7 +82,7 @@ export class DatabaseService {
   async openEvent(state: VoiceState, timestamp: Date): Promise<VCEventEntity>;
   async openEvent(
     old_vc_event: VCEventEntity,
-    gaming: boolean,
+    states: Partial<Pick<VCEventEntity, 'camera' | 'gaming' | 'screen'>> | null,
     timestamp: Date,
   ): Promise<VCEventEntity>;
   async openEvent(...args: unknown[]): Promise<VCEventEntity> {
@@ -113,15 +113,17 @@ export class DatabaseService {
       }
       case 3: {
         const old_vc_event = args[0] as VCEventEntity;
-        const gaming = args[1] as boolean;
+        const states = args[1] as Partial<
+          Pick<VCEventEntity, 'camera' | 'gaming' | 'screen'>
+        > | null;
         const timestamp = args[2] as Date;
 
         const event = this.vcEventsRepo.create({
           virgin: old_vc_event.virgin,
           connection_start: timestamp,
-          screen: old_vc_event.screen ?? false,
-          camera: old_vc_event.camera ?? false,
-          gaming,
+          screen: states?.screen ?? old_vc_event.screen ?? false,
+          camera: states?.camera ?? old_vc_event.camera ?? false,
+          gaming: states?.gaming ?? old_vc_event.gaming ?? false,
         } as Partial<RequiredEntityData<VCEventEntity>> as VCEventEntity);
 
         return event;

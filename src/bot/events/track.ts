@@ -167,7 +167,11 @@ export class Track {
       const events = [
         old_vc_event,
         // create new event
-        await this.database.openEvent(old_vc_event, true, timestamp),
+        await this.database.openEvent(
+          old_vc_event,
+          { gaming: true },
+          timestamp,
+        ),
       ];
       await this.vcEventsRepo.persistAndFlush(events);
     } else if (
