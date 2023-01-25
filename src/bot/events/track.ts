@@ -1,6 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { On } from '@discord-nestjs/core';
-import { Client, Events, VoiceState } from 'discord.js';
+import {
+  Activity,
+  ActivityType,
+  Client,
+  Events,
+  Presence,
+  PresenceUpdateStatus,
+  VoiceState,
+} from 'discord.js';
 import {
   MikroORM,
   NotFoundError,
@@ -106,6 +114,87 @@ export class Track {
         old_state,
         new_state,
       ]);
+    }
+  }
+
+  @On(Events.PresenceUpdate)
+  @UseRequestContext()
+  async presenceUpdate(
+    old_presence: Presence | null,
+    new_presence: Presence,
+  ): Promise<void> {
+    if (new_presence.guild == null) {
+      return;
+    }
+
+    const timestamp = new Date();
+    // const now_minus_24_hours = sub(timestamp, { days: 1 });
+
+    // TODO: does discord offer a way to tell us if they're in VC?
+    // if (new_presence.status === PresenceUpdateStatus.Online)
+    const old_vc_event = await this.vcEventsRepo.findOne(
+      {
+        virgin: [new_presence.userId, new_presence.guild.id],
+        // only find recently unclosed transactions
+        // connection_start: { $gt: now_minus_24_hours },
+        connection_end: null,
+      },
+      { populate: ['virgin'] },
+    );
+    if (old_vc_event == null) {
+      // user doesn't have open VC Event
+      return;
+    }
+
+    const type_filter = (a: Activity): boolean =>
+      // TODO(3): should we allow other activity types?
+      a.type === ActivityType.Playing;
+    const old_game_activities =
+      old_presence?.activities.filter(type_filter) ?? [];
+    const new_game_activities = new_presence.activities.filter(type_filter);
+
+    if (
+      // Something non-game related changes
+      (old_game_activities.length ?? 0) === 0 &&
+      new_game_activities.length === 0
+    ) {
+      // we can just ignore this
+    } else if (
+      // Starting game
+      (old_game_activities.length ?? 0) === 0 &&
+      new_game_activities.length > 0
+    ) {
+      this.logger.debug(
+        `${userLogHeader(
+          old_vc_event.virgin,
+          new_presence.guild,
+        )} started playing a game while in VC.`,
+      );
+      // close old event
+      old_vc_event.connection_end = timestamp;
+      const events = [
+        old_vc_event,
+        // create new event
+        await this.database.openEvent(old_vc_event, true, timestamp),
+      ];
+      await this.vcEventsRepo.persistAndFlush(events);
+    } else if (
+      // Stopping game
+      (old_game_activities.length ?? 0) > 0 &&
+      new_game_activities.length === 0
+    ) {
+      this.logger.debug(
+        `${userLogHeader(
+          old_vc_event.virgin,
+          new_presence.guild,
+        )} stopped playing a game while in VC.`,
+      );
+    } else if (
+      // Still playing game
+      (old_game_activities.length ?? 0) > 0 &&
+      new_game_activities.length > 0
+    ) {
+      // we can just ignore this
     }
   }
 

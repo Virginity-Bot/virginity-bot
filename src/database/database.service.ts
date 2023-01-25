@@ -77,22 +77,52 @@ export class DatabaseService {
   /**
    * Creates a new open vc_event for a user based on the given voice state.
    */
-  async openEvent(state: VoiceState, timestamp: Date): Promise<VCEventEntity> {
-    if (state.member == null) {
-      this.logger.error([`State.member was null somehow`, state]);
-      throw new Error(`State.member was null somehow`);
+  async openEvent(state: VoiceState, timestamp: Date): Promise<VCEventEntity>;
+  async openEvent(
+    old_vc_event: VCEventEntity,
+    gaming: boolean,
+    timestamp: Date,
+  ): Promise<VCEventEntity>;
+  async openEvent(...args: unknown[]): Promise<VCEventEntity> {
+    switch (args.length) {
+      case 2: {
+        const state = args[0] as VoiceState;
+        const timestamp = args[1] as Date;
+
+        if (state.member == null) {
+          this.logger.error([`State.member was null somehow`, state]);
+          throw new Error(`State.member was null somehow`);
+        }
+        // TODO: maybe we don't actually need to talk to the DB right here?
+        const virgin = await this.findOrCreateVirgin(state.guild, state.member);
+
+        const event = this.vcEventsRepo.create({
+          virgin: [virgin.id, state.guild.id],
+          connection_start: timestamp,
+          screen: state.streaming ?? false,
+          camera: state.selfVideo ?? false,
+        } as Partial<RequiredEntityData<VCEventEntity>> as VCEventEntity);
+
+        return event;
+      }
+      case 3: {
+        const old_vc_event = args[0] as VCEventEntity;
+        const gaming = args[1] as boolean;
+        const timestamp = args[2] as Date;
+
+        const event = this.vcEventsRepo.create({
+          virgin: old_vc_event.virgin,
+          connection_start: timestamp,
+          screen: old_vc_event.screen ?? false,
+          camera: old_vc_event.camera ?? false,
+          gaming,
+        } as Partial<RequiredEntityData<VCEventEntity>> as VCEventEntity);
+
+        return event;
+      }
+      default:
+        throw new TypeError(`Invalid parameters`);
     }
-    // TODO: maybe we don't actually need to talk to the DB right here?
-    const virgin = await this.findOrCreateVirgin(state.guild, state.member);
-
-    const event = this.vcEventsRepo.create({
-      virgin: [virgin.id, state.guild.id],
-      connection_start: timestamp,
-      screen: state.streaming ?? false,
-      camera: state.selfVideo ?? false,
-    } as Partial<RequiredEntityData<VCEventEntity>> as VCEventEntity);
-
-    return event;
   }
 
   /**
