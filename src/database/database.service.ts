@@ -2,7 +2,14 @@ import { Injectable, Logger } from '@nestjs/common';
 import { MikroORM, NotFoundError, RequiredEntityData } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
-import { Guild, GuildMember, VoiceState } from 'discord.js';
+import {
+  APIInteractionGuildMember,
+  Client,
+  Guild,
+  GuildMember,
+  VoiceState,
+} from 'discord.js';
+import { InjectDiscordClient } from '@discord-nestjs/core';
 import { differenceInMinutes } from 'date-fns';
 
 import { VirginEntity } from 'src/entities/virgin.entity';
@@ -22,6 +29,8 @@ export class DatabaseService {
     @InjectRepository(VCEventEntity)
     private readonly vcEventsRepo: EntityRepository<VCEventEntity>,
     private readonly discord_helper: DiscordHelperService,
+    @InjectDiscordClient()
+    private readonly discord_client: Client,
   ) {}
 
   /**
@@ -55,20 +64,35 @@ export class DatabaseService {
   /**
    * Finds (or if none found creates) a virgin record.
    */
-  findOrCreateVirgin(guild: Guild, member: GuildMember): Promise<VirginEntity> {
+  findOrCreateVirgin(
+    guild: Guild,
+    member: GuildMember | APIInteractionGuildMember,
+  ): Promise<VirginEntity> {
     return this.virginsRepo
       .findOneOrFail({
         guild: guild.id,
-        id: member.id,
+        id: member.user.id,
       })
-      .catch((err) => {
+      .catch(async (err) => {
         if (err instanceof NotFoundError) {
+          let nickname;
+          if ('nickname' in (member as GuildMember)) {
+            nickname = (member as GuildMember).nickname;
+          } else {
+            nickname =
+              (
+                await (
+                  await this.discord_client.guilds.fetch(guild.id)
+                ).members.fetch(member.user.id)
+              ).nickname ?? undefined;
+          }
+
           return this.virginsRepo.create({
-            id: member.id,
+            id: member.user.id,
+            guild: guild.id,
             username: member.user.username,
             discriminator: member.user.discriminator,
-            nickname: member.nickname ?? undefined,
-            guild: guild.id,
+            nickname,
           } as Partial<RequiredEntityData<VirginEntity>> as VirginEntity);
         } else {
           throw err;
@@ -82,7 +106,7 @@ export class DatabaseService {
   async openEvent(state: VoiceState, timestamp: Date): Promise<VCEventEntity>;
   async openEvent(
     old_vc_event: VCEventEntity,
-    gaming: boolean,
+    states: Partial<Pick<VCEventEntity, 'camera' | 'gaming' | 'screen'>> | null,
     timestamp: Date,
   ): Promise<VCEventEntity>;
   async openEvent(...args: unknown[]): Promise<VCEventEntity> {
@@ -113,15 +137,17 @@ export class DatabaseService {
       }
       case 3: {
         const old_vc_event = args[0] as VCEventEntity;
-        const gaming = args[1] as boolean;
+        const states = args[1] as Partial<
+          Pick<VCEventEntity, 'camera' | 'gaming' | 'screen'>
+        > | null;
         const timestamp = args[2] as Date;
 
         const event = this.vcEventsRepo.create({
           virgin: old_vc_event.virgin,
           connection_start: timestamp,
-          screen: old_vc_event.screen ?? false,
-          camera: old_vc_event.camera ?? false,
-          gaming,
+          screen: states?.screen ?? old_vc_event.screen ?? false,
+          camera: states?.camera ?? old_vc_event.camera ?? false,
+          gaming: states?.gaming ?? old_vc_event.gaming ?? false,
         } as Partial<RequiredEntityData<VCEventEntity>> as VCEventEntity);
 
         return event;
@@ -137,7 +163,7 @@ export class DatabaseService {
    */
   async closeEvent(
     guild: Guild,
-    member: GuildMember,
+    member: GuildMember | APIInteractionGuildMember,
     timestamp: Date,
   ): Promise<VCEventEntity | undefined> {
     // TODO: maybe we don't actually need to talk to the DB right here?

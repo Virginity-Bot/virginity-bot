@@ -94,13 +94,7 @@ export class LeaderboardCommand implements DiscordCommand {
           timestamp,
         );
         if (old_event != null) {
-          return this.vc_events.create({
-            ...old_event,
-            id: null,
-            virgin: [old_event.virgin.id, old_event.virgin.guild.id],
-            connection_start: timestamp,
-            connection_end: undefined,
-          });
+          return this.database.openEvent(old_event, null, timestamp);
         }
       }),
     );
