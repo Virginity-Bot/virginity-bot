@@ -4,6 +4,7 @@ import {
   ActivityType,
   ChannelType,
   Client,
+  DiscordAPIError,
   Events,
   GuildMember,
   PermissionsBitField,
@@ -119,8 +120,17 @@ export class DiscordHelperService {
     if (role.name !== configuration.role.name) {
       await role.setName(configuration.role.name);
     }
+    // TODO(2): role.color is a number, while config.role.color will always be a string, so we setColor every time.
     if (role.color !== configuration.role.color) {
-      await role.setColor(configuration.role.color);
+      await role.setColor(configuration.role.color).catch((err) => {
+        if (err instanceof DiscordAPIError && err.code === 50013) {
+          this.logger.warn(
+            `Failed to set role color of role ${role.id} in guild ${guild.id}`,
+          );
+        } else {
+          throw err;
+        }
+      });
     }
     // TODO(3): check if the guild is boosted enough to set role emojis
     // if (role.unicodeEmoji !== configuration.role.emoji) {
