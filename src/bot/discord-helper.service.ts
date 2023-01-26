@@ -118,22 +118,26 @@ export class DiscordHelperService {
         }));
 
     if (role.name !== configuration.role.name) {
-      await role.setName(configuration.role.name);
+      await role
+        .setName(configuration.role.name)
+        .catch(
+          this.handlePermissionErrors(
+            `Failed to set role name of role ${role.id} in guild ${guild.id}`,
+          ),
+        );
     }
     // TODO(2): role.color is a number, while config.role.color will always be a string, so we setColor every time.
     if (
       role.color.toString(16).toUpperCase() !==
       configuration.role.color.slice(1)
     ) {
-      await role.setColor(configuration.role.color).catch((err) => {
-        if (err instanceof DiscordAPIError && err.code === 50013) {
-          this.logger.warn(
+      await role
+        .setColor(configuration.role.color)
+        .catch(
+          this.handlePermissionErrors(
             `Failed to set role color of role ${role.id} in guild ${guild.id}`,
-          );
-        } else {
-          throw err;
-        }
-      });
+          ),
+        );
     }
     // TODO(3): check if the guild is boosted enough to set role emojis
     // if (role.unicodeEmoji !== configuration.role.emoji) {
@@ -232,5 +236,15 @@ export class DiscordHelperService {
     return this.client.guilds
       .fetch(guild_id)
       .then((guild) => guild.members.fetch(user_id));
+  }
+
+  handlePermissionErrors(message: string): (err: Error) => void {
+    return (err: Error) => {
+      if (err instanceof DiscordAPIError && err.code === 50013) {
+        this.logger.warn(message);
+      } else {
+        throw err;
+      }
+    };
   }
 }
