@@ -25,3 +25,10 @@ What a gamer! We'd love to see where you want to take Virginity Bot!
 1. Connect your debugger.
 
     The server container forwards port `9229`, so you should be able to connect a NodeJS debugger there.
+
+## Upgrading NodeJS versions
+
+There are a few places where the node version number needs to be bumped in order to upgrade. Unfortunately, not all of them share the same syntax.
+
+1. [`Dockerfile`](/Dockerfile)'s `NODE_VERSION` `ARG`.
+1. [`.nvmrc`](/.nvmrc)
