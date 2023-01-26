@@ -1,24 +1,40 @@
 version: '3.8'
 
 services:
-  virginity-bot-server:
+  server:
     build:
       context: './'
-      dockerfile: './Dockerfile'
-    ports:
-      - '3000:3000'
+      dockerfile: './Dockerfile.dev'
     env_file: '.env'
+    environment:
+      DATABASE_URL: 'postgres://postgres:password@virginity-bot-db/virginity-bot=value'
+    volumes:
+      - './:/home/vbot/app'
     networks:
       - 'virgin-net'
-    # depends_on:
-    #   - virginity-bot-db
-  # virginity-bot-db:
-  #   image: postgres:14
-  #   ports:
-  #     - '5432:5432'
-  #   env_file: virginity-bot.env
-  #   networks:
-  #     - virgin-net
+    depends_on:
+      - 'db'
+      - 'object-storage'
+  db:
+    image: 'docker.io/library/postgres:15'
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'password'
+      POSTGRES_DB: 'virginity-bot'
+    volumes:
+      - './files/db:/var/lib/postgresql/data'
+    networks:
+      - 'virgin-net'
+  object-storage:
+    image: 'quay.io/minio/minio:latest'
+    command: 'server /data --console-address ":9001"'
+    environment:
+      MINIO_ROOT_USER: 'admin'
+      MINIO_ROOT_PASSWORD: 'supersecret'
+    volumes:
+      - './files/object-storage:/data'
+    networks:
+      - 'virgin-net'
 
 networks:
   virgin-net:
