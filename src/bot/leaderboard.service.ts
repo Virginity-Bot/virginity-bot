@@ -10,6 +10,7 @@ import { GuildEntity } from 'src/entities/guild.entity';
 import configuration from 'src/config/configuration';
 import { DatabaseService } from 'src/database/database.service';
 import { DiscordHelperService } from './discord-helper.service';
+import { virgin_display_name } from 'src/utils/string-transformers';
 
 type APIEmbedFieldArray = APIEmbedField & { value: (string | number)[] };
 
@@ -106,10 +107,8 @@ export class LeaderboardService {
     virgin: Pick<VirginEntity, 'username' | 'nickname' | 'cached_dur_in_vc'>,
     pos: number | string,
   ): string {
-    return `**${pos}.** ${pos === 1 ? '**' : ''}${
-      virgin.nickname ?? virgin.username
-    }${pos === 1 ? `** ${configuration.role.emoji}` : ''} — ${
-      virgin.cached_dur_in_vc
-    }`;
+    return `**${pos}.** ${pos === 1 ? '**' : ''}${virgin_display_name(virgin)}${
+      pos === 1 ? `** ${configuration.role.emoji}` : ''
+    } — ${virgin.cached_dur_in_vc}`;
   }
 }

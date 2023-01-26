@@ -24,6 +24,7 @@ import { VCEventEntity } from 'src/entities/vc-event.entity';
 import { DatabaseService } from 'src/database/database.service';
 import { DiscordHelperService } from '../discord-helper.service';
 import { LeaderboardService } from '../leaderboard.service';
+import { virgin_display_name } from 'src/utils/string-transformers';
 
 @Command({
   name: 'leaderboard',
@@ -74,11 +75,9 @@ export class LeaderboardCommand implements DiscordCommand {
   }
 
   virginToLeaderboardLine(virgin: VirginEntity, pos: number | string): string {
-    return `**${pos}.** ${pos === 1 ? '**' : ''}${
-      virgin.nickname ?? virgin.username
-    }${pos === 1 ? `** ${configuration.role.emoji}` : ''} — ${
-      virgin.cached_dur_in_vc
-    }`;
+    return `**${pos}.** ${pos === 1 ? '**' : ''}${virgin_display_name(virgin)}${
+      pos === 1 ? `** ${configuration.role.emoji}` : ''
+    } — ${virgin.cached_dur_in_vc}`;
   }
 
   async recalculateScores(guild_id: string) {
