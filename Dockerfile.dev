@@ -16,9 +16,12 @@ WORKDIR ${APP_DIR}
 ENV MIKRO_ORM_CACHE_DIR=/tmp/mikroorm-cache
 
 ARG PORT=3000
-EXPOSE $PORT/tcp
 ENV PORT $PORT
+EXPOSE $PORT/tcp
+
+# debugger port
+EXPOSE 9229
 
 VOLUME ${APP_DIR}
 
-CMD npm run start:debug
+CMD npm run start:debug:docker
