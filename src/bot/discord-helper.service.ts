@@ -185,14 +185,22 @@ export class DiscordHelperService {
   async assignBiggestVirginRole(biggest_virgin: VirginEntity) {
     const role = await this.findOrCreateBiggestVirginRole(biggest_virgin.guild);
 
-    const guild = await this.client.guilds.fetch(biggest_virgin.guild.id);
-    const member = await guild.members.fetch(biggest_virgin.id);
+    // const guild = await this.client.guilds.fetch(biggest_virgin.guild.id);
+    // const member = await guild.members.fetch(biggest_virgin.id);
+    const member = await this.fetchGuildMember(
+      biggest_virgin.guild.id,
+      biggest_virgin.id,
+    );
 
+    // Clear current members of role
     await Promise.all(role.members.map((m) => m.roles.remove(role.id)));
 
-    await member.roles.add(role.id);
-
-    this.logger.debug(`Crowning ${userLogHeader(member)}.`);
+    if (member != null) {
+      await member?.roles.add(role.id);
+      this.logger.debug(`Crowned ${userLogHeader(member)}.`);
+    } else {
+      this.logger.warn(`Could not find ${biggest_virgin.id} in Discord API.`);
+    }
   }
 
   /**
@@ -202,5 +210,14 @@ export class DiscordHelperService {
   activityGamingTest(a: Activity): boolean {
     // TODO(3): should we allow other activity types?
     return a.type === ActivityType.Playing;
+  }
+
+  async fetchGuildMember(
+    guild_id: string,
+    user_id: string,
+  ): Promise<GuildMember | null> {
+    return this.client.guilds
+      .fetch(guild_id)
+      .then((guild) => guild.members.fetch(user_id));
   }
 }
