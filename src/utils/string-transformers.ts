@@ -7,7 +7,7 @@ export function virgin_display_name(
   if (user instanceof GuildMember) {
     const member = user;
     return member.nickname ?? member.user.username;
-  } else if ('nickname' in user && 'username' in user) {
+  } else if ('username' in user) {
     const virgin = user as Pick<VirginEntity, 'username' | 'nickname'>;
     return virgin.nickname ?? virgin.username;
   } else {
