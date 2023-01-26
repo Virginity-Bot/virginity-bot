@@ -18,6 +18,8 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     // MikroORM wants this
-    "useDefineForClassFields": false
+    // "useDefineForClassFields": false
+    // NestJS Discord.JS needs this for slash-command options
+    "useDefineForClassFields": true
   }
 }

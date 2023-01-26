@@ -1,16 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { TransformPipe } from '@discord-nestjs/common';
 import {
   Command,
-  CommandExecutionContext,
-  DiscordCommand,
+  Payload,
+  Param,
+  TransformedCommandExecutionContext,
+  ParamType,
+  DiscordTransformedCommand,
+  UsePipes,
 } from '@discord-nestjs/core';
-import {
-  ButtonInteraction,
-  CacheType,
-  ChatInputCommandInteraction,
-  MessagePayload,
-  StringSelectMenuInteraction,
-} from 'discord.js';
+import { MessagePayload } from 'discord.js';
 import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
@@ -18,14 +17,27 @@ import { EntityRepository } from '@mikro-orm/postgresql';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
 import { DatabaseService } from 'src/database/database.service';
+import { pluralize, virgin_display_name } from 'src/utils/string-transformers';
+import { DiscordHelperService } from '../discord-helper.service';
+
+export class ScoreDTO {
+  @Param({
+    name: 'virgin',
+    description: 'The user to check',
+    required: false,
+    type: ParamType.USER,
+  })
+  virgin_to_check?: string;
+}
 
 @Command({
-  name: 'score',
-  description: `Replies with the virgin's score.`,
+  name: 'check',
+  description: `Checks how big of a virgin someone is.`,
 })
+@UsePipes(TransformPipe)
 @Injectable()
-export class ScoreCommand implements DiscordCommand {
-  private readonly logger = new Logger(ScoreCommand.name);
+export class CheckScoreCommand implements DiscordTransformedCommand<ScoreDTO> {
+  private readonly logger = new Logger(CheckScoreCommand.name);
 
   constructor(
     private readonly orm: MikroORM,
@@ -34,14 +46,13 @@ export class ScoreCommand implements DiscordCommand {
     @InjectRepository(VCEventEntity)
     private readonly vc_events: EntityRepository<VCEventEntity>,
     private readonly database: DatabaseService,
+    private readonly discord_helper: DiscordHelperService,
   ) {}
 
   @UseRequestContext()
   async handler(
-    interaction: ChatInputCommandInteraction<CacheType>,
-    ctx: CommandExecutionContext<
-      ButtonInteraction<CacheType> | StringSelectMenuInteraction<CacheType>
-    >,
+    @Payload() dto: ScoreDTO,
+    { interaction }: TransformedCommandExecutionContext,
   ): Promise<MessagePayload> {
     if (interaction.member == null) {
       this.logger.error([`interaction.member was null somehow`, interaction]);
@@ -67,14 +78,26 @@ export class ScoreCommand implements DiscordCommand {
       await this.vc_events.flush();
     }
 
-    const caller = await this.virgins.findOne([
-      interaction.member.user.id,
+    const virgin = await this.virgins.findOne([
+      dto.virgin_to_check ?? interaction.member.user.id,
       interaction.guild.id,
     ]);
 
     // TODO(2): add flavor text
     return new MessagePayload(interaction.channel, {
-      content: `Your score is: ${caller?.cached_dur_in_vc ?? 0}.`,
+      content: `${
+        dto.virgin_to_check != null
+          ? `${pluralize(
+              virgin_display_name(
+                virgin ??
+                  (await this.discord_helper.fetchGuildMember(
+                    interaction.guild.id,
+                    dto.virgin_to_check ?? interaction.member.user.id,
+                  )) ?? { username: 'Unknown user', nickname: undefined },
+              ),
+            )}`
+          : 'Your'
+      } score is: ${virgin?.cached_dur_in_vc ?? 0}.`,
     });
   }
 }
