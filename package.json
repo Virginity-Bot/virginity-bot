@@ -13,7 +13,7 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
+    "start:debug": "nest start --watch --exec 'node --inspect-brk'",
     "start:debug:docker": "nest start --debug 0.0.0.0 --watch",
     "start:prod": "node --require=source-map-support/register dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
