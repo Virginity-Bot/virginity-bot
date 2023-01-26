@@ -6,9 +6,9 @@ Discord Bot to track peoples' virginity, i.e. their accumulated online time on t
 
 ## Supported Commands
 
--   `/leaderboard` - list top 10 virgins in the server
--   `/checkvirginity` - checks virginity of a given user
--   `/reset` - resets a specified member's virginity
+-   `/leaderboard` - List biggest virgins in the server.
+-   `/check` - Checks virginity of a given user.
+-   `/reset` - Resets a specified member's virginity.
 
 ## How to Increase Your Virginity
 
