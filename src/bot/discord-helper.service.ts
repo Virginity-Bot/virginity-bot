@@ -212,15 +212,13 @@ export class DiscordHelperService {
     // Clear current members of role
     await Promise.all(
       role.members.map((m) =>
-        m.roles.remove(role.id).catch((err) => {
-          if (err instanceof DiscordAPIError && err.code === 50013) {
-            this.logger.warn(
+        m.roles
+          .remove(role.id)
+          .catch(
+            this.handlePermissionErrors(
               `Failed to remove role from user ${m.id} in guild ${m.guild.id}`,
-            );
-          } else {
-            throw err;
-          }
-        }),
+            ),
+          ),
       ),
     );
 
@@ -228,15 +226,11 @@ export class DiscordHelperService {
       await member?.roles
         .add(role.id)
         .then(() => this.logger.debug(`Crowned ${userLogHeader(member)}.`))
-        .catch((err) => {
-          if (err instanceof DiscordAPIError && err.code === 50013) {
-            this.logger.warn(
-              `Failed to add role to user ${member.id} in guild ${member.guild.id}`,
-            );
-          } else {
-            throw err;
-          }
-        });
+        .catch(
+          this.handlePermissionErrors(
+            `Failed to add role to user ${member.id} in guild ${member.guild.id}`,
+          ),
+        );
     } else {
       this.logger.warn(`Could not find ${biggest_virgin.id} in Discord API.`);
     }
