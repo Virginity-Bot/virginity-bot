@@ -37,6 +37,3 @@ lerna-debug.log*
 
 # Secrets
 *.env
-
-# Container files
-/files
