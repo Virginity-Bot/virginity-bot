@@ -121,7 +121,10 @@ export class DiscordHelperService {
       await role.setName(configuration.role.name);
     }
     // TODO(2): role.color is a number, while config.role.color will always be a string, so we setColor every time.
-    if (role.color !== configuration.role.color) {
+    if (
+      role.color.toString(16).toUpperCase() !==
+      configuration.role.color.slice(1)
+    ) {
       await role.setColor(configuration.role.color).catch((err) => {
         if (err instanceof DiscordAPIError && err.code === 50013) {
           this.logger.warn(

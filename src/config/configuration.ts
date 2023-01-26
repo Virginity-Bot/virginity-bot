@@ -1,7 +1,7 @@
 /* eslint no-process-env: "off" */
 
 // TODO: switch to using @nestjs/config
-import { ColorResolvable } from 'discord.js';
+import { HexColorString } from 'discord.js';
 import { config } from 'dotenv';
 
 config();
@@ -41,7 +41,7 @@ const configuration = {
 
   role: {
     name: process.env.ROLE_NAME ?? 'Chonkiest Virgin the World Has Ever Seen',
-    color: (process.env.ROLE_COLOR ?? '#DA8C80') as ColorResolvable,
+    color: (process.env.ROLE_COLOR ?? '#DA8C80') as HexColorString,
     emoji: process.env.ROLE_EMOJI ?? '👑',
   },
 
