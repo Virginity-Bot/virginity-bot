@@ -1,9 +1,10 @@
 import { DiscordModule } from '@discord-nestjs/core';
 import { forwardRef, Module } from '@nestjs/common';
+import { HttpModule } from '@nestjs/axios';
+
 import { DiscordConfigService } from 'src/bot/discord-config.service';
 import { DatabaseModule } from 'src/database/database.module';
 import { LeaderboardCommand } from './commands/leaderboard.command';
-
 import { DiscordHelperService } from './discord-helper.service';
 import { UpdatedGuilds } from './events/update-guilds';
 import { IntroMusic } from './events/intro-music';
@@ -11,9 +12,11 @@ import { Track } from './events/track';
 import { UpdateUsers } from './events/update-users';
 import { LeaderboardService } from './leaderboard.service';
 import { CheckScoreCommand } from './commands/check-score.command';
+import { SettingsCommand } from './commands/settings.command';
 
 @Module({
   imports: [
+    HttpModule,
     DiscordModule.forRootAsync({
       useClass: DiscordConfigService,
     }),
@@ -25,6 +28,7 @@ import { CheckScoreCommand } from './commands/check-score.command';
 
     LeaderboardCommand,
     CheckScoreCommand,
+    SettingsCommand,
 
     IntroMusic,
     Track,

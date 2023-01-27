@@ -41,5 +41,5 @@
     "dockerfile": ["docker"]
   },
 
-  "cSpell.words": ["Chonkiest", "chonky"]
+  "cSpell.words": ["Chonkiest", "chonky", "nestjs"]
 }
