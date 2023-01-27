@@ -9,7 +9,8 @@
       "request": "attach",
       "name": "Attach",
       "skipFiles": ["<node_internals>/**"],
-      "restart": true
+      "restart": true,
+      "continueOnAttach": true
     }
   ]
 }
