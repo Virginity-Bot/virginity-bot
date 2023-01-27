@@ -1,0 +1,27 @@
+ARG APP_DIR=/app
+ARG NODE_VERSION=18
+
+# build stage
+FROM docker.io/library/node:${NODE_VERSION} AS development
+LABEL maintainer="louis@orleans.io"
+
+ARG APP_DIR
+
+RUN mkdir -p "$APP_DIR"
+WORKDIR ${APP_DIR}
+
+# COPY package*.json ${APP_DIR}/
+# RUN npm clean-install
+
+ENV MIKRO_ORM_CACHE_DIR=/tmp/mikroorm-cache
+
+ARG PORT=3000
+ENV PORT $PORT
+EXPOSE $PORT/tcp
+
+# debugger port
+EXPOSE 9229
+
+VOLUME ${APP_DIR}
+
+CMD npm run start:debug:docker
