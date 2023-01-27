@@ -25,10 +25,13 @@ const configuration = {
 
   storage: {
     s3: {
-      host: process.env.STORAGE_S3_HOST,
+      host: process.env.STORAGE_S3_HOST as string,
+      port: parseInt(process.env.STORAGE_S3_PORT as string),
+      ssl: (process.env.STORAGE_S3_SSL ?? 'true') === 'true',
       region: process.env.STORAGE_S3_REGION as string,
       access_key_id: process.env.STORAGE_S3_ACCESS_KEY_ID as string,
       secret_access_key: process.env.STORAGE_S3_SECRET_ACCESS_KEY as string,
+      bucket_name: process.env.STORAGE_S3_BUCKET_NAME ?? 'intro-songs',
     },
   },
 

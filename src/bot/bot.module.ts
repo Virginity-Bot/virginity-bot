@@ -4,6 +4,7 @@ import { HttpModule } from '@nestjs/axios';
 
 import { DiscordConfigService } from 'src/bot/discord-config.service';
 import { DatabaseModule } from 'src/database/database.module';
+import { StorageModule } from 'src/storage/storage.module';
 import { LeaderboardCommand } from './commands/leaderboard.command';
 import { DiscordHelperService } from './discord-helper.service';
 import { UpdatedGuilds } from './events/update-guilds';
@@ -21,6 +22,7 @@ import { SettingsCommand } from './commands/settings.command';
       useClass: DiscordConfigService,
     }),
     forwardRef(() => DatabaseModule),
+    StorageModule,
   ],
   providers: [
     DiscordHelperService,

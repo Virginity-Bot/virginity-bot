@@ -1,19 +1,23 @@
 import { Module } from '@nestjs/common';
-import { S3Module } from '@lab08/nestjs-s3';
+import { MinioModule } from 'nestjs-minio-client';
 
 import configuration from 'src/config/configuration';
+import { DatabaseModule } from 'src/database/database.module';
 import { StorageService } from './storage.service';
 
 @Module({
   imports: [
-    S3Module.forRoot({
+    MinioModule.register({
       endPoint: configuration.storage.s3.host,
+      port: configuration.storage.s3.port,
+      useSSL: configuration.storage.s3.ssl,
       region: configuration.storage.s3.region,
-      accessKeyId: configuration.storage.s3.access_key_id,
-      secretAccessKey: configuration.storage.s3.secret_access_key,
+      accessKey: configuration.storage.s3.access_key_id,
+      secretKey: configuration.storage.s3.secret_access_key,
     }),
+    DatabaseModule,
   ],
   providers: [StorageService],
-  exports: [S3Module, StorageService],
+  exports: [StorageService],
 })
 export class StorageModule {}
