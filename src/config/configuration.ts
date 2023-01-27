@@ -2,9 +2,6 @@
 
 // TODO: switch to using @nestjs/config
 import { HexColorString } from 'discord.js';
-import { config } from 'dotenv';
-
-config();
 
 const configuration = {
   db: {
