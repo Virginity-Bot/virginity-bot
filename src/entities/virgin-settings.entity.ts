@@ -10,6 +10,7 @@ import {
 import { v4 } from 'uuid';
 
 import { BaseEntity } from './base.entity';
+import { IntroSongEntity } from './intro-song.entity';
 import { VirginEntity } from './virgin.entity';
 
 @Entity({ tableName: 'virgin_settings' })
@@ -23,9 +24,8 @@ export class VirginSettingsEntity extends BaseEntity {
   })
   virgin_guilds = new Collection<VirginEntity>(this);
 
-  // TODO(0): what level of control should users get?
-  @Property({ type: TextType })
-  intro_song: string;
+  @ManyToOne()
+  intro_song: IntroSongEntity;
 
   @Property({ type: TextType })
   title_when_leader: string;

@@ -7,6 +7,7 @@ import configuration from './config/configuration';
 import { GuildEntity } from './entities/guild.entity';
 import { VirginEntity } from './entities/virgin.entity';
 import { VirginSettingsEntity } from './entities/virgin-settings.entity';
+import { IntroSongEntity } from './entities/intro-song.entity';
 import { VCEventEntity } from './entities/vc-event.entity';
 import { DeletedRecord } from './entities/deleted-record.entity';
 
@@ -19,6 +20,7 @@ const config: Options = {
     GuildEntity,
     VirginEntity,
     VirginSettingsEntity,
+    IntroSongEntity,
     VCEventEntity,
     DeletedRecord,
   ],

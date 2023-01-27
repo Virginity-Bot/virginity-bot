@@ -204,6 +204,95 @@
     },
     {
       "columns": {
+        "hash": {
+          "name": "hash",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "comment": "The hash of uploaded audio file. Uses SHA-256.",
+          "mappedType": "text"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "comment": "The name of the intro song.",
+          "mappedType": "text"
+        },
+        "uri": {
+          "name": "uri",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "comment": "Reference to an audio file. Supports s3:// and vbot-builtin:// schemas.",
+          "mappedType": "text"
+        }
+      },
+      "name": "intro_song",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "created_at"
+          ],
+          "composite": false,
+          "keyName": "intro_song_created_at_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "updated_at"
+          ],
+          "composite": false,
+          "keyName": "intro_song_updated_at_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "intro_song_pkey",
+          "columnNames": [
+            "hash"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {}
+    },
+    {
+      "columns": {
         "id": {
           "name": "id",
           "type": "text",
@@ -589,8 +678,8 @@
           "nullable": false,
           "mappedType": "text"
         },
-        "intro_song": {
-          "name": "intro_song",
+        "intro_song_hash": {
+          "name": "intro_song_hash",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
@@ -651,6 +740,18 @@
             "id"
           ],
           "referencedTableName": "public.virgin",
+          "updateRule": "cascade"
+        },
+        "virgin_settings_intro_song_hash_foreign": {
+          "constraintName": "virgin_settings_intro_song_hash_foreign",
+          "columnNames": [
+            "intro_song_hash"
+          ],
+          "localTableName": "public.virgin_settings",
+          "referencedColumnNames": [
+            "hash"
+          ],
+          "referencedTableName": "public.intro_song",
           "updateRule": "cascade"
         }
       }
