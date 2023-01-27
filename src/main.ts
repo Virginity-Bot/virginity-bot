@@ -25,8 +25,6 @@ bootstrap();
 async function setup_db(orm: MikroORM) {
   const schema_gen = orm.getSchemaGenerator();
 
-  await schema_gen.execute(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
-
   // creates an empty schema?
   await schema_gen.ensureDatabase();
 }

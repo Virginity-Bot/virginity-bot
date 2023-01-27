@@ -3,6 +3,8 @@ import { Migration } from '@mikro-orm/migrations';
 export class Migration20230119113820 extends Migration {
 
   async up(): Promise<void> {
+    this.addSql('CREATE EXTENSION "uuid-ossp"');
+
     this.addSql('create table "deleted_record" ("id" uuid not null default uuid_generate_v4(), "deleted_at" timestamptz(0) not null default now(), "updated_at" timestamptz(0) not null default now(), "table_name" text not null, "object_id" text not null, "data" jsonb not null, constraint "deleted_record_pkey" primary key ("id"));');
 
     this.addSql('create table "guild" ("id" text not null, "created_at" timestamptz(0) not null default now(), "updated_at" timestamptz(0) not null default now(), "name" text not null, "biggest_virgin_role_id" text null, constraint "guild_pkey" primary key ("id"));');
@@ -53,6 +55,8 @@ export class Migration20230119113820 extends Migration {
     this.addSql('drop table if exists "virgin" cascade;');
 
     this.addSql('drop table if exists "vc_event" cascade;');
+
+    this.addSql('DROP EXTENSION "uuid-ossp"');
   }
 
 }
