@@ -26,6 +26,15 @@ const configuration = {
     cache_dir: process.env.MIKRO_ORM_CACHE_DIR ?? `${process.cwd()}/temp`,
   },
 
+  storage: {
+    s3: {
+      host: process.env.STORAGE_S3_HOST,
+      region: process.env.STORAGE_S3_REGION as string,
+      access_key_id: process.env.STORAGE_S3_ACCESS_KEY_ID as string,
+      secret_access_key: process.env.STORAGE_S3_SECRET_ACCESS_KEY as string,
+    },
+  },
+
   port: parseInt(process.env.PORT ?? '3000'),
 
   discord_token: process.env.DISCORD_TOKEN as string,
