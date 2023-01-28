@@ -6,6 +6,7 @@ import {
   Property,
   TextType,
 } from '@mikro-orm/core';
+import { URL } from 'url';
 
 import { BaseEntity } from './base.entity';
 
@@ -39,4 +40,25 @@ export class IntroSongEntity extends BaseEntity {
     comment: `Reference to an audio file. Supports s3:// and vbot-builtin:// schemas.`,
   })
   uri: string;
+
+  #parsed_uri?: URL;
+
+  /** @example 's3' */
+  get protocol() {
+    this.#parsed_uri ??= new URL(this.uri);
+    const proto = this.#parsed_uri.protocol;
+    return proto.slice(0, proto.at(-1) === ':' ? -1 : 0).toLowerCase();
+  }
+
+  /** @example 'intro-songs' */
+  get bucket() {
+    this.#parsed_uri ??= new URL(this.uri);
+    return this.#parsed_uri.host;
+  }
+
+  /** @example '/sample.mp3' */
+  get object_name() {
+    this.#parsed_uri ??= new URL(this.uri);
+    return this.#parsed_uri.pathname;
+  }
 }
