@@ -25,6 +25,9 @@
     "db:create": "mikro-orm migration:up",
     "db:drop": "mikro-orm schema:drop -r"
   },
+  "engines": {
+    "node": "^18.10.0"
+  },
   "dependencies": {
     "@discord-nestjs/common": "^4.0.8",
     "@discord-nestjs/core": "^4.3.1",

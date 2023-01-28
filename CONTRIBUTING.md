@@ -30,7 +30,9 @@ What a gamer! We'd love to see where you want to take Virginity Bot!
 
 There are a few places where the node version number needs to be bumped in order to upgrade. Unfortunately, not all of them share the same syntax.
 
+1. [`package.json`](/package.json)'s `engines.node` value.
 1. [`Dockerfile`](/Dockerfile)'s `NODE_VERSION` `ARG`.
+1. [`Dockerfile.dev`](/Dockerfile.dev)'s `NODE_VERSION` `ARG`.
 1. [`.nvmrc`](/.nvmrc)
 
 ## Gotchas
