@@ -67,5 +67,5 @@ export class VirginEntity extends BaseEntity {
 
   /** The user's cross-guild settings */
   @OneToMany(() => VirginSettingsEntity, (e) => e.virgin_guilds)
-  settings: VirginSettingsEntity;
+  settings?: VirginSettingsEntity;
 }
