@@ -246,6 +246,16 @@
           "comment": "The name of the intro song.",
           "mappedType": "text"
         },
+        "mime_type": {
+          "name": "mime_type",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "comment": "The MIME type of the file.",
+          "mappedType": "text"
+        },
         "uri": {
           "name": "uri",
           "type": "text",
@@ -373,6 +383,24 @@
           "default": "0",
           "comment": "The cached total duration the user has spent in VC. Keep in mind this can be out of date!",
           "mappedType": "integer"
+        },
+        "intro_song_hash": {
+          "name": "intro_song_hash",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "title_when_leader": {
+          "name": "title_when_leader",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
         }
       },
       "name": "virgin",
@@ -456,113 +484,13 @@
           ],
           "referencedTableName": "public.guild",
           "updateRule": "cascade"
-        }
-      }
-    },
-    {
-      "columns": {
-        "virgin_snowflake": {
-          "name": "virgin_snowflake",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamptz(0)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "default": "now()",
-          "mappedType": "datetime"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamptz(0)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "default": "now()",
-          "mappedType": "datetime"
-        },
-        "intro_song_hash": {
-          "name": "intro_song_hash",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "text"
-        },
-        "title_when_leader": {
-          "name": "title_when_leader",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "text"
-        }
-      },
-      "name": "virgin_settings",
-      "schema": "public",
-      "indexes": [
-        {
-          "columnNames": [
-            "created_at"
-          ],
-          "composite": false,
-          "keyName": "virgin_settings_created_at_index",
-          "primary": false,
-          "unique": false
-        },
-        {
-          "columnNames": [
-            "updated_at"
-          ],
-          "composite": false,
-          "keyName": "virgin_settings_updated_at_index",
-          "primary": false,
-          "unique": false
-        },
-        {
-          "keyName": "virgin_settings_pkey",
-          "columnNames": [
-            "virgin_snowflake"
-          ],
-          "composite": false,
-          "primary": true,
-          "unique": true
-        }
-      ],
-      "checks": [],
-      "foreignKeys": {
-        "virgin_settings_virgin_snowflake_foreign": {
-          "constraintName": "virgin_settings_virgin_snowflake_foreign",
-          "columnNames": [
-            "virgin_snowflake"
-          ],
-          "localTableName": "public.virgin_settings",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.virgin",
-          "deleteRule": "cascade",
-          "updateRule": "cascade"
-        },
-        "virgin_settings_intro_song_hash_foreign": {
-          "constraintName": "virgin_settings_intro_song_hash_foreign",
+        "virgin_intro_song_hash_foreign": {
+          "constraintName": "virgin_intro_song_hash_foreign",
           "columnNames": [
             "intro_song_hash"
           ],
-          "localTableName": "public.virgin_settings",
+          "localTableName": "public.virgin",
           "referencedColumnNames": [
             "hash"
           ],

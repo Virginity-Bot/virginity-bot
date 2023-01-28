@@ -1,17 +1,13 @@
 import {
   Collection,
   Entity,
-  Index,
   OneToMany,
   PrimaryKey,
   Property,
   TextType,
-  UuidType,
 } from '@mikro-orm/core';
-import { v4 } from 'uuid';
 
 import { BaseEntity } from './base.entity';
-import { VirginSettingsEntity } from './virgin-settings.entity';
 
 @Entity({ tableName: 'intro_song' })
 export class IntroSongEntity extends BaseEntity {
@@ -22,12 +18,13 @@ export class IntroSongEntity extends BaseEntity {
   })
   hash: string;
 
-  @OneToMany(() => VirginSettingsEntity, (e) => e.intro_song)
-  virgin_settings = new Collection<VirginSettingsEntity>(this);
-
   /** The name of the intro song. */
   @Property({ type: TextType, comment: 'The name of the intro song.' })
   name: string;
+
+  /** The MIME type of the file. */
+  @Property({ type: TextType, comment: 'The MIME type of the file.' })
+  mime_type: string;
 
   /**
    * Reference to an audio file.
