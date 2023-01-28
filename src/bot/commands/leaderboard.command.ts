@@ -100,5 +100,12 @@ export class LeaderboardCommand implements DiscordCommand {
 
     // TODO(2): this can throw a `ValidationError: Trying to persist not discovered entity of type undefined.` when someone joins calls leaderboard
     await this.vc_events.persistAndFlush(events);
+
+    // Role Changes when scores are updated.
+    const top_virgins = await this.virginsRepo.find(
+      { guild: guild_id },
+      { orderBy: [{ cached_dur_in_vc: -1 }], limit: 1 },
+    );
+    this.discord_helper.assignBiggestVirginRole(top_virgins[0]);
   }
 }
