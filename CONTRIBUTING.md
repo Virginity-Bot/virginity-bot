@@ -32,3 +32,10 @@ There are a few places where the node version number needs to be bumped in order
 
 1. [`Dockerfile`](/Dockerfile)'s `NODE_VERSION` `ARG`.
 1. [`.nvmrc`](/.nvmrc)
+
+## Gotchas
+
+-   The bot joins a VC to play an intro song, but then immediately leaves without playing any audio
+
+    Ensure that you've done your `npm install` inside the OS that you're running the bot in. In other words, you may have done your initial `npm install` on your macOS host OS, but then are running the bot inside a Docker container (AKA a Linux guest OS).
+    This can lead to the incorrect binaries being downloaded for certain dependencies (eg. `ffmpeg-static`).
