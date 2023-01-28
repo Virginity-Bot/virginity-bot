@@ -20,6 +20,7 @@ rules:
   'require-atomic-updates': ['warn', { 'allowProperties': true }]
   'import/no-cycle': 'off'
   'lines-between-class-members': 'off'
+  'no-useless-return': 'off'
 settings:
   'import/resolver':
     typescript:

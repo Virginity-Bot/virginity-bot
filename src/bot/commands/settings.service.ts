@@ -61,55 +61,26 @@ export class SettingsService {
     }
 
     // Check if the file's contentType is supported
-    if (
-      attachment.contentType == null ||
-      !['audio/mpeg', 'audio/ogg', 'audio/aac'].includes(attachment.contentType)
-    ) {
-      this.logger.debug(
-        `${userLogHeader(
-          user,
-          guild,
-        )} tried to upload an intro song with an invalid contentType ("${
-          attachment.contentType
-        }").`,
-      );
-      throw new UserFacingError(
-        `${attachment.name} is not a valid audio file.`,
-      );
-    }
+    this.validateMimeType(attachment, user, guild);
 
     // Check if the file is under the size limit
-    if (attachment.size > configuration.storage.audio.max_file_size_b) {
-      this.logger.debug(
-        `${userLogHeader(
-          user,
-          guild,
-        )} tried to upload an intro song that was too large (${
-          attachment.size
-        } bytes).`,
-      );
-      throw new UserFacingError(
-        `Your file is too large. The max allowed size is ${(
-          configuration.storage.audio.max_file_size_b / 1024
-        ).toFixed(0)} KiB.`,
-      );
-    }
+    this.validateFileSize(attachment, user, guild);
 
     // TODO: Check if the audio clip is under the length limit
 
-    const file = await firstValueFrom(
-      this.http.get<Buffer>(attachment.url, { responseType: 'arraybuffer' }),
-    ).then((res) => res.data);
+    const file = await this.getAttachmentContent(attachment);
 
     const hash = await createHash('sha256').update(file).digest('base64url');
 
-    // Check if this file has already been uploaded
     const intro_song_ent = await this.intro_songs
       .findOne({ hash })
       .then(async (ent) => {
+        // Check if this file has already been uploaded
         if (ent != null) {
           return ent;
         } else {
+          // Upload it if it hasn't been
+
           const extension = attachment.name?.split('.').at(-1) ?? '';
           // TODO(2): convert audio to OPUS
           // TODO(0): normalize audio level
@@ -127,6 +98,7 @@ export class SettingsService {
         }
       });
 
+    // Link the user to the intro song
     await this.virgins.nativeUpdate(
       {
         id: target_user_id,
@@ -134,5 +106,55 @@ export class SettingsService {
       },
       { intro_song: intro_song_ent },
     );
+  }
+
+  /** @throws if the file is too large */
+  validateFileSize(attachment: Attachment, user: User, guild: Guild): void {
+    if (attachment.size < configuration.storage.audio.max_file_size_b) {
+      return;
+    } else {
+      this.logger.debug(
+        `${userLogHeader(
+          user,
+          guild,
+        )} tried to upload an intro song that was too large (${
+          attachment.size
+        } bytes).`,
+      );
+      throw new UserFacingError(
+        `Your file is too large. The max allowed size is ${(
+          configuration.storage.audio.max_file_size_b / 1024
+        ).toFixed(0)} KiB.`,
+      );
+    }
+  }
+
+  /** @throws if the MIME type isn't supported */
+  validateMimeType(attachment: Attachment, user: User, guild: Guild): void {
+    if (
+      attachment.contentType != null &&
+      ['audio/mpeg', 'audio/ogg', 'audio/aac'].includes(attachment.contentType)
+    ) {
+      return;
+    } else {
+      this.logger.debug(
+        `${userLogHeader(
+          user,
+          guild,
+        )} tried to upload an intro song with an invalid contentType ("${
+          attachment.contentType
+        }").`,
+      );
+      throw new UserFacingError(
+        `${attachment.name} is not a valid audio file.`,
+      );
+    }
+  }
+
+  /** Retrieves the content of an attachment */
+  getAttachmentContent(attachment: Attachment) {
+    return firstValueFrom(
+      this.http.get<Buffer>(attachment.url, { responseType: 'arraybuffer' }),
+    ).then((res) => res.data);
   }
 }
