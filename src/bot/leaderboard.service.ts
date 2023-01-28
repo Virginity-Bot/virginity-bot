@@ -8,9 +8,9 @@ import { EntityRepository } from '@mikro-orm/postgresql';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { GuildEntity } from 'src/entities/guild.entity';
 import configuration from 'src/config/configuration';
+import { virgin_display_name } from 'src/utils/string-transformers';
 import { DatabaseService } from 'src/database/database.service';
 import { DiscordHelperService } from './discord-helper.service';
-import { virgin_display_name } from 'src/utils/string-transformers';
 
 type APIEmbedFieldArray = APIEmbedField & { value: (string | number)[] };
 
