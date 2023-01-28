@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 
 import config from 'src/mikro-orm.config'; // eslint-disable-line @typescript-eslint/no-unused-vars

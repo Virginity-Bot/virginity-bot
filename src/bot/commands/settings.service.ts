@@ -1,34 +1,17 @@
+import { createHash } from 'crypto';
 import { Injectable, Logger } from '@nestjs/common';
-import {
-  Activity,
-  ActivityType,
-  Attachment,
-  CacheType,
-  ChannelType,
-  ChatInputCommandInteraction,
-  Client,
-  DiscordAPIError,
-  Events,
-  Guild,
-  GuildMember,
-  PermissionsBitField,
-  Role,
-  TextChannel,
-  User,
-} from 'discord.js';
-import { InjectDiscordClient, On } from '@discord-nestjs/core';
+import { HttpService } from '@nestjs/axios';
+import { Attachment, Guild, User } from 'discord.js';
+import { InjectRepository } from '@mikro-orm/nestjs';
+import { EntityRepository } from '@mikro-orm/postgresql';
+import { MikroORM } from '@mikro-orm/core';
+import { firstValueFrom } from 'rxjs';
+
 import configuration from 'src/config/configuration';
-import { GuildEntity } from 'src/entities/guild.entity';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { userLogHeader } from 'src/utils/logs';
-import { InjectRepository } from '@mikro-orm/nestjs';
 import { IntroSongEntity } from 'src/entities/intro-song.entity';
-import { EntityRepository } from '@mikro-orm/postgresql';
 import { StorageService } from 'src/storage/storage.service';
-import { MikroORM, UseRequestContext } from '@mikro-orm/core';
-import { firstValueFrom } from 'rxjs';
-import { HttpService } from '@nestjs/axios';
-import { createHash } from 'crypto';
 
 export class UserFacingError extends Error {}
 
@@ -46,7 +29,6 @@ export class SettingsService {
     private readonly storage: StorageService,
   ) {}
 
-  // @UseRequestContext()
   async saveIntroSong(
     target_user_id: string,
     attachment: Attachment | null,

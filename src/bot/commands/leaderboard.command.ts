@@ -22,9 +22,9 @@ import { GuildEntity } from 'src/entities/guild.entity';
 import configuration from 'src/config/configuration';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
 import { DatabaseService } from 'src/database/database.service';
+import { virgin_display_name } from 'src/utils/string-transformers';
 import { DiscordHelperService } from '../discord-helper.service';
 import { LeaderboardService } from '../leaderboard.service';
-import { virgin_display_name } from 'src/utils/string-transformers';
 
 @Command({
   name: 'leaderboard',

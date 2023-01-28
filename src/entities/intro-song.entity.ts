@@ -1,12 +1,4 @@
-import {
-  Collection,
-  Entity,
-  OneToMany,
-  PrimaryKey,
-  Property,
-  TextType,
-} from '@mikro-orm/core';
-import { URL } from 'url';
+import { Entity, PrimaryKey, Property, TextType } from '@mikro-orm/core';
 
 import { BaseEntity } from './base.entity';
 

@@ -1,4 +1,3 @@
-import { createHash } from 'crypto';
 import { Injectable, Logger } from '@nestjs/common';
 import { TransformPipe } from '@discord-nestjs/common';
 import {
@@ -11,22 +10,14 @@ import {
   UsePipes,
 } from '@discord-nestjs/core';
 import { MessagePayload } from 'discord.js';
-import {
-  MikroORM,
-  NotFoundError,
-  RequiredEntityData,
-  UseRequestContext,
-} from '@mikro-orm/core';
+import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
 
 import { VirginEntity } from 'src/entities/virgin.entity';
-import { userLogHeader } from 'src/utils/logs';
 import { IntroSongEntity } from 'src/entities/intro-song.entity';
 import { StorageService } from 'src/storage/storage.service';
-import configuration from 'src/config/configuration';
 import { SettingsService, UserFacingError } from './settings.service';
 
 export class SettingsDTO {
