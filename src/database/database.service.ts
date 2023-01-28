@@ -206,7 +206,12 @@ export class DatabaseService {
     // TODO: remove this once `calculateScore` writes to the DB on its own
     virgin.cached_dur_in_vc = total_score;
 
-    // virgin.cached_dur_in_vc = total_score;
+    // Role Changes whenever scores are updated.
+    const top_virgins = await this.virginsRepo.find(
+      { guild: guild.id },
+      { orderBy: [{ cached_dur_in_vc: -1 }], limit: 10 },
+    );
+    this.discord_helper.assignBiggestVirginRole(top_virgins[0]);
 
     return event;
   }
