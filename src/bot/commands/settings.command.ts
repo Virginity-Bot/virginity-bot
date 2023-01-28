@@ -27,6 +27,7 @@ import { userLogHeader } from 'src/utils/logs';
 import { IntroSongEntity } from 'src/entities/intro-song.entity';
 import { StorageService } from 'src/storage/storage.service';
 import configuration from 'src/config/configuration';
+import { SettingsService, UserFacingError } from './settings.service';
 
 export class SettingsDTO {
   /** User snowflake */
@@ -66,6 +67,7 @@ export class SettingsCommand implements DiscordTransformedCommand<SettingsDTO> {
     private readonly intro_songs: EntityRepository<IntroSongEntity>,
     private readonly http: HttpService,
     private readonly storage: StorageService,
+    private readonly settings: SettingsService,
   ) {}
 
   @UseRequestContext()
@@ -84,120 +86,31 @@ export class SettingsCommand implements DiscordTransformedCommand<SettingsDTO> {
       throw new Error(`interaction.guild was null somehow`);
     }
 
-    // const virgin_settings_ent = await this.virgin_settings
-    //   .findOneOrFail({
-    //     virgin_guilds: { id: dto.virgin_to_modify ?? interaction.user.id },
-    //   })
-    //   .catch((err) => {
-    //     if (err instanceof NotFoundError) {
-    //       return this.virgin_settings.create({
-    //         // virgin_snowflake: dto.virgin_to_modify ?? interaction.user.id,
-    //         virgin_guilds: [
-    //           dto.virgin_to_modify ?? interaction.user.id,
-    //           interaction.guild?.id,
-    //         ],
-    //         // virgin_guilds: [dto.virgin_to_modify ?? interaction.user.id],
-    //       } as Partial<RequiredEntityData<VirginSettingsEntity>> as VirginSettingsEntity);
-    //     } else {
-    //       throw err;
-    //     }
-    //   });
-    // console.log('HOLY CRAP WE HAVE SOME SETTINGS');
-
-    // Check if file exists, Should probably run a check to see if it also
-    // Hits other requirements, file type, size etc
     if (dto.intro_song_file != null) {
-      // const introMusic = dto.intro_song_file;
       const attachment = await interaction.options.getAttachment(
         'intro_song',
         false,
       );
 
-      if (attachment == null) {
-        this.logger.warn(
-          'Failed to retrieve intro_song attachment when one was expected',
+      try {
+        await this.settings.saveIntroSong(
+          dto.virgin_to_modify ?? interaction.user.id,
+          attachment,
+          interaction.user,
+          interaction.guild,
         );
-        return new MessagePayload(interaction.channel, {
-          content: 'An error occurred retrieving your file.',
-        });
+      } catch (e) {
+        if (e instanceof UserFacingError) {
+          return new MessagePayload(interaction.channel, {
+            content: e.message,
+          });
+        } else {
+          this.logger.error(e);
+          return new MessagePayload(interaction.channel, {
+            content: 'An unknown error occurred.',
+          });
+        }
       }
-
-      // Check if the file's contentType is supported
-      if (
-        attachment.contentType == null ||
-        !['audio/mpeg', 'audio/ogg', 'audio/aac'].includes(
-          attachment.contentType,
-        )
-      ) {
-        this.logger.debug(
-          `${userLogHeader(
-            interaction.member.user,
-            interaction.guild,
-          )} tried to upload an intro song with an invalid contentType ("${
-            attachment.contentType
-          }").`,
-        );
-        return new MessagePayload(interaction.channel, {
-          content: `${attachment.name} is not a valid audio file.`,
-        });
-      }
-
-      // Check if the file is under the size limit
-      if (attachment.size > configuration.storage.audio.max_file_size_b) {
-        this.logger.debug(
-          `${userLogHeader(
-            interaction.member.user,
-            interaction.guild,
-          )} tried to upload an intro song that was too large (${
-            attachment.size
-          } bytes).`,
-        );
-        return new MessagePayload(interaction.channel, {
-          content: `Your file is too large. The max allowed size is ${(
-            configuration.storage.audio.max_file_size_b / 1024
-          ).toFixed(0)} KiB.`,
-        });
-      }
-
-      // TODO: Check if the audio clip is under the length limit
-
-      const file = await firstValueFrom(
-        this.http.get<Buffer>(attachment.url, { responseType: 'arraybuffer' }),
-      ).then((res) => res.data);
-
-      const hash = await createHash('sha256').update(file).digest('base64url');
-
-      // Check if this file has already been uploaded
-      const intro_song_ent = await this.intro_songs
-        .findOne({ hash })
-        .then(async (ent) => {
-          if (ent != null) {
-            return ent;
-          } else {
-            const extension = attachment.name?.split('.').at(-1) ?? '';
-            // TODO(2): convert audio to OPUS
-            // TODO(0): normalize audio level
-            const uri = await this.storage.storeFile(extension, hash, file);
-
-            const new_ent = this.intro_songs.create({
-              hash,
-              name: attachment.name ?? hash,
-              uri,
-              mime_type: attachment.contentType,
-            } as IntroSongEntity);
-
-            await this.intro_songs.persistAndFlush(new_ent);
-            return new_ent;
-          }
-        });
-
-      await this.virgins.nativeUpdate(
-        {
-          id: dto.virgin_to_modify ?? interaction.user.id,
-          guild: interaction.guild.id,
-        },
-        { intro_song: intro_song_ent },
-      );
 
       // TODO(3): this prevents other settings from being applied at the same time.
       return new MessagePayload(interaction.channel, {
