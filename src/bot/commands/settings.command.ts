@@ -77,6 +77,8 @@ export class SettingsCommand implements DiscordTransformedCommand<SettingsDTO> {
       throw new Error(`interaction.guild was null somehow`);
     }
 
+    interaction.channel.sendTyping();
+
     if (dto.intro_song_file != null) {
       const attachment = await interaction.options.getAttachment(
         'intro_song',
