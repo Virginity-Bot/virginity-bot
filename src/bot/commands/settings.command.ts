@@ -174,14 +174,14 @@ export class SettingsCommand implements DiscordTransformedCommand<SettingsDTO> {
           if (ent != null) {
             return ent;
           } else {
-            // TODO: handle attachment not having a name
             const extension = attachment.name?.split('.').at(-1) ?? '';
+            // TODO(2): convert audio to OPUS
+            // TODO(0): normalize audio level
             const uri = await this.storage.storeFile(extension, hash, file);
 
             const new_ent = this.intro_songs.create({
               hash,
-              // TODO: handle attachment not having a name
-              name: attachment.name ?? 'some-name',
+              name: attachment.name ?? hash,
               uri,
               mime_type: attachment.contentType,
             } as IntroSongEntity);
