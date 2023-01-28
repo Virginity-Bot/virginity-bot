@@ -1,3 +1,4 @@
+import { createHash } from 'crypto';
 import { Injectable, Logger } from '@nestjs/common';
 import { TransformPipe } from '@discord-nestjs/common';
 import {
@@ -25,9 +26,7 @@ import { VirginEntity } from 'src/entities/virgin.entity';
 import { userLogHeader } from 'src/utils/logs';
 import { IntroSongEntity } from 'src/entities/intro-song.entity';
 import { StorageService } from 'src/storage/storage.service';
-import { VirginSettingsEntity } from 'src/entities/virgin-settings.entity';
 import configuration from 'src/config/configuration';
-import { createHash } from 'crypto';
 
 export class SettingsDTO {
   /** User snowflake */
@@ -63,8 +62,6 @@ export class SettingsCommand implements DiscordTransformedCommand<SettingsDTO> {
     private readonly orm: MikroORM,
     @InjectRepository(VirginEntity)
     private readonly virgins: EntityRepository<VirginEntity>,
-    @InjectRepository(VirginSettingsEntity)
-    private readonly virgin_settings: EntityRepository<VirginSettingsEntity>,
     @InjectRepository(IntroSongEntity)
     private readonly intro_songs: EntityRepository<IntroSongEntity>,
     private readonly http: HttpService,
@@ -128,7 +125,9 @@ export class SettingsCommand implements DiscordTransformedCommand<SettingsDTO> {
       // Check if the file's contentType is supported
       if (
         attachment.contentType == null ||
-        !['audio/mpeg', 'audio/ogg'].includes(attachment.contentType)
+        !['audio/mpeg', 'audio/ogg', 'audio/aac'].includes(
+          attachment.contentType,
+        )
       ) {
         this.logger.debug(
           `${userLogHeader(
@@ -184,6 +183,7 @@ export class SettingsCommand implements DiscordTransformedCommand<SettingsDTO> {
               // TODO: handle attachment not having a name
               name: attachment.name ?? 'some-name',
               uri,
+              mime_type: attachment.contentType,
             } as IntroSongEntity);
 
             await this.intro_songs.persistAndFlush(new_ent);
@@ -191,12 +191,10 @@ export class SettingsCommand implements DiscordTransformedCommand<SettingsDTO> {
           }
         });
 
-      await this.virgin_settings.nativeUpdate(
+      await this.virgins.nativeUpdate(
         {
-          virgin_guilds: [
-            dto.virgin_to_modify ?? interaction.user.id,
-            interaction.guild.id,
-          ],
+          id: dto.virgin_to_modify ?? interaction.user.id,
+          guild: interaction.guild.id,
         },
         { intro_song: intro_song_ent },
       );
