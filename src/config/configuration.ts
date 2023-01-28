@@ -33,6 +33,12 @@ const configuration = {
       secret_access_key: process.env.STORAGE_S3_SECRET_ACCESS_KEY as string,
       bucket_name: process.env.STORAGE_S3_BUCKET_NAME ?? 'intro-songs',
     },
+
+    audio: {
+      max_file_size_b:
+        parseFloat(process.env.STORAGE_AUDIO_MAX_FILE_SIZE_KiB ?? '1024') *
+        1024,
+    },
   },
 
   port: parseInt(process.env.PORT ?? '3000'),

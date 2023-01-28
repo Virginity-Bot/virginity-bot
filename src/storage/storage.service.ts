@@ -11,20 +11,17 @@ export class StorageService {
 
   constructor(private readonly minio: MinioService) {}
 
-  async storeFile(name: string, buf: Buffer): Promise<IntroSongEntity> {
-    const extension = name.split('.').at(-1);
-    const hash = await createHash('sha256').update(buf).digest('base64url');
-
+  async storeFile(
+    extension: string | void,
+    hash: string,
+    buf: Buffer,
+  ): Promise<string> {
     const object = await this.minio.client.putObject(
       configuration.storage.s3.bucket_name,
       `${hash}${extension != null ? `.${extension}` : ''}`,
       buf,
     );
 
-    return {
-      hash,
-      name,
-      uri: `s3://${object.etag}` ?? '',
-    } as IntroSongEntity;
+    return `s3://${object.etag}`;
   }
 }

@@ -1,11 +1,13 @@
 import { Guild, GuildMember, User, VoiceState } from 'discord.js';
 import { VirginEntity } from 'src/entities/virgin.entity';
 
+export type Virginish = Pick<User | VirginEntity, 'username' | 'discriminator'>;
+
 export function userLogHeader(state: VoiceState): string;
 export function userLogHeader(member: GuildMember): string;
-export function userLogHeader(virgin: VirginEntity, guild: Guild): string;
-export function userLogHeader(...args): string {
-  let user!: Pick<User | VirginEntity, 'username' | 'discriminator'>;
+export function userLogHeader(virgin: Virginish, guild: Guild): string;
+export function userLogHeader(...args: unknown[]): string {
+  let user!: Virginish;
   let guild!: Guild;
 
   switch (args.length) {

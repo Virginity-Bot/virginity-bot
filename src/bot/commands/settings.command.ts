@@ -1,11 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { TransformPipe } from '@discord-nestjs/common';
-// import { fetch } from 'node-fetch';
-import { StorageService } from '../../storage/storage.service';
 import {
   Command,
-  CommandExecutionContext,
-  DiscordCommand,
   DiscordTransformedCommand,
   Param,
   ParamType,
@@ -13,33 +9,37 @@ import {
   TransformedCommandExecutionContext,
   UsePipes,
 } from '@discord-nestjs/core';
+import { MessagePayload } from 'discord.js';
 import {
-  ButtonInteraction,
-  CacheType,
-  ChatInputCommandInteraction,
-  MessagePayload,
-  ModalBuilder,
-  StringSelectMenuInteraction,
-} from 'discord.js';
+  MikroORM,
+  NotFoundError,
+  RequiredEntityData,
+  UseRequestContext,
+} from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
-import { HttpModule, HttpService } from '@nestjs/axios';
-
-import { VirginEntity } from 'src/entities/virgin.entity';
+import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 
+import { VirginEntity } from 'src/entities/virgin.entity';
+import { userLogHeader } from 'src/utils/logs';
+import { IntroSongEntity } from 'src/entities/intro-song.entity';
+import { StorageService } from 'src/storage/storage.service';
+import { VirginSettingsEntity } from 'src/entities/virgin-settings.entity';
+import configuration from 'src/config/configuration';
+import { createHash } from 'crypto';
+
 export class SettingsDTO {
+  /** User snowflake */
   @Param({
     name: 'virgin',
     description: `The user who's settings to modify.`,
     required: false,
     type: ParamType.USER,
   })
-  virgin?: string;
+  virgin_to_modify?: string;
 
-  /**
-   * Identifier
-   */
+  /** Attachment snowflake */
   @Param({
     name: 'intro_song',
     // TODO(2): add info about limitations (file size, length, etc)
@@ -60,21 +60,53 @@ export class SettingsCommand implements DiscordTransformedCommand<SettingsDTO> {
   private readonly logger = new Logger(SettingsCommand.name);
 
   constructor(
+    private readonly orm: MikroORM,
     @InjectRepository(VirginEntity)
-    private readonly virginsRepo: EntityRepository<VirginEntity>,
+    private readonly virgins: EntityRepository<VirginEntity>,
+    @InjectRepository(VirginSettingsEntity)
+    private readonly virgin_settings: EntityRepository<VirginSettingsEntity>,
+    @InjectRepository(IntroSongEntity)
+    private readonly intro_songs: EntityRepository<IntroSongEntity>,
     private readonly http: HttpService,
+    private readonly storage: StorageService,
   ) {}
 
+  @UseRequestContext()
   async handler(
     @Payload() dto: SettingsDTO,
     { interaction }: TransformedCommandExecutionContext,
   ): Promise<MessagePayload> {
-    if (interaction.channel == null) {
+    if (interaction.member == null) {
+      this.logger.error([`interaction.member was null somehow`, interaction]);
+      throw new Error(`interaction.member was null somehow`);
+    } else if (interaction.channel == null) {
       this.logger.error([`interaction.channel was null somehow`, interaction]);
       throw new Error(`interaction.channel was null somehow`);
+    } else if (interaction.guild == null) {
+      this.logger.error([`interaction.guild was null somehow`, interaction]);
+      throw new Error(`interaction.guild was null somehow`);
     }
 
-    // debugger;
+    // const virgin_settings_ent = await this.virgin_settings
+    //   .findOneOrFail({
+    //     virgin_guilds: { id: dto.virgin_to_modify ?? interaction.user.id },
+    //   })
+    //   .catch((err) => {
+    //     if (err instanceof NotFoundError) {
+    //       return this.virgin_settings.create({
+    //         // virgin_snowflake: dto.virgin_to_modify ?? interaction.user.id,
+    //         virgin_guilds: [
+    //           dto.virgin_to_modify ?? interaction.user.id,
+    //           interaction.guild?.id,
+    //         ],
+    //         // virgin_guilds: [dto.virgin_to_modify ?? interaction.user.id],
+    //       } as Partial<RequiredEntityData<VirginSettingsEntity>> as VirginSettingsEntity);
+    //     } else {
+    //       throw err;
+    //     }
+    //   });
+    // console.log('HOLY CRAP WE HAVE SOME SETTINGS');
+
     // Check if file exists, Should probably run a check to see if it also
     // Hits other requirements, file type, size etc
     if (dto.intro_song_file != null) {
@@ -85,23 +117,95 @@ export class SettingsCommand implements DiscordTransformedCommand<SettingsDTO> {
       );
 
       if (attachment == null) {
-        this.logger.warn('some warning');
+        this.logger.warn(
+          'Failed to retrieve intro_song attachment when one was expected',
+        );
         return new MessagePayload(interaction.channel, {
-          content: 'some error',
+          content: 'An error occurred retrieving your file.',
         });
       }
+
+      // Check if the file's contentType is supported
+      if (
+        attachment.contentType == null ||
+        !['audio/mpeg', 'audio/ogg'].includes(attachment.contentType)
+      ) {
+        this.logger.debug(
+          `${userLogHeader(
+            interaction.member.user,
+            interaction.guild,
+          )} tried to upload an intro song with an invalid contentType ("${
+            attachment.contentType
+          }").`,
+        );
+        return new MessagePayload(interaction.channel, {
+          content: `${attachment.name} is not a valid audio file.`,
+        });
+      }
+
+      // Check if the file is under the size limit
+      if (attachment.size > configuration.storage.audio.max_file_size_b) {
+        this.logger.debug(
+          `${userLogHeader(
+            interaction.member.user,
+            interaction.guild,
+          )} tried to upload an intro song that was too large (${
+            attachment.size
+          } bytes).`,
+        );
+        return new MessagePayload(interaction.channel, {
+          content: `Your file is too large. The max allowed size is ${(
+            configuration.storage.audio.max_file_size_b / 1024
+          ).toFixed(0)} KiB.`,
+        });
+      }
+
+      // TODO: Check if the audio clip is under the length limit
 
       const file = await firstValueFrom(
         this.http.get<Buffer>(attachment.url, { responseType: 'arraybuffer' }),
       ).then((res) => res.data);
-      // TODO: Add check for file type and size.
 
+      const hash = await createHash('sha256').update(file).digest('base64url');
+
+      // Check if this file has already been uploaded
+      const intro_song_ent = await this.intro_songs
+        .findOne({ hash })
+        .then(async (ent) => {
+          if (ent != null) {
+            return ent;
+          } else {
+            // TODO: handle attachment not having a name
+            const extension = attachment.name?.split('.').at(-1) ?? '';
+            const uri = await this.storage.storeFile(extension, hash, file);
+
+            const new_ent = this.intro_songs.create({
+              hash,
+              // TODO: handle attachment not having a name
+              name: attachment.name ?? 'some-name',
+              uri,
+            } as IntroSongEntity);
+
+            await this.intro_songs.persistAndFlush(new_ent);
+            return new_ent;
+          }
+        });
+
+      await this.virgin_settings.nativeUpdate(
+        {
+          virgin_guilds: [
+            dto.virgin_to_modify ?? interaction.user.id,
+            interaction.guild.id,
+          ],
+        },
+        { intro_song: intro_song_ent },
+      );
+
+      // TODO(3): this prevents other settings from being applied at the same time.
       return new MessagePayload(interaction.channel, {
         content: `Your settings have been updated.`,
       });
-    }
-    // Send Data S3 and reply w/ confirmation and properly assign to entity in db
-    else {
+    } else {
       return new MessagePayload(interaction.channel, {
         content: `No File was received...`,
       });
