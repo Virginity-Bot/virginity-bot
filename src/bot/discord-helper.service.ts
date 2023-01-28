@@ -210,11 +210,27 @@ export class DiscordHelperService {
     );
 
     // Clear current members of role
-    await Promise.all(role.members.map((m) => m.roles.remove(role.id)));
+    await Promise.all(
+      role.members.map((m) =>
+        m.roles
+          .remove(role.id)
+          .catch(
+            this.handlePermissionErrors(
+              `Failed to remove role from user ${m.id} in guild ${m.guild.id}`,
+            ),
+          ),
+      ),
+    );
 
     if (member != null) {
-      await member?.roles.add(role.id);
-      this.logger.debug(`Crowned ${userLogHeader(member)}.`);
+      await member?.roles
+        .add(role.id)
+        .then(() => this.logger.debug(`Crowned ${userLogHeader(member)}.`))
+        .catch(
+          this.handlePermissionErrors(
+            `Failed to add role to user ${member.id} in guild ${member.guild.id}`,
+          ),
+        );
     } else {
       this.logger.warn(`Could not find ${biggest_virgin.id} in Discord API.`);
     }
