@@ -42,6 +42,7 @@ export class AudioService {
           // output to stdout
           'pipe:1'
         ],
+        { shell: false },
       );
 
       let console_log = '';
@@ -111,6 +112,7 @@ export class AudioService {
           // write output to stdout
           'pipe:1',
         ],
+        { shell: false },
       );
 
       // let output_stream = '';
