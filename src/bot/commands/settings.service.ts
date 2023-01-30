@@ -67,10 +67,9 @@ export class SettingsService {
         } else {
           // Upload it if it hasn't been
 
-          const extension = attachment.name?.split('.').at(-1) ?? '';
-          // TODO(2): convert audio to OPUS
-          // TODO(0): normalize audio level
-          const uri = await this.storage.storeFile(extension, hash, file);
+          // const extension = attachment.name?.split('.').at(-1) ?? '';
+          const norm_file = await this.audio.normalizeLoudness(file);
+          const uri = await this.storage.storeFile('opus', hash, norm_file);
 
           const new_ent = this.intro_songs.create({
             hash,

@@ -14,7 +14,7 @@ export class StorageService {
   async storeFile(
     extension: string | void,
     hash: string,
-    buf: Buffer,
+    buf: Buffer | Readable,
   ): Promise<string> {
     const object_name = `${hash}${extension != null ? `.${extension}` : ''}`;
     await this.minio.client.putObject(this.bucket, object_name, buf);

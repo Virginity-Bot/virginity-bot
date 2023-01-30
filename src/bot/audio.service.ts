@@ -70,4 +70,88 @@ export class AudioService {
       Readable.from(audio_file).pipe(proc.stdin);
     });
   }
+
+  /**
+   * Normalizes the loudness level of an audio stream using EBU R 128.
+   *
+   * @param audio_file A streamable reperesentation of the audio file.
+   * @param Lk Target Lₖ, or K-weighted loudness level.
+   * @param TP Target True Peak.
+   */
+  normalizeLoudness(
+    audio_file: Readable | Buffer,
+    Lk: number = -37,
+    TP: number = -1.5,
+  ): Promise<Buffer> {
+    return new Promise<Buffer>((resolve, reject) => {
+      const proc = spawn(
+        this.ffmpeg_bin,
+        // prettier-ignore
+        // normalizes loudness level in a single pass.
+        [
+          // read input from stdin
+          // '-i', '-',
+          '-i', 'pipe:0',
+
+          // disable video
+          '-vn',
+
+          // adds the loudnorm filter
+          '-filter:a', `loudnorm=I=${Lk}:TP=${TP}:LRA=11:print_format=summary`,
+
+          // set output codec
+          '-codec:a', 'libopus',
+          // set output container
+          '-f', 'ogg',
+          // set output bitrate
+          '-b:a', '48K',
+
+          // sets the audio sampling frequency
+          // '-ar', '48k',
+
+          // write output to stdout
+          'pipe:1',
+        ],
+      );
+
+      // let output_stream = '';
+      // proc.stdout.on('data', (data: string) => {
+      //   output_stream += data.toString();
+      // });
+      // const a = Buffer.from([]);
+      // proc.stdout.on('data', (d: Buffer) => a.set(d, a.length));
+      let a: number[] = [];
+      proc.stdout
+        .on('data', (d: Buffer) => (a = a.concat(a, Array.from(d.values()))))
+        .on('close', () => resolve(Buffer.from(a)));
+
+      let console_log = '';
+      proc.stderr.on('data', (data: Buffer) => {
+        console_log += data.toString();
+      });
+      // proc.stderr.pipe(process.stdout);
+      proc.on('close', (exit_code) => {
+        console.debug('closed');
+        // console.debug(`output_stream.length = ${output_stream.length}`);
+        // console.error(console_log);
+
+        if (exit_code !== 0)
+          return reject(new Error(`exit code ${exit_code}.\n${console_log}`));
+
+        // return resolve(a);
+      });
+      proc.on('error', (err) => {
+        this.logger.error(err);
+        console.error(console_log);
+      });
+
+      Readable.from(audio_file)
+        .pipe(proc.stdin)
+        .on('error', (err) => {
+          // it seems like ffprobe is terminating the stream early, causing the EPIPE error?
+          // could this be related to not received the duration?
+          console.error(err);
+        });
+    });
+  }
 }
