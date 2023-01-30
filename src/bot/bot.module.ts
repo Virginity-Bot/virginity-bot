@@ -12,6 +12,7 @@ import { Track } from './events/track';
 import { UpdateUsers } from './events/update-users';
 import { LeaderboardService } from './leaderboard.service';
 import { SettingsService } from './commands/settings.service';
+import { AudioService } from './audio.service';
 import { LeaderboardCommand } from './commands/leaderboard.command';
 import { CheckScoreCommand } from './commands/check-score.command';
 import { SettingsCommand } from './commands/settings.command';
@@ -29,6 +30,7 @@ import { SettingsCommand } from './commands/settings.command';
     DiscordHelperService,
     LeaderboardService,
     SettingsService,
+    AudioService,
 
     LeaderboardCommand,
     CheckScoreCommand,

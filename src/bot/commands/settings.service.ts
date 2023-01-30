@@ -12,6 +12,8 @@ import { VirginEntity } from 'src/entities/virgin.entity';
 import { userLogHeader } from 'src/utils/logs';
 import { IntroSongEntity } from 'src/entities/intro-song.entity';
 import { StorageService } from 'src/storage/storage.service';
+import { AudioService } from '../audio.service';
+import { Readable } from 'stream';
 
 export class UserFacingError extends Error {}
 
@@ -27,6 +29,7 @@ export class SettingsService {
     @InjectRepository(IntroSongEntity)
     private readonly intro_songs: EntityRepository<IntroSongEntity>,
     private readonly storage: StorageService,
+    private readonly audio: AudioService,
   ) {}
 
   async saveIntroSong(
@@ -48,9 +51,10 @@ export class SettingsService {
     // Check if the file is under the size limit
     this.validateFileSize(attachment, user, guild);
 
-    // TODO: Check if the audio clip is under the length limit
-
     const file = await this.getAttachmentContent(attachment);
+
+    // Check if the audio clip is under the length limit
+    await this.validateAudioDuration(file, user, guild);
 
     const hash = await createHash('sha256').update(file).digest('base64url');
 
@@ -129,6 +133,28 @@ export class SettingsService {
       );
       throw new UserFacingError(
         `${attachment.name} is not a valid audio file.`,
+      );
+    }
+  }
+
+  async validateAudioDuration(
+    stream: Buffer,
+    user: User,
+    guild: Guild,
+  ): Promise<void> {
+    const duration = await this.audio.getTrackDuration(stream);
+
+    if (duration <= 30) {
+      return;
+    } else {
+      this.logger.debug(
+        `${userLogHeader(
+          user,
+          guild,
+        )} tried to upload an intro song that was over 30 seconds long (${duration}s).`,
+      );
+      throw new UserFacingError(
+        `The track you uploaded is ${duration}s long, which is over the max length of 30s.`,
       );
     }
   }
