@@ -106,6 +106,8 @@ export class AudioService {
           // sets the audio sampling frequency
           '-ar', '48k',
 
+          '-loglevel', 'error',
+
           // write output to stdout
           'pipe:1',
         ],
