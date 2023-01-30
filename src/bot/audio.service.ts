@@ -103,11 +103,8 @@ export class AudioService {
           '-codec:a', 'libopus',
           // set output container
           '-f', 'ogg',
-          // set output bitrate
-          '-b:a', '48K',
-
           // sets the audio sampling frequency
-          // '-ar', '48k',
+          '-ar', '48k',
 
           // write output to stdout
           'pipe:1',
