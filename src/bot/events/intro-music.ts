@@ -35,8 +35,13 @@ export class IntroMusic {
   @UseRequestContext()
   async voiceStateUpdate(old_state: VoiceState, new_state: VoiceState) {
     if (
+      // user is leaving VC
       new_state.channelId == null ||
+      // user is switching from one VC to another
       new_state.channelId === old_state.channelId ||
+      // user is entering AFK
+      new_state.channelId === new_state.guild.afkChannelId ||
+      // there is no user
       new_state.member == null
     ) {
       return;
