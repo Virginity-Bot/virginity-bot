@@ -11,6 +11,7 @@ import {
   AudioPlayerStatus,
   DiscordGatewayAdapterCreator,
   AudioResource,
+  StreamType,
 } from '@discordjs/voice';
 import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
@@ -123,14 +124,6 @@ export class IntroMusic {
       }
     }
 
-    const resource = createAudioResource(readable, {
-      // TODO: once audio transcoding is implemented, disable this
-      // inputType: StreamType.Opus,
-      // TODO: once audio normalization is implemented, disable this
-      inlineVolume: true,
-    });
-
-    resource.volume?.setVolume(0.3);
-    return resource;
+    return createAudioResource(readable, { inputType: StreamType.OggOpus });
   }
 }
