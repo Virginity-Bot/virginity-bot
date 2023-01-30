@@ -120,10 +120,10 @@ export class AudioService {
       // });
       // const a = Buffer.from([]);
       // proc.stdout.on('data', (d: Buffer) => a.set(d, a.length));
-      let a: number[] = [];
+      const output: number[] = [];
       proc.stdout
-        .on('data', (d: Buffer) => (a = a.concat(a, Array.from(d.values()))))
-        .on('close', () => resolve(Buffer.from(a)));
+        .on('data', (d: Buffer) => output.push(...d.values()))
+        .on('close', () => resolve(Buffer.from(output)));
 
       let console_log = '';
       proc.stderr.on('data', (data: Buffer) => {
