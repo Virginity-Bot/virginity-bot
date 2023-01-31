@@ -2,7 +2,19 @@
 
 // TODO: switch to using @nestjs/config
 
+export enum LogLevel {
+  QUIET,
+  ERROR,
+  WARN,
+  DEBUG,
+}
+
 const configuration = {
+  log_level:
+    process.env.LOG_LEVEL != null
+      ? LogLevel[process.env.LOG_LEVEL]
+      : LogLevel.WARN,
+
   db: {
     type: (process.env.DATABASE_TYPE ?? 'postgresql') as
       | 'postgresql'

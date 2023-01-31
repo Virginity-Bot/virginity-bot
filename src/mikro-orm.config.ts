@@ -2,7 +2,7 @@ import { Options } from '@mikro-orm/core';
 import { TsMorphMetadataProvider } from '@mikro-orm/reflection';
 import { Logger } from '@nestjs/common';
 
-import configuration from './config/configuration';
+import configuration, { LogLevel } from './config/configuration';
 
 import {
   GuildChannelSettings,
@@ -19,6 +19,7 @@ import { DeletedRecord } from './entities/deleted-record.entity';
 const logger = new Logger('MikroORM');
 const config: Options = {
   logger: Logger.log.bind(logger),
+  debug: configuration.log_level >= LogLevel.DEBUG,
 
   type: configuration.db.type,
   clientUrl: configuration.db.url,
