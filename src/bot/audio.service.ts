@@ -1,7 +1,6 @@
 import { Readable, Stream } from 'stream';
 import { spawn, exec, fork } from 'child_process';
 import { Injectable, Logger } from '@nestjs/common';
-import { path as ffprobe_path } from 'ffprobe-static';
 import * as ffmpeg_path from 'ffmpeg-static';
 import { Duration, parse } from 'date-fns';
 
@@ -10,7 +9,6 @@ export class AudioService {
   private readonly logger = new Logger(AudioService.name);
 
   private readonly ffmpeg_bin: string;
-  private readonly ffprobe_bin: string;
 
   constructor() {
     if (ffmpeg_path == null) {
@@ -19,7 +17,6 @@ export class AudioService {
       );
     }
     this.ffmpeg_bin = ffmpeg_path as unknown as string;
-    this.ffprobe_bin = ffprobe_path;
   }
 
   /** Gets the duration of the 1st audio track in a file in seconds. */
