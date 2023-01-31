@@ -15,12 +15,14 @@ rules:
   'consistent-return': 'off'
   'require-await': 'off'
   'no-shadow': 'off'
-  '@typescript-eslint/no-unused-vars': ['warn', { 'args': 'none' }]
+  '@typescript-eslint/no-unused-vars': ['warn', { args: 'none' }]
   'promise/no-nesting': 'off'
-  'require-atomic-updates': ['warn', { 'allowProperties': true }]
+  'require-atomic-updates': ['warn', { allowProperties: true }]
   'import/no-cycle': 'off'
   'lines-between-class-members': 'off'
   'no-useless-return': 'off'
+  'no-use-before-define': 'off'
+  '@typescript-eslint/no-use-before-define': 'error'
 settings:
   'import/resolver':
     typescript:
