@@ -66,8 +66,10 @@ export class LeaderboardCommand implements DiscordCommand {
 
     await this.recalculateScores(interaction.guildId);
 
+    const guild_ent = await this.guilds.findOneOrFail(interaction.guildId);
+
     const leaderboard = await this.leaderboard.buildLeaderboardEmbed(
-      interaction.guild,
+      guild_ent,
       interaction.user,
     );
 
@@ -76,7 +78,7 @@ export class LeaderboardCommand implements DiscordCommand {
 
   virginToLeaderboardLine(virgin: VirginEntity, pos: number | string): string {
     return `**${pos}.** ${pos === 1 ? '**' : ''}${virgin_display_name(virgin)}${
-      pos === 1 ? `** ${configuration.role.emoji}` : ''
+      pos === 1 ? `** ${virgin.guild.role.emoji}` : ''
     } — ${virgin.cached_dur_in_vc}`;
   }
 

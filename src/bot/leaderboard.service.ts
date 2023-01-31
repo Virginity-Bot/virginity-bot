@@ -30,16 +30,16 @@ export class LeaderboardService {
 
   @UseRequestContext()
   async buildLeaderboardEmbed(
-    guild: GuildEntity | Guild,
+    guild: GuildEntity,
     requester?: VirginEntity | User,
   ): Promise<EmbedBuilder> {
     const board_embed = new EmbedBuilder()
-      .setColor(configuration.role.color)
+      .setColor(guild.role.color)
       .setTitle(`Biggest Virgins of ${guild.name}`);
 
     const top_virgins = await this.virginsRepo.find(
       { guild: guild.id },
-      { orderBy: [{ cached_dur_in_vc: -1 }], limit: 10 },
+      { orderBy: [{ cached_dur_in_vc: -1 }], limit: 10, populate: ['guild'] },
     );
     if (top_virgins.length === 0) {
       board_embed.setDescription('No virgins 😭');
@@ -51,7 +51,9 @@ export class LeaderboardService {
 
     const fields = top_virgins.reduce(
       (fields, virgin, i) => {
-        fields[0].value.push(this.virginToLeaderboardLine(virgin, i + 1));
+        fields[0].value.push(
+          this.virginToLeaderboardLine(virgin, guild, i + 1),
+        );
         return fields;
       },
       <[APIEmbedFieldArray]>[
@@ -77,6 +79,7 @@ export class LeaderboardService {
                 username: requester.username,
                 cached_dur_in_vc: 0,
               },
+              guild,
               '?',
             ),
           );
@@ -90,7 +93,7 @@ export class LeaderboardService {
             .then((res) => res.rows[0].array_position);
 
           fields[0].value.push(
-            this.virginToLeaderboardLine(requester_ent, requester_place),
+            this.virginToLeaderboardLine(requester_ent, guild, requester_place),
           );
         }
       }
@@ -105,10 +108,11 @@ export class LeaderboardService {
 
   virginToLeaderboardLine(
     virgin: Pick<VirginEntity, 'username' | 'nickname' | 'cached_dur_in_vc'>,
+    guild: GuildEntity,
     pos: number | string,
   ): string {
     return `**${pos}.** ${pos === 1 ? '**' : ''}${virgin_display_name(virgin)}${
-      pos === 1 ? `** ${configuration.role.emoji}` : ''
+      pos === 1 ? `** ${guild.role.emoji}` : ''
     } — ${virgin.cached_dur_in_vc}`;
   }
 }

@@ -95,13 +95,13 @@ export class DiscordHelperService {
 
     const role =
       (await guild.roles.fetch()).find(
-        (role) => role.name === configuration.role.name,
+        (role) => role.name === guild_ent.role.name,
       ) ??
       (await guild.roles
         .create({
-          name: configuration.role.name,
-          color: configuration.role.color,
-          unicodeEmoji: configuration.role.emoji,
+          name: guild_ent.role.name,
+          color: guild_ent.role.color,
+          unicodeEmoji: guild_ent.role.emoji,
           hoist: true,
           mentionable: true,
         })
@@ -117,9 +117,9 @@ export class DiscordHelperService {
           return role;
         }));
 
-    if (role.name !== configuration.role.name) {
+    if (role.name !== guild_ent.role.name) {
       await role
-        .setName(configuration.role.name)
+        .setName(guild_ent.role.name)
         .catch(
           this.handlePermissionErrors(
             `Failed to set role name of role ${role.id} in guild ${guild.id}`,
@@ -128,11 +128,10 @@ export class DiscordHelperService {
     }
     // TODO(2): role.color is a number, while config.role.color will always be a string, so we setColor every time.
     if (
-      role.color.toString(16).toUpperCase() !==
-      configuration.role.color.slice(1)
+      role.color.toString(16).toUpperCase() !== guild_ent.role.color.slice(1)
     ) {
       await role
-        .setColor(configuration.role.color)
+        .setColor(guild_ent.role.color)
         .catch(
           this.handlePermissionErrors(
             `Failed to set role color of role ${role.id} in guild ${guild.id}`,
@@ -182,8 +181,8 @@ export class DiscordHelperService {
       (await guild.channels
         .create<ChannelType.GuildText>({
           type: ChannelType.GuildText,
-          name: configuration.channel.name,
-          topic: configuration.channel.description,
+          name: guild_ent.channel.name,
+          topic: guild_ent.channel.description,
         })
         .then<TextChannel>((guild) => {
           this.logger.debug(

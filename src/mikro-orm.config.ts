@@ -18,8 +18,14 @@ import { DeletedRecord } from './entities/deleted-record.entity';
 
 const logger = new Logger('MikroORM');
 const config: Options = {
-  metadataProvider: TsMorphMetadataProvider,
   logger: Logger.log.bind(logger),
+
+  type: configuration.db.type,
+  clientUrl: configuration.db.url,
+  pool: {
+    min: configuration.db.pool.min,
+    max: configuration.db.pool.max,
+  },
 
   entities: [
     GuildEntity,
@@ -33,16 +39,12 @@ const config: Options = {
     DeletedRecord,
   ],
 
-  type: configuration.db.type,
-  clientUrl: configuration.db.url,
-  pool: {
-    min: configuration.db.pool.min,
-    max: configuration.db.pool.max,
-  },
-
+  metadataProvider: TsMorphMetadataProvider,
   cache: {
     options: { cacheDir: configuration.mikro_orm.cache_dir },
   },
+
+  populateAfterFlush: true,
 };
 
 export default config;
