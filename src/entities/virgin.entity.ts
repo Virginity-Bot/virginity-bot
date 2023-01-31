@@ -10,7 +10,7 @@ import {
   TextType,
 } from '@mikro-orm/core';
 
-import { GuildEntity } from './guild.entity';
+import { GuildEntity } from './guild/guild.entity';
 import { BaseEntity } from './base.entity';
 import { VCEventEntity } from './vc-event.entity';
 import { IntroSongEntity } from './intro-song.entity';

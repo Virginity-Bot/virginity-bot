@@ -1,7 +1,6 @@
 /* eslint no-process-env: "off" */
 
 // TODO: switch to using @nestjs/config
-import { HexColorString } from 'discord.js';
 
 const configuration = {
   db: {

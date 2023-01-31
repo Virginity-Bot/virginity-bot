@@ -4,7 +4,13 @@ import { Logger } from '@nestjs/common';
 
 import configuration from './config/configuration';
 
-import { GuildEntity } from './entities/guild.entity';
+import {
+  GuildChannelSettings,
+  GuildEntity,
+  GuildRoleSettings,
+  GuildScoreMultiplierSettings,
+  GuildScoreSettings,
+} from './entities/guild';
 import { VirginEntity } from './entities/virgin.entity';
 import { IntroSongEntity } from './entities/intro-song.entity';
 import { VCEventEntity } from './entities/vc-event.entity';
@@ -17,6 +23,10 @@ const config: Options = {
 
   entities: [
     GuildEntity,
+    GuildScoreSettings,
+    GuildScoreMultiplierSettings,
+    GuildRoleSettings,
+    GuildChannelSettings,
     VirginEntity,
     IntroSongEntity,
     VCEventEntity,

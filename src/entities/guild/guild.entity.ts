@@ -1,5 +1,6 @@
 import {
   Collection,
+  Embedded,
   Entity,
   OneToMany,
   PrimaryKey,
@@ -7,8 +8,11 @@ import {
   TextType,
 } from '@mikro-orm/core';
 
-import { BaseEntity } from './base.entity';
-import { VirginEntity } from './virgin.entity';
+import { BaseEntity } from '../base.entity';
+import { VirginEntity } from '../virgin.entity';
+import { GuildChannelSettings } from './guild-channel.embeddable';
+import { GuildRoleSettings } from './guild-role.embeddable';
+import { GuildScoreSettings } from './guild-score.embeddable';
 
 @Entity({ tableName: 'guild' })
 export class GuildEntity extends BaseEntity {
@@ -42,4 +46,13 @@ export class GuildEntity extends BaseEntity {
     comment: 'Timestamp when the last reset ocurred',
   })
   last_reset: Date = new Date();
+
+  @Embedded()
+  score = new GuildScoreSettings();
+
+  @Embedded()
+  role = new GuildRoleSettings();
+
+  @Embedded()
+  channel = new GuildChannelSettings();
 }

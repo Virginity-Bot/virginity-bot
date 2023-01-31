@@ -5,7 +5,7 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
-import { GuildEntity } from 'src/entities/guild.entity';
+import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { DiscordHelperService } from '../discord-helper.service';
 
 @Injectable()
