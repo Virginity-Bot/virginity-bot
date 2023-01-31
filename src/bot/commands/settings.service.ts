@@ -13,7 +13,6 @@ import { userLogHeader } from 'src/utils/logs';
 import { IntroSongEntity } from 'src/entities/intro-song.entity';
 import { StorageService } from 'src/storage/storage.service';
 import { AudioService } from '../audio.service';
-import { Readable } from 'stream';
 
 export class UserFacingError extends Error {}
 

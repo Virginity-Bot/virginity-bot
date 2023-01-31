@@ -1,8 +1,8 @@
-import { Readable, Stream } from 'stream';
-import { spawn, exec, fork } from 'child_process';
+import { Readable } from 'stream';
+import { spawn } from 'child_process';
 import { Injectable, Logger } from '@nestjs/common';
 import * as ffmpeg_path from 'ffmpeg-static';
-import { Duration, parse } from 'date-fns';
+import { parse } from 'date-fns';
 
 @Injectable()
 export class AudioService {
@@ -129,7 +129,6 @@ export class AudioService {
       });
       // proc.stderr.pipe(process.stdout);
       proc.on('close', (exit_code) => {
-        console.debug('closed');
         // console.debug(`output_stream.length = ${output_stream.length}`);
         // console.error(console_log);
 
@@ -140,7 +139,7 @@ export class AudioService {
       });
       proc.on('error', (err) => {
         this.logger.error(err);
-        console.error(console_log);
+        this.logger.error(console_log);
       });
 
       Readable.from(audio_file)
@@ -148,7 +147,7 @@ export class AudioService {
         .on('error', (err) => {
           // it seems like ffprobe is terminating the stream early, causing the EPIPE error?
           // could this be related to not received the duration?
-          console.error(err);
+          this.logger.error(err);
         });
     });
   }
