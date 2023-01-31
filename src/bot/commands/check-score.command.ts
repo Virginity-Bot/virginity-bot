@@ -84,11 +84,9 @@ export class CheckScoreCommand implements DiscordTransformedCommand<ScoreDTO> {
     ]);
 
     // Role Changes when scores are updated.
-    const top_virgins = await this.virgins.find(
-      { guild: interaction.guild },
-      { orderBy: [{ cached_dur_in_vc: -1 }], limit: 1 },
+    this.discord_helper.assignBiggestVirginRoleGuild(
+      interaction.guild.id.toString(),
     );
-    this.discord_helper.assignBiggestVirginRole(top_virgins[0]);
 
     // TODO(2): add flavor text
     return new MessagePayload(interaction.channel, {

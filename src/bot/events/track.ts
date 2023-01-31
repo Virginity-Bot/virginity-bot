@@ -102,14 +102,8 @@ export class Track {
       await this.vcEventsRepo.persistAndFlush(events);
 
       // Update Virgins Role
-      let guild;
-      if (new_state != null) guild = new_state.guild.id;
-      else guild = old_state.guild.id;
-      const top_virgins = await this.virginsRepo.find(
-        { guild },
-        { orderBy: [{ cached_dur_in_vc: -1 }], limit: 1 },
-      );
-      this.discord_helper.assignBiggestVirginRole(top_virgins[0]);
+      const guild = new_state?.guild.id ?? old_state.guild.id;
+      this.discord_helper.assignBiggestVirginRoleGuild(guild);
     } else {
       this.logger.debug([
         `${userLogHeader(new_state)} made an unrecognized action.`,
@@ -203,14 +197,8 @@ export class Track {
       // we can just ignore this
     }
     // Update Virgins Role
-    let guild;
-    if (new_presence != null) guild = new_presence.guild.id;
-    else if (old_presence != null) guild = old_presence.guild?.id;
-    const top_virgins = await this.virginsRepo.find(
-      { guild },
-      { orderBy: [{ cached_dur_in_vc: -1 }], limit: 1 },
-    );
-    this.discord_helper.assignBiggestVirginRole(top_virgins[0]);
+    const guild = new_presence?.guild.id ?? old_presence?.guild?.id;
+    this.discord_helper.assignBiggestVirginRoleGuild(guild);
   }
 
   @On(Events.ClientReady)

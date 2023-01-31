@@ -102,10 +102,6 @@ export class LeaderboardCommand implements DiscordCommand {
     await this.vc_events.persistAndFlush(events);
 
     // Role Changes when scores are updated.
-    const top_virgins = await this.virginsRepo.find(
-      { guild: guild_id },
-      { orderBy: [{ cached_dur_in_vc: -1 }], limit: 1 },
-    );
-    this.discord_helper.assignBiggestVirginRole(top_virgins[0]);
+    this.discord_helper.assignBiggestVirginRoleGuild(guild_id);
   }
 }

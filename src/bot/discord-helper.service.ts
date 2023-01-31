@@ -12,6 +12,8 @@ import {
   TextChannel,
 } from 'discord.js';
 import { InjectDiscordClient, On } from '@discord-nestjs/core';
+import { InjectRepository } from '@mikro-orm/nestjs';
+import { EntityRepository } from '@mikro-orm/core';
 import configuration from 'src/config/configuration';
 import { GuildEntity } from 'src/entities/guild.entity';
 import { VirginEntity } from 'src/entities/virgin.entity';
@@ -24,6 +26,8 @@ export class DiscordHelperService {
   constructor(
     @InjectDiscordClient()
     private readonly client: Client,
+    @InjectRepository(VirginEntity)
+    private readonly virginsRepo: EntityRepository<VirginEntity>,
   ) {}
 
   @On(Events.ClientReady)
@@ -217,6 +221,32 @@ export class DiscordHelperService {
       this.logger.debug(`Crowned ${userLogHeader(member)}.`);
     } else {
       this.logger.warn(`Could not find ${biggest_virgin.id} in Discord API.`);
+    }
+  }
+
+  async assignBiggestVirginRoleGuild(guild: string) {
+    const top_virgins = await this.virginsRepo.find(
+      { guild },
+      { orderBy: [{ cached_dur_in_vc: -1 }], limit: 1 },
+    );
+    // const biggest_virgin = top_virgins[0];
+    const role = await this.findOrCreateBiggestVirginRole(top_virgins[0].guild);
+
+    // const guild = await this.client.guilds.fetch(biggest_virgin.guild.id);
+    // const member = await guild.members.fetch(biggest_virgin.id);
+    const member = await this.fetchGuildMember(
+      top_virgins[0].guild.id,
+      top_virgins[0].id,
+    );
+
+    // Clear current members of role
+    await Promise.all(role.members.map((m) => m.roles.remove(role.id)));
+
+    if (member != null) {
+      await member?.roles.add(role.id);
+      this.logger.debug(`Crowned ${userLogHeader(member)}.`);
+    } else {
+      this.logger.warn(`Could not find ${top_virgins[0].id} in Discord API.`);
     }
   }
 
