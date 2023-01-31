@@ -12,7 +12,6 @@ import {
   TextChannel,
 } from 'discord.js';
 import { InjectDiscordClient, On } from '@discord-nestjs/core';
-import configuration from 'src/config/configuration';
 import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { userLogHeader } from 'src/utils/logs';

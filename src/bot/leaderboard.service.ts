@@ -1,5 +1,5 @@
 import { InjectDiscordClient } from '@discord-nestjs/core';
-import { EmbedBuilder, Client, APIEmbedField, Guild, User } from 'discord.js';
+import { EmbedBuilder, Client, APIEmbedField, User } from 'discord.js';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { UseRequestContext, MikroORM } from '@mikro-orm/core';
@@ -7,7 +7,6 @@ import { EntityRepository } from '@mikro-orm/postgresql';
 
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { GuildEntity } from 'src/entities/guild/guild.entity';
-import configuration from 'src/config/configuration';
 import { virgin_display_name } from 'src/utils/string-transformers';
 import { DatabaseService } from 'src/database/database.service';
 import { DiscordHelperService } from './discord-helper.service';
