@@ -112,12 +112,6 @@ export class AudioService {
         { shell: false },
       );
 
-      // let output_stream = '';
-      // proc.stdout.on('data', (data: string) => {
-      //   output_stream += data.toString();
-      // });
-      // const a = Buffer.from([]);
-      // proc.stdout.on('data', (d: Buffer) => a.set(d, a.length));
       const output: number[] = [];
       proc.stdout
         .on('data', (d: Buffer) => output.push(...d.values()))
@@ -127,15 +121,9 @@ export class AudioService {
       proc.stderr.on('data', (data: Buffer) => {
         console_log += data.toString();
       });
-      // proc.stderr.pipe(process.stdout);
       proc.on('close', (exit_code) => {
-        // console.debug(`output_stream.length = ${output_stream.length}`);
-        // console.error(console_log);
-
         if (exit_code !== 0)
           return reject(new Error(`exit code ${exit_code}.\n${console_log}`));
-
-        // return resolve(a);
       });
       proc.on('error', (err) => {
         this.logger.error(err);
