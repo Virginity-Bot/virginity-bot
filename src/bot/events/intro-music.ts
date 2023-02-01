@@ -42,7 +42,9 @@ export class IntroMusic {
       // user is entering AFK
       new_state.channelId === new_state.guild.afkChannelId ||
       // there is no user
-      new_state.member == null
+      new_state.member == null ||
+      // channel only has 1 member
+      (new_state.channel?.members.size ?? 0) < 2
     ) {
       return;
     }
