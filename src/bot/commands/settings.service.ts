@@ -53,7 +53,7 @@ export class SettingsService {
     const file = await this.getAttachmentContent(attachment);
 
     // Check if the audio clip is under the length limit
-    await this.validateAudioDuration(file, user, guild);
+    const intro_duration = await this.validateAudioDuration(file, user, guild);
 
     const hash = await createHash('sha256').update(file).digest('base64url');
 
@@ -69,12 +69,15 @@ export class SettingsService {
           // const extension = attachment.name?.split('.').at(-1) ?? '';
           const norm_file = await this.audio.normalizeLoudness(file);
           const uri = await this.storage.storeFile('opus', hash, norm_file);
+          const intro_timeout = this.audio.calculateTimeout(intro_duration);
 
           const new_ent = this.intro_songs.create({
             hash,
             name: attachment.name ?? hash,
             uri,
             mime_type: attachment.contentType,
+            duration: intro_duration,
+            computed_timeout: intro_timeout,
           } as IntroSongEntity);
 
           await this.intro_songs.persistAndFlush(new_ent);
@@ -139,11 +142,11 @@ export class SettingsService {
     stream: Buffer,
     user: User,
     guild: Guild,
-  ): Promise<void> {
+  ): Promise<number> {
     const duration = await this.audio.getTrackDuration(stream);
 
     if (duration <= 30) {
-      return;
+      return duration;
     } else {
       this.logger.debug(
         `${userLogHeader(

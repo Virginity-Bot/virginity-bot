@@ -1,5 +1,6 @@
 import {
   Collection,
+  DateTimeType,
   Entity,
   ManyToOne,
   OneToMany,
@@ -68,6 +69,15 @@ export class VirginEntity extends BaseEntity {
   // TODO(4): MikroORM's internal type checker thinks this is non-nullable if we don't specify `nullable`
   @ManyToOne({ nullable: true })
   intro_song?: IntroSongEntity;
+
+  /** A timestamp for the last time an intro song was played for this user. */
+  @Property({
+    type: DateTimeType,
+    nullable: true,
+    comment:
+      'A timestamp for the last time an intro song was played for this user.',
+  })
+  intro_last_played: Date | null;
 
   // TODO(4): MikroORM's internal type checker thinks this is non-nullable if we don't specify `nullable`
   @Property({ type: TextType, nullable: true })

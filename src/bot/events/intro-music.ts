@@ -17,6 +17,7 @@ import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
+import { differenceInSeconds } from 'date-fns';
 import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { IntroSongEntity } from 'src/entities/intro-song.entity';
@@ -51,13 +52,21 @@ export class IntroMusic {
       guild_ent.biggest_virgin_role_id == null ||
       new_state.member?.roles.resolve(guild_ent.biggest_virgin_role_id) != null
     ) {
-      const virgin = await this.virgins.findOne(
+      const virgin = await this.virgins.findOneOrFail(
         [new_state.member.id, new_state.guild.id],
-        {
-          populate: ['intro_song'],
-        },
+        { populate: ['intro_song'] },
       );
-      await this.playIntroMusic(new_state.guild, new_state.channelId, virgin);
+      const now = new Date();
+      const defaultIntro = 4.9;
+      if (
+        Math.abs(
+          differenceInSeconds(now, virgin.intro_last_played ?? new Date(0)),
+        ) >= (virgin.intro_song?.computed_timeout ?? defaultIntro)
+      ) {
+        await this.playIntroMusic(new_state.guild, new_state.channelId, virgin);
+        virgin.intro_last_played = now;
+        await this.virgins.flush();
+      }
     }
   }
 
