@@ -206,8 +206,6 @@ export class DatabaseService {
     // TODO: remove this once `calculateScore` writes to the DB on its own
     virgin.cached_dur_in_vc = total_score;
 
-    // virgin.cached_dur_in_vc = total_score;
-
     return event;
   }
 

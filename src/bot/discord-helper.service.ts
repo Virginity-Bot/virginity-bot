@@ -12,6 +12,8 @@ import {
   TextChannel,
 } from 'discord.js';
 import { InjectDiscordClient, On } from '@discord-nestjs/core';
+import { InjectRepository } from '@mikro-orm/nestjs';
+import { EntityRepository } from '@mikro-orm/postgresql';
 import configuration from 'src/config/configuration';
 import { GuildEntity } from 'src/entities/guild.entity';
 import { VirginEntity } from 'src/entities/virgin.entity';
@@ -24,6 +26,8 @@ export class DiscordHelperService {
   constructor(
     @InjectDiscordClient()
     private readonly client: Client,
+    @InjectRepository(VirginEntity)
+    private readonly virginsRepo: EntityRepository<VirginEntity>,
   ) {}
 
   @On(Events.ClientReady)
@@ -234,6 +238,14 @@ export class DiscordHelperService {
     } else {
       this.logger.warn(`Could not find ${biggest_virgin.id} in Discord API.`);
     }
+  }
+
+  async assignBiggestVirginRoleGuild(guild_id: string) {
+    const top_virgin = await this.virginsRepo.findOneOrFail(
+      { guild: guild_id },
+      { orderBy: [{ cached_dur_in_vc: -1 }] },
+    );
+    this.assignBiggestVirginRole(top_virgin);
   }
 
   /**
