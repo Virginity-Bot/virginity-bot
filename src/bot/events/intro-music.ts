@@ -51,13 +51,27 @@ export class IntroMusic {
       guild_ent.biggest_virgin_role_id == null ||
       new_state.member?.roles.resolve(guild_ent.biggest_virgin_role_id) != null
     ) {
-      const virgin = await this.virgins.findOne(
+      const virgin = await this.virgins.findOneOrFail(
         [new_state.member.id, new_state.guild.id],
-        {
-          populate: ['intro_song'],
-        },
+        { populate: ['intro_song'] },
       );
-      await this.playIntroMusic(new_state.guild, new_state.channelId, virgin);
+      const now = new Date();
+      if (
+        virgin.intro_song != null &&
+        now.getSeconds() - virgin.intro_last_played.getSeconds() >=
+          virgin.intro_song?.computed_timeout
+      ) {
+        await this.playIntroMusic(new_state.guild, new_state.channelId, virgin);
+        virgin.intro_last_played = now;
+        await this.virgins.flush();
+      } else if (
+        virgin.intro_song == null &&
+        now.getSeconds() - virgin.intro_last_played.getSeconds() >= 4.9
+      ) {
+        await this.playIntroMusic(new_state.guild, new_state.channelId, virgin);
+        virgin.intro_last_played = now;
+        await this.virgins.flush();
+      }
     }
   }
 

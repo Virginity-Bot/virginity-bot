@@ -69,12 +69,16 @@ export class SettingsService {
           // const extension = attachment.name?.split('.').at(-1) ?? '';
           const norm_file = await this.audio.normalizeLoudness(file);
           const uri = await this.storage.storeFile('opus', hash, norm_file);
+          const intro_duration = await this.audio.getTrackDuration(file);
+          const intro_timeout = 1.188 ** intro_duration + 1;
 
           const new_ent = this.intro_songs.create({
             hash,
             name: attachment.name ?? hash,
             uri,
             mime_type: attachment.contentType,
+            duration: intro_duration,
+            computed_timeout: intro_timeout,
           } as IntroSongEntity);
 
           await this.intro_songs.persistAndFlush(new_ent);
