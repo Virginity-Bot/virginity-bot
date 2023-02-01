@@ -35,7 +35,7 @@ export class IntroSongEntity extends BaseEntity {
   /** The length of time before next play. */
   @Property({
     type: IntegerType,
-    comment: 'The length of time before next play',
+    comment: 'The length of time before next play.',
   })
   computed_timeout: number;
 
