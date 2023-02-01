@@ -69,9 +69,13 @@ export class AudioService {
     });
   }
 
-  calculateTimeout(intro_duration: number) {
+  /**
+   * @param intro_duration_s seconds
+   * @returns timeout in minutes
+   */
+  calculateTimeoutMinutes(intro_duration_s: number) {
     const curve = 1.188;
-    return curve ** intro_duration + 1;
+    return curve ** intro_duration_s + 1;
   }
 
   /**
