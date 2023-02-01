@@ -9,6 +9,7 @@ import { v4 } from 'uuid';
 
 import { VirginEntity } from './virgin.entity';
 import { BaseEntity } from './base.entity';
+import { GuildEntity } from './guild';
 
 // TODO(2): formalize individual virgin_snowflake and guild_snowflake relation to relevant tables
 @Entity({ tableName: 'vc_event' })
@@ -18,6 +19,9 @@ export class VCEventEntity extends BaseEntity {
 
   @ManyToOne({ fieldNames: ['virgin_snowflake', 'guild_snowflake'] })
   virgin: VirginEntity;
+
+  @ManyToOne({ fieldName: 'guild_snowflake', hidden: true, nullable: true })
+  guild: GuildEntity;
 
   /** The time the user entered VC */
   @Property({

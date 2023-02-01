@@ -18,13 +18,12 @@ import { UseRequestContext, MikroORM } from '@mikro-orm/core';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
 import { VirginEntity } from 'src/entities/virgin.entity';
-import { GuildEntity } from 'src/entities/guild.entity';
-import configuration from 'src/config/configuration';
+import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
 import { DatabaseService } from 'src/database/database.service';
+import { virgin_display_name } from 'src/utils/string-transformers';
 import { DiscordHelperService } from '../discord-helper.service';
 import { LeaderboardService } from '../leaderboard.service';
-import { virgin_display_name } from 'src/utils/string-transformers';
 
 @Command({
   name: 'leaderboard',
@@ -66,8 +65,10 @@ export class LeaderboardCommand implements DiscordCommand {
 
     await this.recalculateScores(interaction.guildId);
 
+    const guild_ent = await this.guilds.findOneOrFail(interaction.guildId);
+
     const leaderboard = await this.leaderboard.buildLeaderboardEmbed(
-      interaction.guild,
+      guild_ent,
       interaction.user,
     );
 
@@ -76,7 +77,7 @@ export class LeaderboardCommand implements DiscordCommand {
 
   virginToLeaderboardLine(virgin: VirginEntity, pos: number | string): string {
     return `**${pos}.** ${pos === 1 ? '**' : ''}${virgin_display_name(virgin)}${
-      pos === 1 ? `** ${configuration.role.emoji}` : ''
+      pos === 1 ? `** ${virgin.guild.role.emoji}` : ''
     } — ${virgin.cached_dur_in_vc}`;
   }
 

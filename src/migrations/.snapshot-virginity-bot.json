@@ -157,6 +157,116 @@
           "default": "now()",
           "comment": "Timestamp when the last reset ocurred",
           "mappedType": "datetime"
+        },
+        "score_multiplier_screen": {
+          "name": "score_multiplier_screen",
+          "type": "double precision",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "1.5",
+          "comment": "The score multiplier applied when sharing your screen in VC. This stacks with other multipliers if `score_multipliers_stack` is enabled.",
+          "mappedType": "double"
+        },
+        "score_multipliers_stack": {
+          "name": "score_multipliers_stack",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "true",
+          "comment": "Whether or not score multipliers should stack, or use the highest value.",
+          "mappedType": "boolean"
+        },
+        "score_multiplier_camera": {
+          "name": "score_multiplier_camera",
+          "type": "double precision",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "1.5",
+          "comment": "The score multiplier applied when sharing your camera in VC. This stacks with other multipliers if `score_multipliers_stack` is enabled.",
+          "mappedType": "double"
+        },
+        "score_reset_schedule": {
+          "name": "score_reset_schedule",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "default": "'0 2 * * Tue'",
+          "comment": "When to reset a guild's scores. Uses CRON-style denotation. If null, scores will never reset.",
+          "mappedType": "text"
+        },
+        "score_multiplier_gaming": {
+          "name": "score_multiplier_gaming",
+          "type": "double precision",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "1.5",
+          "comment": "The score multiplier applied when gaming while in VC. This stacks with other multipliers if `score_multipliers_stack` is enabled.",
+          "mappedType": "double"
+        },
+        "role_name": {
+          "name": "role_name",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'Chonkiest Virgin the World Has Ever Seen'",
+          "comment": "The name of the chonkiest virgin's role in Discord.",
+          "mappedType": "text"
+        },
+        "role_color": {
+          "name": "role_color",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'#DA8C80'",
+          "comment": "The color of the chonkiest virgin's role in Discord.",
+          "mappedType": "text"
+        },
+        "role_emoji": {
+          "name": "role_emoji",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'👑'",
+          "comment": "An emoji to adorn the chonkiest virgin's emoji in Discord.",
+          "mappedType": "text"
+        },
+        "channel_name": {
+          "name": "channel_name",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'virginity-bot'",
+          "comment": "The name of the virginity bot text channel in Discord.",
+          "mappedType": "text"
+        },
+        "channel_description": {
+          "name": "channel_description",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'Compete with other virgins to claim the honor of being the biggest virgin.'",
+          "comment": "The description of the virginity bot text channel in Discord.",
+          "mappedType": "text"
         }
       },
       "name": "guild",
@@ -193,6 +303,123 @@
           "keyName": "guild_pkey",
           "columnNames": [
             "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {}
+    },
+    {
+      "columns": {
+        "hash": {
+          "name": "hash",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "comment": "The hash of uploaded audio file. Uses SHA-256.",
+          "mappedType": "text"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "comment": "The name of the intro song.",
+          "mappedType": "text"
+        },
+        "mime_type": {
+          "name": "mime_type",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "comment": "The MIME type of the file.",
+          "mappedType": "text"
+        },
+        "duration": {
+          "name": "duration",
+          "type": "interval",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "comment": "The duration of the intro song."
+        },
+        "computed_timeout": {
+          "name": "computed_timeout",
+          "type": "interval",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "comment": "The length of time before next play."
+        },
+        "uri": {
+          "name": "uri",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "comment": "Reference to an audio file. Supports s3:// and vbot-builtin:// schemas.",
+          "mappedType": "text"
+        }
+      },
+      "name": "intro_song",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "created_at"
+          ],
+          "composite": false,
+          "keyName": "intro_song_created_at_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "updated_at"
+          ],
+          "composite": false,
+          "keyName": "intro_song_updated_at_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "intro_song_pkey",
+          "columnNames": [
+            "hash"
           ],
           "composite": false,
           "primary": true,
@@ -284,6 +511,35 @@
           "default": "0",
           "comment": "The cached total duration the user has spent in VC. Keep in mind this can be out of date!",
           "mappedType": "integer"
+        },
+        "intro_song_hash": {
+          "name": "intro_song_hash",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "intro_last_played": {
+          "name": "intro_last_played",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "comment": "A timestamp for the last time an intro song was played for this user.",
+          "mappedType": "datetime"
+        },
+        "title_when_leader": {
+          "name": "title_when_leader",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
         }
       },
       "name": "virgin",
@@ -366,6 +622,19 @@
             "id"
           ],
           "referencedTableName": "public.guild",
+          "updateRule": "cascade"
+        },
+        "virgin_intro_song_hash_foreign": {
+          "constraintName": "virgin_intro_song_hash_foreign",
+          "columnNames": [
+            "intro_song_hash"
+          ],
+          "localTableName": "public.virgin",
+          "referencedColumnNames": [
+            "hash"
+          ],
+          "referencedTableName": "public.intro_song",
+          "deleteRule": "set null",
           "updateRule": "cascade"
         }
       }
@@ -543,114 +812,17 @@
           ],
           "referencedTableName": "public.virgin",
           "updateRule": "cascade"
-        }
-      }
-    },
-    {
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "default": "uuid_generate_v4()",
-          "mappedType": "uuid"
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamptz(0)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "default": "now()",
-          "mappedType": "datetime"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamptz(0)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "default": "now()",
-          "mappedType": "datetime"
-        },
-        "virgin_snowflake": {
-          "name": "virgin_snowflake",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
-        "intro_song": {
-          "name": "intro_song",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
-        "title_when_leader": {
-          "name": "title_when_leader",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        }
-      },
-      "name": "virgin_settings",
-      "schema": "public",
-      "indexes": [
-        {
+        "vc_event_guild_snowflake_foreign": {
+          "constraintName": "vc_event_guild_snowflake_foreign",
           "columnNames": [
-            "created_at"
+            "guild_snowflake"
           ],
-          "composite": false,
-          "keyName": "virgin_settings_created_at_index",
-          "primary": false,
-          "unique": false
-        },
-        {
-          "columnNames": [
-            "updated_at"
-          ],
-          "composite": false,
-          "keyName": "virgin_settings_updated_at_index",
-          "primary": false,
-          "unique": false
-        },
-        {
-          "keyName": "virgin_settings_pkey",
-          "columnNames": [
-            "id"
-          ],
-          "composite": false,
-          "primary": true,
-          "unique": true
-        }
-      ],
-      "checks": [],
-      "foreignKeys": {
-        "virgin_settings_virgin_snowflake_foreign": {
-          "constraintName": "virgin_settings_virgin_snowflake_foreign",
-          "columnNames": [
-            "virgin_snowflake"
-          ],
-          "localTableName": "public.virgin_settings",
+          "localTableName": "public.vc_event",
           "referencedColumnNames": [
             "id"
           ],
-          "referencedTableName": "public.virgin",
+          "referencedTableName": "public.guild",
           "updateRule": "cascade"
         }
       }

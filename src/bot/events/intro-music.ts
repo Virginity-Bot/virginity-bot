@@ -1,3 +1,5 @@
+import { Readable } from 'stream';
+import { createReadStream } from 'fs';
 import { Injectable, Logger } from '@nestjs/common';
 import { On } from '@discord-nestjs/core';
 import { Guild, VoiceState } from 'discord.js';
@@ -8,14 +10,19 @@ import {
   createAudioPlayer,
   AudioPlayerStatus,
   DiscordGatewayAdapterCreator,
+  AudioResource,
+  StreamType,
 } from '@discordjs/voice';
 import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
-import { GuildEntity } from 'src/entities/guild.entity';
+import { differenceInSeconds } from 'date-fns';
+import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { VirginEntity } from 'src/entities/virgin.entity';
-import { VirginSettingsEntity } from 'src/entities/virgin-settings.entity';
+import { IntroSongEntity } from 'src/entities/intro-song.entity';
+import { StorageService } from 'src/storage/storage.service';
+import configuration from 'src/config/configuration';
 
 @Injectable()
 export class IntroMusic {
@@ -25,10 +32,9 @@ export class IntroMusic {
     private readonly orm: MikroORM,
     @InjectRepository(VirginEntity)
     private readonly virgins: EntityRepository<VirginEntity>,
-    @InjectRepository(VirginSettingsEntity)
-    private readonly virgin_settings: EntityRepository<VirginSettingsEntity>,
     @InjectRepository(GuildEntity)
     private readonly guilds: EntityRepository<GuildEntity>,
+    private readonly storage: StorageService,
   ) {}
 
   @On('voiceStateUpdate')
@@ -54,22 +60,29 @@ export class IntroMusic {
       guild_ent.biggest_virgin_role_id == null ||
       new_state.member?.roles.resolve(guild_ent.biggest_virgin_role_id) != null
     ) {
-      const virgin_settings = await this.virgin_settings.findOne({
-        virgin_guilds: { id: new_state.member.id },
-        // virgin_snowflake: new_state.member!.id,
-      });
-      await this.playIntroMusic(
-        new_state.guild,
-        new_state.channelId,
-        virgin_settings,
+      const virgin = await this.virgins.findOneOrFail(
+        [new_state.member.id, new_state.guild.id],
+        { populate: ['intro_song'] },
       );
+      const now = new Date();
+      if (
+        Math.abs(
+          differenceInSeconds(now, virgin.intro_last_played ?? new Date(0)),
+        ) >=
+        (virgin.intro_song?.computed_timeout_ms ??
+          configuration.audio.default_intro.timeout_ms)
+      ) {
+        await this.playIntroMusic(new_state.guild, new_state.channelId, virgin);
+        virgin.intro_last_played = now;
+        await this.virgins.flush();
+      }
     }
   }
 
   playIntroMusic(
     guild: Guild,
     channel_id: string,
-    virgin_settings?: VirginSettingsEntity | null,
+    virgin?: VirginEntity | null,
   ): Promise<void> {
     return new Promise<void>((resolve) => {
       const connection = joinVoiceChannel({
@@ -84,22 +97,51 @@ export class IntroMusic {
         },
       });
 
-      const resource = createAudioResource(
-        `assets/${virgin_settings?.intro_song ?? 'entrance_theme.opus'}`,
-        {
-          metadata: { title: 'The Biggest Virgin!' },
-          inlineVolume: true,
-        },
-      );
-      resource.volume?.setVolume(0.3);
+      return this.getAudioResource(virgin?.intro_song).then((resource) => {
+        connection.subscribe(player);
+        player.play(resource);
+        this.logger.debug('Started playing intro song');
 
-      connection.subscribe(player);
-      player.play(resource);
-      player.on(AudioPlayerStatus.Idle, () => {
-        player.stop();
-        connection.destroy();
-        resolve();
+        player.on('error', (err) => {
+          this.logger.warn(err, err.stack);
+        });
+        player.on(AudioPlayerStatus.Idle, () => {
+          player.stop();
+          connection.destroy();
+          this.logger.debug('Finished playing intro song');
+          resolve();
+        });
       });
     });
+  }
+
+  async getAudioResource(intro_song?: IntroSongEntity): Promise<AudioResource> {
+    let readable: Readable;
+
+    if (intro_song == null) {
+      readable = createReadStream(configuration.audio.default_intro.path);
+    } else {
+      try {
+        switch (intro_song.protocol) {
+          case 's3': {
+            readable = await this.storage.getStream(
+              intro_song.object_name,
+              intro_song.bucket,
+            );
+            break;
+          }
+          default:
+            this.logger.error(`Unknown URI schema ${intro_song.protocol}`);
+            throw new Error(`Unknown URI schema ${intro_song.protocol}`);
+        }
+      } catch (err) {
+        this.logger.warn(err, err.stack);
+
+        // fallback to default intro song
+        return this.getAudioResource();
+      }
+    }
+
+    return createAudioResource(readable, { inputType: StreamType.OggOpus });
   }
 }

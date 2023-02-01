@@ -14,9 +14,9 @@ import { differenceInMinutes } from 'date-fns';
 
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
-import configuration from 'src/config/configuration';
 import { userLogHeader } from 'src/utils/logs';
 import { DiscordHelperService } from 'src/bot/discord-helper.service';
+import { GuildEntity } from 'src/entities/guild';
 
 @Injectable()
 export class DatabaseService {
@@ -24,6 +24,8 @@ export class DatabaseService {
 
   constructor(
     private readonly orm: MikroORM,
+    @InjectRepository(GuildEntity)
+    private readonly guilds: EntityRepository<GuildEntity>,
     @InjectRepository(VirginEntity)
     private readonly virginsRepo: EntityRepository<VirginEntity>,
     @InjectRepository(VCEventEntity)
@@ -41,6 +43,7 @@ export class DatabaseService {
     const events = await virgin.vc_events.loadItems({
       where: { connection_end: null },
       orderBy: [{ connection_start: -1 }],
+      populate: ['guild'],
     });
     return events[0];
   }
@@ -50,9 +53,9 @@ export class DatabaseService {
       throw new Error(`Event ${event.id} is missing a connection_end`);
 
     const score_multiplier =
-      (event.screen ? configuration.score.multiplier.screen : 1) *
-      (event.camera ? configuration.score.multiplier.camera : 1) *
-      (event.gaming ? configuration.score.multiplier.gaming : 1);
+      (event.screen ? event.guild.score.multiplier.screen : 1) *
+      (event.camera ? event.guild.score.multiplier.camera : 1) *
+      (event.gaming ? event.guild.score.multiplier.gaming : 1);
 
     return Math.floor(
       Math.abs(
@@ -167,34 +170,36 @@ export class DatabaseService {
     timestamp: Date,
   ): Promise<VCEventEntity | undefined> {
     // TODO: maybe we don't actually need to talk to the DB right here?
-    const virgin = await this.findOrCreateVirgin(guild, member);
-    const event = await this.findEventToClose(virgin);
+    const virgin_ent = await this.findOrCreateVirgin(guild, member);
+    const event_ent = await this.findEventToClose(virgin_ent);
+    if (event_ent.guild == null)
+      event_ent.guild = await this.guilds.findOneOrFail(guild.id);
 
-    if (event == null) {
+    if (event_ent == null) {
       this.logger.warn(
-        `Virgin ${virgin.id} tried to leave VC, but did not have any open vc_events`,
+        `Virgin ${virgin_ent.id} tried to leave VC, but did not have any open vc_events`,
       );
       return;
     }
 
-    event.connection_end = timestamp;
+    event_ent.connection_end = timestamp;
     // TODO: once our scoring lines up 100%, remove this flush
     await this.vcEventsRepo.flush();
 
     // TODO(1): this should probably just recalculate their whole score
-    const additional_score = this.calculateScoreForEvent(event);
+    const additional_score = this.calculateScoreForEvent(event_ent);
     this.logger.debug(
-      `Giving ${userLogHeader(virgin, guild)} ${additional_score} points`,
+      `Giving ${userLogHeader(virgin_ent, guild)} ${additional_score} points`,
     );
 
-    const additive_score = virgin.cached_dur_in_vc + additional_score;
-    const total_score = await this.calculateScore(virgin.id, guild.id);
+    const additive_score = virgin_ent.cached_dur_in_vc + additional_score;
+    const total_score = await this.calculateScore(virgin_ent.id, guild.id);
 
     if (additive_score !== total_score) {
       this.logger.warn(
         [
           `Score mismatch! User ${userLogHeader(
-            virgin,
+            virgin_ent,
             guild,
           )}'s score did not match our expected value from calculations!`,
           `Cached: ${additive_score}`,
@@ -204,9 +209,9 @@ export class DatabaseService {
     }
 
     // TODO: remove this once `calculateScore` writes to the DB on its own
-    virgin.cached_dur_in_vc = total_score;
+    virgin_ent.cached_dur_in_vc = total_score;
 
-    return event;
+    return event_ent;
   }
 
   /**
@@ -225,15 +230,10 @@ export class DatabaseService {
         qb.raw(
           `SUM(FLOOR(
             EXTRACT(EPOCH FROM vc_event.connection_end - vc_event.connection_start) / 60
-            * (CASE WHEN vc_event.screen THEN :screen_mult: ELSE 1 END)
-            * (CASE WHEN vc_event.camera THEN :camera_mult: ELSE 1 END)
-            * (CASE WHEN vc_event.gaming THEN :gaming_mult: ELSE 1 END)
+            * (CASE WHEN vc_event.screen THEN guild.score_multiplier_screen ELSE 1 END)
+            * (CASE WHEN vc_event.camera THEN guild.score_multiplier_camera ELSE 1 END)
+            * (CASE WHEN vc_event.gaming THEN guild.score_multiplier_gaming ELSE 1 END)
           ))`,
-          {
-            screen_mult: configuration.score.multiplier.screen,
-            camera_mult: configuration.score.multiplier.camera,
-            gaming_mult: configuration.score.multiplier.gaming,
-          },
         ),
       ])
       .from('vc_event')

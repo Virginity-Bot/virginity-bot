@@ -1,5 +1,6 @@
 import {
   Collection,
+  DateTimeType,
   Entity,
   ManyToOne,
   OneToMany,
@@ -10,10 +11,10 @@ import {
   TextType,
 } from '@mikro-orm/core';
 
-import { GuildEntity } from './guild.entity';
+import { GuildEntity } from './guild/guild.entity';
 import { BaseEntity } from './base.entity';
 import { VCEventEntity } from './vc-event.entity';
-import { VirginSettingsEntity } from './virgin-settings.entity';
+import { IntroSongEntity } from './intro-song.entity';
 
 @Entity({ tableName: 'virgin' })
 export class VirginEntity extends BaseEntity {
@@ -65,7 +66,20 @@ export class VirginEntity extends BaseEntity {
   })
   vc_events = new Collection<VCEventEntity>(this);
 
-  /** The user's cross-guild settings */
-  @OneToMany(() => VirginSettingsEntity, (e) => e.virgin_guilds)
-  settings: VirginSettingsEntity;
+  // TODO(4): MikroORM's internal type checker thinks this is non-nullable if we don't specify `nullable`
+  @ManyToOne({ nullable: true })
+  intro_song?: IntroSongEntity;
+
+  /** A timestamp for the last time an intro song was played for this user. */
+  @Property({
+    type: DateTimeType,
+    nullable: true,
+    comment:
+      'A timestamp for the last time an intro song was played for this user.',
+  })
+  intro_last_played: Date | null;
+
+  // TODO(4): MikroORM's internal type checker thinks this is non-nullable if we don't specify `nullable`
+  @Property({ type: TextType, nullable: true })
+  title_when_leader?: string;
 }
