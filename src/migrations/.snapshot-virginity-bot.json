@@ -783,6 +783,18 @@
           ],
           "referencedTableName": "public.virgin",
           "updateRule": "cascade"
+        },
+        "vc_event_guild_snowflake_foreign": {
+          "constraintName": "vc_event_guild_snowflake_foreign",
+          "columnNames": [
+            "guild_snowflake"
+          ],
+          "localTableName": "public.vc_event",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.guild",
+          "updateRule": "cascade"
         }
       }
     }
