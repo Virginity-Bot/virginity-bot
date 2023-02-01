@@ -25,12 +25,14 @@ export class IntroSongEntity extends BaseEntity {
   @Property({ type: TextType, comment: 'The MIME type of the file.' })
   mime_type: string;
 
+  /** The duration of the intro song. */
   @Property({
     type: 'interval',
-    comment: 'The duration, length, of the intro song.',
+    comment: 'The duration of the intro song.',
   })
   duration: number;
 
+  /** The length of time before next play */
   @Property({
     type: IntegerType,
     comment: 'The length of time before next play',

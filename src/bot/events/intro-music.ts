@@ -17,6 +17,11 @@ import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
+import {
+  differenceInMilliseconds,
+  differenceInSeconds,
+  millisecondsToSeconds,
+} from 'date-fns';
 import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { IntroSongEntity } from 'src/entities/intro-song.entity';
@@ -56,17 +61,11 @@ export class IntroMusic {
         { populate: ['intro_song'] },
       );
       const now = new Date();
+      const defaultIntro = 4.9;
       if (
-        virgin.intro_song != null &&
-        now.getSeconds() - virgin.intro_last_played.getSeconds() >=
-          virgin.intro_song?.computed_timeout
-      ) {
-        await this.playIntroMusic(new_state.guild, new_state.channelId, virgin);
-        virgin.intro_last_played = now;
-        await this.virgins.flush();
-      } else if (
-        virgin.intro_song == null &&
-        now.getSeconds() - virgin.intro_last_played.getSeconds() >= 4.9
+        Math.abs(
+          differenceInSeconds(now, virgin.intro_last_played ?? new Date(0)),
+        ) >= (virgin.intro_song?.computed_timeout ?? defaultIntro)
       ) {
         await this.playIntroMusic(new_state.guild, new_state.channelId, virgin);
         virgin.intro_last_played = now;

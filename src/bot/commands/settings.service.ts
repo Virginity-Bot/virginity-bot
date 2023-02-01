@@ -70,7 +70,7 @@ export class SettingsService {
           const norm_file = await this.audio.normalizeLoudness(file);
           const uri = await this.storage.storeFile('opus', hash, norm_file);
           const intro_duration = await this.audio.getTrackDuration(file);
-          const intro_timeout = 1.188 ** intro_duration + 1;
+          const intro_timeout = this.audio.calculateTimeout(intro_duration);
 
           const new_ent = this.intro_songs.create({
             hash,

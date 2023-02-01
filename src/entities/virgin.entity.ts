@@ -70,9 +70,9 @@ export class VirginEntity extends BaseEntity {
   @ManyToOne({ nullable: true })
   intro_song?: IntroSongEntity;
 
-  // For checking last time a into was played
+  /** A timestamp for the last time an intro song was played for this user. */
   @Property({ type: DateTimeType, nullable: true })
-  intro_last_played: Date;
+  intro_last_played: Date | null;
 
   // TODO(4): MikroORM's internal type checker thinks this is non-nullable if we don't specify `nullable`
   @Property({ type: TextType, nullable: true })
