@@ -100,6 +100,10 @@ export class Track {
         await this.database.openEvent(new_state, timestamp),
       ];
       await this.vcEventsRepo.persistAndFlush(events);
+
+      // Update Virgins Role
+      const guild = new_state?.guild.id ?? old_state.guild.id;
+      this.discord_helper.assignBiggestVirginRoleGuild(guild);
     } else {
       this.logger.debug([
         `${userLogHeader(new_state)} made an unrecognized action.`,
@@ -192,6 +196,9 @@ export class Track {
     ) {
       // we can just ignore this
     }
+    // Update Virgins Role
+    const guild = new_presence?.guild.id ?? old_presence?.guild?.id;
+    this.discord_helper.assignBiggestVirginRoleGuild(guild);
   }
 
   @On(Events.ClientReady)
