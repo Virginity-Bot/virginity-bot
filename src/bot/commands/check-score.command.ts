@@ -84,9 +84,7 @@ export class CheckScoreCommand implements DiscordTransformedCommand<ScoreDTO> {
     ]);
 
     // Role Changes when scores are updated.
-    this.discord_helper.assignBiggestVirginRoleGuild(
-      interaction.guild.id.toString(),
-    );
+    this.discord_helper.assignBiggestVirginRoleGuild(interaction.guild.id);
 
     // TODO(2): add flavor text
     return new MessagePayload(interaction.channel, {
