@@ -1,5 +1,7 @@
 /* eslint no-process-env: "off" */
 
+import { minutesToMilliseconds } from 'date-fns';
+
 // TODO: switch to using @nestjs/config
 
 export enum LogLevel {
@@ -58,6 +60,13 @@ const configuration = {
 
   score: {
     reset_schedule: process.env.SCORE_RESET_SCHEDULE ?? '0 2 * * Tue',
+  },
+
+  audio: {
+    default_intro: {
+      path: 'assets/entrance_theme.opus',
+      timeout_ms: minutesToMilliseconds(4.9),
+    },
   },
 };
 

@@ -22,6 +22,7 @@ import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { IntroSongEntity } from 'src/entities/intro-song.entity';
 import { StorageService } from 'src/storage/storage.service';
+import configuration from 'src/config/configuration';
 
 @Injectable()
 export class IntroMusic {
@@ -57,11 +58,12 @@ export class IntroMusic {
         { populate: ['intro_song'] },
       );
       const now = new Date();
-      const defaultIntro = 4.9;
       if (
         Math.abs(
           differenceInSeconds(now, virgin.intro_last_played ?? new Date(0)),
-        ) >= (virgin.intro_song?.computed_timeout ?? defaultIntro)
+        ) >=
+        (virgin.intro_song?.computed_timeout_ms ??
+          configuration.audio.default_intro.timeout_ms)
       ) {
         await this.playIntroMusic(new_state.guild, new_state.channelId, virgin);
         virgin.intro_last_played = now;
@@ -110,7 +112,7 @@ export class IntroMusic {
     let readable: Readable;
 
     if (intro_song == null) {
-      readable = createReadStream(`assets/entrance_theme.opus`);
+      readable = createReadStream(configuration.audio.default_intro.path);
     } else {
       try {
         switch (intro_song.protocol) {

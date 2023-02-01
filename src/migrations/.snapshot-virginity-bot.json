@@ -366,6 +366,24 @@
           "comment": "The MIME type of the file.",
           "mappedType": "text"
         },
+        "duration": {
+          "name": "duration",
+          "type": "interval",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "comment": "The duration of the intro song."
+        },
+        "computed_timeout": {
+          "name": "computed_timeout",
+          "type": "interval",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "comment": "The length of time before next play."
+        },
         "uri": {
           "name": "uri",
           "type": "text",
@@ -502,6 +520,17 @@
           "primary": false,
           "nullable": true,
           "mappedType": "text"
+        },
+        "intro_last_played": {
+          "name": "intro_last_played",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "comment": "A timestamp for the last time an intro song was played for this user.",
+          "mappedType": "datetime"
         },
         "title_when_leader": {
           "name": "title_when_leader",
@@ -782,6 +811,18 @@
             "guild_snowflake"
           ],
           "referencedTableName": "public.virgin",
+          "updateRule": "cascade"
+        },
+        "vc_event_guild_snowflake_foreign": {
+          "constraintName": "vc_event_guild_snowflake_foreign",
+          "columnNames": [
+            "guild_snowflake"
+          ],
+          "localTableName": "public.vc_event",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.guild",
           "updateRule": "cascade"
         }
       }

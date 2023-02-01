@@ -1,10 +1,4 @@
-import {
-  Entity,
-  IntegerType,
-  PrimaryKey,
-  Property,
-  TextType,
-} from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, TextType } from '@mikro-orm/core';
 
 import { BaseEntity } from './base.entity';
 
@@ -27,17 +21,19 @@ export class IntroSongEntity extends BaseEntity {
 
   /** The duration of the intro song. */
   @Property({
-    type: 'interval',
+    name: 'duration',
+    columnType: 'interval',
     comment: 'The duration of the intro song.',
   })
-  duration: number;
+  duration_ms: number;
 
   /** The length of time before next play. */
   @Property({
-    type: IntegerType,
+    name: 'computed_timeout',
+    columnType: 'interval',
     comment: 'The length of time before next play.',
   })
-  computed_timeout: number;
+  computed_timeout_ms: number;
 
   /**
    * Reference to an audio file.

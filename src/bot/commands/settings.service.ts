@@ -6,6 +6,7 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import { MikroORM } from '@mikro-orm/core';
 import { firstValueFrom } from 'rxjs';
+import { minutesToMilliseconds, secondsToMilliseconds } from 'date-fns';
 
 import configuration from 'src/config/configuration';
 import { VirginEntity } from 'src/entities/virgin.entity';
@@ -53,7 +54,11 @@ export class SettingsService {
     const file = await this.getAttachmentContent(attachment);
 
     // Check if the audio clip is under the length limit
-    const intro_duration = await this.validateAudioDuration(file, user, guild);
+    const intro_duration_s = await this.validateAudioDuration(
+      file,
+      user,
+      guild,
+    );
 
     const hash = await createHash('sha256').update(file).digest('base64url');
 
@@ -69,15 +74,16 @@ export class SettingsService {
           // const extension = attachment.name?.split('.').at(-1) ?? '';
           const norm_file = await this.audio.normalizeLoudness(file);
           const uri = await this.storage.storeFile('opus', hash, norm_file);
-          const intro_timeout = this.audio.calculateTimeout(intro_duration);
+          const intro_timeout_m =
+            this.audio.calculateTimeoutMinutes(intro_duration_s);
 
           const new_ent = this.intro_songs.create({
             hash,
             name: attachment.name ?? hash,
             uri,
             mime_type: attachment.contentType,
-            duration: intro_duration,
-            computed_timeout: intro_timeout,
+            duration_ms: secondsToMilliseconds(intro_duration_s),
+            computed_timeout_ms: minutesToMilliseconds(intro_timeout_m),
           } as IntroSongEntity);
 
           await this.intro_songs.persistAndFlush(new_ent);
@@ -138,24 +144,27 @@ export class SettingsService {
     }
   }
 
+  /**
+   * @returns Duration of track in seconds.
+   */
   async validateAudioDuration(
     stream: Buffer,
     user: User,
     guild: Guild,
   ): Promise<number> {
-    const duration = await this.audio.getTrackDuration(stream);
+    const duration_s = await this.audio.getTrackDuration(stream);
 
-    if (duration <= 30) {
-      return duration;
+    if (duration_s <= 30) {
+      return duration_s;
     } else {
       this.logger.debug(
         `${userLogHeader(
           user,
           guild,
-        )} tried to upload an intro song that was over 30 seconds long (${duration}s).`,
+        )} tried to upload an intro song that was over 30 seconds long (${duration_s}s).`,
       );
       throw new UserFacingError(
-        `The track you uploaded is ${duration}s long, which is over the max length of 30s.`,
+        `The track you uploaded is ${duration_s}s long, which is over the max length of 30s.`,
       );
     }
   }
