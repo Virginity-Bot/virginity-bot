@@ -191,8 +191,8 @@
           "comment": "The score multiplier applied when sharing your camera in VC. This stacks with other multipliers if `score_multipliers_stack` is enabled.",
           "mappedType": "double"
         },
-        "score_score_reset_schedule": {
-          "name": "score_score_reset_schedule",
+        "score_reset_schedule": {
+          "name": "score_reset_schedule",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
