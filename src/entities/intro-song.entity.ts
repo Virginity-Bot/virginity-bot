@@ -32,7 +32,7 @@ export class IntroSongEntity extends BaseEntity {
   })
   duration: number;
 
-  /** The length of time before next play */
+  /** The length of time before next play. */
   @Property({
     type: IntegerType,
     comment: 'The length of time before next play',

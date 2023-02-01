@@ -71,7 +71,12 @@ export class VirginEntity extends BaseEntity {
   intro_song?: IntroSongEntity;
 
   /** A timestamp for the last time an intro song was played for this user. */
-  @Property({ type: DateTimeType, nullable: true })
+  @Property({
+    type: DateTimeType,
+    nullable: true,
+    comment:
+      'A timestamp for the last time an intro song was played for this user.',
+  })
   intro_last_played: Date | null;
 
   // TODO(4): MikroORM's internal type checker thinks this is non-nullable if we don't specify `nullable`

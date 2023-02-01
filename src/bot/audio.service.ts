@@ -70,7 +70,6 @@ export class AudioService {
   }
 
   calculateTimeout(intro_duration: number) {
-    //
     const curve = 1.188;
     return curve ** intro_duration + 1;
   }
