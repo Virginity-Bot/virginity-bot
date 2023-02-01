@@ -1,9 +1,20 @@
 /* eslint no-process-env: "off" */
 
 // TODO: switch to using @nestjs/config
-import { HexColorString } from 'discord.js';
+
+export enum LogLevel {
+  QUIET,
+  ERROR,
+  WARN,
+  DEBUG,
+}
 
 const configuration = {
+  log_level:
+    process.env.LOG_LEVEL != null
+      ? LogLevel[process.env.LOG_LEVEL]
+      : LogLevel.WARN,
+
   db: {
     type: (process.env.DATABASE_TYPE ?? 'postgresql') as
       | 'postgresql'
@@ -46,25 +57,7 @@ const configuration = {
   discord_token: process.env.DISCORD_TOKEN as string,
 
   score: {
-    multiplier: {
-      screen: parseFloat(process.env.SCORE_MULTIPLIER_SCREEN ?? '1.5'),
-      camera: parseFloat(process.env.SCORE_MULTIPLIER_CAMERA ?? '1.5'),
-      gaming: parseFloat(process.env.SCORE_MULTIPLIER_CAMERA ?? '1.5'),
-    },
     reset_schedule: process.env.SCORE_RESET_SCHEDULE ?? '0 2 * * Tue',
-  },
-
-  role: {
-    name: process.env.ROLE_NAME ?? 'Chonkiest Virgin the World Has Ever Seen',
-    color: (process.env.ROLE_COLOR ?? '#DA8C80') as HexColorString,
-    emoji: process.env.ROLE_EMOJI ?? '👑',
-  },
-
-  channel: {
-    name: process.env.CHANNEL_NAME ?? 'virginity-bot',
-    description:
-      process.env.CHANNEL_DESCRIPTION ??
-      'Compete with other virgins to claim the honor of being the biggest virgin.',
   },
 };
 

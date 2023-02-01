@@ -157,6 +157,116 @@
           "default": "now()",
           "comment": "Timestamp when the last reset ocurred",
           "mappedType": "datetime"
+        },
+        "score_multiplier_screen": {
+          "name": "score_multiplier_screen",
+          "type": "double precision",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "1.5",
+          "comment": "The score multiplier applied when sharing your screen in VC. This stacks with other multipliers if `score_multipliers_stack` is enabled.",
+          "mappedType": "double"
+        },
+        "score_multipliers_stack": {
+          "name": "score_multipliers_stack",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "true",
+          "comment": "Whether or not score multipliers should stack, or use the highest value.",
+          "mappedType": "boolean"
+        },
+        "score_multiplier_camera": {
+          "name": "score_multiplier_camera",
+          "type": "double precision",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "1.5",
+          "comment": "The score multiplier applied when sharing your camera in VC. This stacks with other multipliers if `score_multipliers_stack` is enabled.",
+          "mappedType": "double"
+        },
+        "score_score_reset_schedule": {
+          "name": "score_score_reset_schedule",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "default": "'0 2 * * Tue'",
+          "comment": "When to reset a guild's scores. Uses CRON-style denotation. If null, scores will never reset.",
+          "mappedType": "text"
+        },
+        "score_multiplier_gaming": {
+          "name": "score_multiplier_gaming",
+          "type": "double precision",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "1.5",
+          "comment": "The score multiplier applied when gaming while in VC. This stacks with other multipliers if `score_multipliers_stack` is enabled.",
+          "mappedType": "double"
+        },
+        "role_name": {
+          "name": "role_name",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'Chonkiest Virgin the World Has Ever Seen'",
+          "comment": "The name of the chonkiest virgin's role in Discord.",
+          "mappedType": "text"
+        },
+        "role_color": {
+          "name": "role_color",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'#DA8C80'",
+          "comment": "The color of the chonkiest virgin's role in Discord.",
+          "mappedType": "text"
+        },
+        "role_emoji": {
+          "name": "role_emoji",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'👑'",
+          "comment": "An emoji to adorn the chonkiest virgin's emoji in Discord.",
+          "mappedType": "text"
+        },
+        "channel_name": {
+          "name": "channel_name",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'virginity-bot'",
+          "comment": "The name of the virginity bot text channel in Discord.",
+          "mappedType": "text"
+        },
+        "channel_description": {
+          "name": "channel_description",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'Compete with other virgins to claim the honor of being the biggest virgin.'",
+          "comment": "The description of the virginity bot text channel in Discord.",
+          "mappedType": "text"
         }
       },
       "name": "guild",

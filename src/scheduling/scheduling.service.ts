@@ -9,7 +9,7 @@ import { Client } from 'discord.js';
 import configuration from 'src/config/configuration';
 import { LeaderboardService } from 'src/bot/leaderboard.service';
 import { DiscordHelperService } from 'src/bot/discord-helper.service';
-import { GuildEntity } from 'src/entities/guild.entity';
+import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
 
