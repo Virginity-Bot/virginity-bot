@@ -16,6 +16,7 @@ import { AudioService } from './audio.service';
 import { LeaderboardCommand } from './commands/leaderboard.command';
 import { CheckScoreCommand } from './commands/check-score.command';
 import { SettingsCommand } from './commands/settings.command';
+import { GuildSettingsCommand } from './commands/guild-settings.command';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { SettingsCommand } from './commands/settings.command';
     LeaderboardCommand,
     CheckScoreCommand,
     SettingsCommand,
+    GuildSettingsCommand,
 
     IntroMusic,
     Track,
