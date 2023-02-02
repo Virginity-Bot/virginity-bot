@@ -1,15 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { TransformPipe } from '@discord-nestjs/common';
 import {
   Command,
-  DiscordTransformedCommand,
+  EventParams,
+  Handler,
+  IA,
+  InteractionEvent,
   Param,
   ParamType,
-  Payload,
-  TransformedCommandExecutionContext,
-  UsePipes,
 } from '@discord-nestjs/core';
-import { HexColorString, MessagePayload } from 'discord.js';
+import { SlashCommandPipe } from '@discord-nestjs/common';
+import { CommandInteraction, HexColorString, MessagePayload } from 'discord.js';
 import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
@@ -121,11 +121,8 @@ export class GuildSettingsDTO {
   name: 'guild-settings',
   description: `Changes your guild's settings for Virginity Bot`,
 })
-@UsePipes(TransformPipe)
 @Injectable()
-export class GuildSettingsCommand
-  implements DiscordTransformedCommand<GuildSettingsDTO>
-{
+export class GuildSettingsCommand {
   private readonly logger = new Logger(GuildSettingsCommand.name);
 
   constructor(
@@ -137,10 +134,11 @@ export class GuildSettingsCommand
     private readonly settings: SettingsService,
   ) {}
 
+  @Handler()
   @UseRequestContext()
   async handler(
-    @Payload() dto: GuildSettingsDTO,
-    { interaction }: TransformedCommandExecutionContext,
+    @IA(SlashCommandPipe) dto: GuildSettingsDTO,
+    @EventParams() [interaction]: [interaction: CommandInteraction],
   ): Promise<MessagePayload> {
     if (interaction.member == null) {
       this.logger.error([`interaction.member was null somehow`, interaction]);

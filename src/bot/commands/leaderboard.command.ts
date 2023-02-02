@@ -1,10 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import {
-  Command,
-  CommandExecutionContext,
-  DiscordCommand,
-  InjectDiscordClient,
-} from '@discord-nestjs/core';
+import { Command, Handler, InjectDiscordClient } from '@discord-nestjs/core';
 import {
   ButtonInteraction,
   CacheType,
@@ -12,6 +7,8 @@ import {
   MessagePayload,
   StringSelectMenuInteraction,
   Client,
+  CommandInteraction,
+  Message,
 } from 'discord.js';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { UseRequestContext, MikroORM } from '@mikro-orm/core';
@@ -30,7 +27,7 @@ import { LeaderboardService } from '../leaderboard.service';
   description: 'Replies with the leader board.',
 })
 @Injectable()
-export class LeaderboardCommand implements DiscordCommand {
+export class LeaderboardCommand {
   private readonly logger = new Logger(LeaderboardCommand.name);
 
   constructor(
@@ -48,13 +45,11 @@ export class LeaderboardCommand implements DiscordCommand {
     private readonly leaderboard: LeaderboardService,
   ) {}
 
+  @Handler()
   @UseRequestContext()
   async handler(
-    interaction: ChatInputCommandInteraction<CacheType>,
-    ctx: CommandExecutionContext<
-      ButtonInteraction<CacheType> | StringSelectMenuInteraction<CacheType>
-    >,
-  ): Promise<MessagePayload> {
+    interaction: CommandInteraction,
+  ): Promise<MessagePayload | Message<boolean>> {
     if (interaction.guildId == null || interaction.guild == null) {
       this.logger.error([`interaction.guildId was null somehow`, interaction]);
       throw new Error(`interaction.guildId was null somehow`);
@@ -62,6 +57,8 @@ export class LeaderboardCommand implements DiscordCommand {
       this.logger.error([`interaction.channel was null somehow`, interaction]);
       throw new Error(`interaction.channel was null somehow`);
     }
+
+    await interaction.deferReply();
 
     await this.recalculateScores(interaction.guildId);
 
@@ -72,7 +69,9 @@ export class LeaderboardCommand implements DiscordCommand {
       interaction.user,
     );
 
-    return new MessagePayload(interaction.channel, { embeds: [leaderboard] });
+    return interaction.followUp(
+      new MessagePayload(interaction.channel, { embeds: [leaderboard] }),
+    );
   }
 
   async recalculateScores(guild_id: string) {

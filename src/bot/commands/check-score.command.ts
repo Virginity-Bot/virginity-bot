@@ -1,15 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { TransformPipe } from '@discord-nestjs/common';
 import {
   Command,
-  Payload,
+  EventParams,
+  Handler,
+  InteractionEvent,
   Param,
-  TransformedCommandExecutionContext,
   ParamType,
-  DiscordTransformedCommand,
-  UsePipes,
 } from '@discord-nestjs/core';
-import { MessagePayload } from 'discord.js';
+import { SlashCommandPipe } from '@discord-nestjs/common';
+import { CommandInteraction, MessagePayload } from 'discord.js';
 import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
@@ -34,9 +33,8 @@ export class ScoreDTO {
   name: 'check',
   description: `Checks how big of a virgin someone is.`,
 })
-@UsePipes(TransformPipe)
 @Injectable()
-export class CheckScoreCommand implements DiscordTransformedCommand<ScoreDTO> {
+export class CheckScoreCommand {
   private readonly logger = new Logger(CheckScoreCommand.name);
 
   constructor(
@@ -49,10 +47,11 @@ export class CheckScoreCommand implements DiscordTransformedCommand<ScoreDTO> {
     private readonly discord_helper: DiscordHelperService,
   ) {}
 
+  @Handler()
   @UseRequestContext()
   async handler(
-    @Payload() dto: ScoreDTO,
-    { interaction }: TransformedCommandExecutionContext,
+    @InteractionEvent(SlashCommandPipe) dto: ScoreDTO,
+    @EventParams() [interaction]: [interaction: CommandInteraction],
   ): Promise<MessagePayload> {
     if (interaction.member == null) {
       this.logger.error([`interaction.member was null somehow`, interaction]);
