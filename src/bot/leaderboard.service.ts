@@ -45,9 +45,6 @@ export class LeaderboardService {
       return board_embed;
     }
 
-    await this.discord_helper.assignBiggestVirginRole(top_virgins[0]);
-    await this.guilds.flush();
-
     const fields = top_virgins.reduce(
       (fields, virgin, i) => {
         fields[0].value.push(
