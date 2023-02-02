@@ -9,7 +9,12 @@ import {
   ParamType,
 } from '@discord-nestjs/core';
 import { SlashCommandPipe } from '@discord-nestjs/common';
-import { CommandInteraction, HexColorString, MessagePayload } from 'discord.js';
+import {
+  CommandInteraction,
+  HexColorString,
+  MessagePayload,
+  PermissionFlagsBits,
+} from 'discord.js';
 import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
@@ -121,6 +126,8 @@ export class GuildSettingsDTO {
 @Command({
   name: 'guild-settings',
   description: `Changes your guild's settings for Virginity Bot`,
+  defaultMemberPermissions: PermissionFlagsBits.Administrator,
+  dmPermission: false,
 })
 @Injectable()
 export class GuildSettingsCommand {

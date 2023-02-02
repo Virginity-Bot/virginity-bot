@@ -8,7 +8,11 @@ import {
   ParamType,
 } from '@discord-nestjs/core';
 import { SlashCommandPipe } from '@discord-nestjs/common';
-import { CommandInteraction, MessagePayload } from 'discord.js';
+import {
+  CommandInteraction,
+  MessagePayload,
+  PermissionFlagsBits,
+} from 'discord.js';
 import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
@@ -32,6 +36,8 @@ export class ScoreDTO {
 @Command({
   name: 'check',
   description: `Checks how big of a virgin someone is.`,
+  defaultMemberPermissions: PermissionFlagsBits.SendMessages,
+  dmPermission: false,
 })
 @Injectable()
 export class CheckScoreCommand {

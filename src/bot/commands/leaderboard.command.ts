@@ -9,6 +9,7 @@ import {
   Client,
   CommandInteraction,
   Message,
+  PermissionFlagsBits,
 } from 'discord.js';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { UseRequestContext, MikroORM } from '@mikro-orm/core';
@@ -18,13 +19,14 @@ import { VirginEntity } from 'src/entities/virgin.entity';
 import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
 import { DatabaseService } from 'src/database/database.service';
-import { virgin_display_name } from 'src/utils/string-transformers';
 import { DiscordHelperService } from '../discord-helper.service';
 import { LeaderboardService } from '../leaderboard.service';
 
 @Command({
   name: 'leaderboard',
   description: 'Replies with the leader board.',
+  defaultMemberPermissions: PermissionFlagsBits.SendMessages,
+  dmPermission: false,
 })
 @Injectable()
 export class LeaderboardCommand {
