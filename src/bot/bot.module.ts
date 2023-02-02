@@ -17,6 +17,7 @@ import { LeaderboardCommand } from './commands/leaderboard.command';
 import { CheckScoreCommand } from './commands/check-score.command';
 import { SettingsCommand } from './commands/settings.command';
 import { GuildSettingsCommand } from './commands/guild-settings.command';
+import { GuildAdminGuard } from './guards/guild-admin.guard';
 
 @Module({
   imports: [
@@ -42,6 +43,8 @@ import { GuildSettingsCommand } from './commands/guild-settings.command';
     Track,
     UpdatedGuilds,
     UpdateUsers,
+
+    GuildAdminGuard,
   ],
   exports: [
     DiscordModule.forFeature(),

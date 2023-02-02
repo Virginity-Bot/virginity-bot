@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UseGuards } from '@nestjs/common';
 import {
   Command,
   EventParams,
@@ -17,6 +17,7 @@ import { EntityRepository } from '@mikro-orm/postgresql';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { GuildEntity } from 'src/entities/guild';
 import { SettingsService } from './settings.service';
+import { GuildAdminGuard } from '../guards/guild-admin.guard';
 
 export class GuildSettingsDTO {
   /** The score multiplier applied when sharing your screen in VC. */
@@ -135,6 +136,7 @@ export class GuildSettingsCommand {
   ) {}
 
   @Handler()
+  @UseGuards(GuildAdminGuard)
   @UseRequestContext()
   async handler(
     @IA(SlashCommandPipe) dto: GuildSettingsDTO,
