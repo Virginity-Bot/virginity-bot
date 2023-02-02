@@ -1,4 +1,5 @@
 import { Entity, PrimaryKey, Property, TextType } from '@mikro-orm/core';
+import { IntervalType } from 'src/utils/interval-type';
 
 import { BaseEntity } from './base.entity';
 
@@ -22,7 +23,7 @@ export class IntroSongEntity extends BaseEntity {
   /** The duration of the intro song. */
   @Property({
     name: 'duration',
-    columnType: 'interval',
+    type: IntervalType,
     comment: 'The duration of the intro song.',
   })
   duration_ms: number;
@@ -30,7 +31,7 @@ export class IntroSongEntity extends BaseEntity {
   /** The length of time before next play. */
   @Property({
     name: 'computed_timeout',
-    columnType: 'interval',
+    type: IntervalType,
     comment: 'The length of time before next play.',
   })
   computed_timeout_ms: number;
