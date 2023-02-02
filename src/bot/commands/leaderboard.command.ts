@@ -75,12 +75,6 @@ export class LeaderboardCommand implements DiscordCommand {
     return new MessagePayload(interaction.channel, { embeds: [leaderboard] });
   }
 
-  virginToLeaderboardLine(virgin: VirginEntity, pos: number | string): string {
-    return `**${pos}.** ${pos === 1 ? '**' : ''}${virgin_display_name(virgin)}${
-      pos === 1 ? `** ${virgin.guild.role.emoji}` : ''
-    } — ${virgin.cached_dur_in_vc}`;
-  }
-
   async recalculateScores(guild_id: string) {
     const timestamp = new Date();
     const users_in_vc = await this.discord_helper.getUsersInVC(guild_id);
@@ -101,5 +95,8 @@ export class LeaderboardCommand implements DiscordCommand {
 
     // TODO(2): this can throw a `ValidationError: Trying to persist not discovered entity of type undefined.` when someone joins calls leaderboard
     await this.vc_events.persistAndFlush(events);
+
+    // Role Changes when scores are updated.
+    this.discord_helper.assignBiggestVirginRoleGuild(guild_id);
   }
 }

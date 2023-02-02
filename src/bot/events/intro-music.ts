@@ -17,10 +17,12 @@ import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
+import { differenceInSeconds } from 'date-fns';
 import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { IntroSongEntity } from 'src/entities/intro-song.entity';
 import { StorageService } from 'src/storage/storage.service';
+import configuration from 'src/config/configuration';
 
 @Injectable()
 export class IntroMusic {
@@ -39,9 +41,16 @@ export class IntroMusic {
   @UseRequestContext()
   async voiceStateUpdate(old_state: VoiceState, new_state: VoiceState) {
     if (
+      // user is leaving VC
       new_state.channelId == null ||
+      // user is switching from one VC to another
       new_state.channelId === old_state.channelId ||
-      new_state.member == null
+      // user is entering AFK
+      new_state.channelId === new_state.guild.afkChannelId ||
+      // there is no user
+      new_state.member == null ||
+      // channel only has 1 member
+      (new_state.channel?.members.size ?? 0) < 2
     ) {
       return;
     }
@@ -51,13 +60,22 @@ export class IntroMusic {
       guild_ent.biggest_virgin_role_id == null ||
       new_state.member?.roles.resolve(guild_ent.biggest_virgin_role_id) != null
     ) {
-      const virgin = await this.virgins.findOne(
+      const virgin = await this.virgins.findOneOrFail(
         [new_state.member.id, new_state.guild.id],
-        {
-          populate: ['intro_song'],
-        },
+        { populate: ['intro_song'] },
       );
-      await this.playIntroMusic(new_state.guild, new_state.channelId, virgin);
+      const now = new Date();
+      if (
+        Math.abs(
+          differenceInSeconds(now, virgin.intro_last_played ?? new Date(0)),
+        ) >=
+        (virgin.intro_song?.computed_timeout_ms ??
+          configuration.audio.default_intro.timeout_ms)
+      ) {
+        await this.playIntroMusic(new_state.guild, new_state.channelId, virgin);
+        virgin.intro_last_played = now;
+        await this.virgins.flush();
+      }
     }
   }
 
@@ -101,7 +119,7 @@ export class IntroMusic {
     let readable: Readable;
 
     if (intro_song == null) {
-      readable = createReadStream(`assets/entrance_theme.opus`);
+      readable = createReadStream(configuration.audio.default_intro.path);
     } else {
       try {
         switch (intro_song.protocol) {

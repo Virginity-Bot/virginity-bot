@@ -70,6 +70,15 @@ export class AudioService {
   }
 
   /**
+   * @param intro_duration_s seconds
+   * @returns timeout in minutes
+   */
+  calculateTimeoutMinutes(intro_duration_s: number) {
+    const curve = 1.188;
+    return curve ** intro_duration_s + 1;
+  }
+
+  /**
    * Normalizes the loudness level of an audio stream using EBU R 128.
    *
    * @param audio_file A streamable reperesentation of the audio file.

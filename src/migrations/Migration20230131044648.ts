@@ -19,7 +19,7 @@ export class Migration20230131044648 extends Migration {
     this.addSql('comment on column "guild"."score_multiplier_screen" is \'The score multiplier applied when sharing your screen in VC. This stacks with other multipliers if `score_multipliers_stack` is enabled.\';');
     this.addSql('comment on column "guild"."score_multipliers_stack" is \'Whether or not score multipliers should stack, or use the highest value.\';');
     this.addSql('comment on column "guild"."score_multiplier_camera" is \'The score multiplier applied when sharing your camera in VC. This stacks with other multipliers if `score_multipliers_stack` is enabled.\';');
-    this.addSql('comment on column "guild"."scores_reset_schedule" is \'When to reset a guild\'\'s scores. Uses CRON-style denotation. If null, scores will never reset.\';');
+    this.addSql('comment on column "guild"."score_reset_schedule" is \'When to reset a guild\'\'s scores. Uses CRON-style denotation. If null, scores will never reset.\';');
     this.addSql('comment on column "guild"."score_multiplier_gaming" is \'The score multiplier applied when gaming while in VC. This stacks with other multipliers if `score_multipliers_stack` is enabled.\';');
     this.addSql('comment on column "guild"."role_name" is \'The name of the chonkiest virgin\'\'s role in Discord.\';');
     this.addSql('comment on column "guild"."role_color" is \'The color of the chonkiest virgin\'\'s role in Discord.\';');

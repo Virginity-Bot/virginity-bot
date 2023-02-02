@@ -1,4 +1,4 @@
-import { Options } from '@mikro-orm/core';
+import { LoadStrategy, Options } from '@mikro-orm/core';
 import { TsMorphMetadataProvider } from '@mikro-orm/reflection';
 import { Logger } from '@nestjs/common';
 
@@ -45,6 +45,7 @@ const config: Options = {
     options: { cacheDir: configuration.mikro_orm.cache_dir },
   },
 
+  loadStrategy: LoadStrategy.JOINED,
   populateAfterFlush: true,
 };
 
