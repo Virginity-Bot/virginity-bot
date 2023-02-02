@@ -242,7 +242,7 @@ export class DiscordHelperService {
   async assignBiggestVirginRoleGuild(guild_id: string) {
     const top_virgin = await this.virginsRepo.findOneOrFail(
       { guild: guild_id },
-      { orderBy: [{ cached_dur_in_vc: -1 }] },
+      { orderBy: [{ cached_dur_in_vc: -1 }], populate: ['guild'] },
     );
     this.assignBiggestVirginRole(top_virgin);
   }
