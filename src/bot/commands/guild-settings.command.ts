@@ -1,31 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
-import {
-  ModalFieldsTransformPipe,
-  TransformPipe,
-} from '@discord-nestjs/common';
+import { TransformPipe } from '@discord-nestjs/common';
 import {
   Command,
   DiscordTransformedCommand,
-  Field,
-  On,
   Param,
   ParamType,
   Payload,
   TransformedCommandExecutionContext,
-  UseGuards,
   UsePipes,
 } from '@discord-nestjs/core';
-import {
-  ActionRowBuilder,
-  ClientEvents,
-  HexColorString,
-  MessagePayload,
-  ModalActionRowComponentBuilder,
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputModalData,
-  TextInputStyle,
-} from 'discord.js';
+import { HexColorString, MessagePayload } from 'discord.js';
 import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
@@ -34,7 +18,7 @@ import { VirginEntity } from 'src/entities/virgin.entity';
 import { GuildEntity } from 'src/entities/guild';
 import { SettingsService } from './settings.service';
 
-export class GuildSettingsParamsDTO {
+export class GuildSettingsDTO {
   /** The score multiplier applied when sharing your screen in VC. */
   @Param({
     name: 'score_multiplier_screen_sharing',
@@ -133,105 +117,6 @@ export class GuildSettingsParamsDTO {
   role_emoji?: string;
 }
 
-// export class GuildSettingsModalDTO {
-//   /** The score multiplier applied when sharing your screen in VC. */
-//   @Field({
-//     name: 'score_multiplier_screen_sharing',
-//     description:
-//       'The score multiplier when sharing your screen. Also see `score_multipliers_stack`.',
-//     required: false,
-//     type: TextInputModalData,
-//   })
-//   score_multiplier_screen?: TextInputModalData;
-
-//   /** The score multiplier applied when sharing your webcam in VC. */
-//   @Param({
-//     name: 'score_multiplier_webcamera',
-//     description:
-//       'The score multiplier applied when sharing your webcam. Also see `score_multipliers_stack`.',
-//     required: false,
-//     type: ParamType.NUMBER,
-//   })
-//   score_multiplier_camera?: number;
-
-//   /** The score multiplier applied when gaming in VC. */
-//   @Param({
-//     name: 'score_multiplier_gaming',
-//     description:
-//       'The score multiplier applied when gaming. Also see `score_multipliers_stack`.',
-//     required: false,
-//     type: ParamType.NUMBER,
-//   })
-//   score_multiplier_gaming?: number;
-
-//   /** Whether or not score multipliers should stack, or use the highest value. */
-//   @Param({
-//     name: 'score_multipliers_stack',
-//     description:
-//       'Whether or not score multipliers should stack, or use the highest value.',
-//     required: false,
-//     type: ParamType.BOOLEAN,
-//   })
-//   score_multipliers_stack?: boolean;
-
-//   /**
-//    * A schedule for when to reset everyone's scores.
-//    * Uses CRON-style denotation.
-//    */
-//   @Param({
-//     name: 'reset_schedule',
-//     description: `A schedule for when to reset everyone's scores. Uses CRON-style denotation.`,
-//     required: false,
-//     type: ParamType.STRING,
-//   })
-//   score_reset_schedule?: string;
-
-//   /** The name of the bot's text channel. */
-//   @Param({
-//     name: 'channel_name',
-//     description: `The name of the bot's text channel.`,
-//     required: false,
-//     type: ParamType.STRING,
-//   })
-//   channel_name?: string;
-
-//   /** The description of the bot's text channel. */
-//   @Param({
-//     name: 'channel_description',
-//     description: `The description of the bot's text channel.`,
-//     required: false,
-//     type: ParamType.STRING,
-//   })
-//   channel_description?: string;
-
-//   /** The name of the biggest virgin's role. */
-//   @Param({
-//     name: 'role_name',
-//     description: `The name of the biggest virgin's role.`,
-//     required: false,
-//     type: ParamType.STRING,
-//   })
-//   role_name?: string;
-
-//   /** The color of the biggest virgin's role. */
-//   @Param({
-//     name: 'role_color',
-//     description: `The color of the biggest virgin's role.`,
-//     required: false,
-//     type: ParamType.STRING,
-//   })
-//   role_color?: HexColorString;
-
-//   /** An emoji to adorn the biggest virgin's emoji. */
-//   @Param({
-//     name: 'role_emoji',
-//     description: `An emoji to adorn the biggest virgin's emoji.`,
-//     required: false,
-//     type: ParamType.STRING,
-//   })
-//   role_emoji?: string;
-// }
-
 @Command({
   name: 'guild-settings',
   description: `Changes your guild's settings for Virginity Bot`,
@@ -239,7 +124,7 @@ export class GuildSettingsParamsDTO {
 @UsePipes(TransformPipe)
 @Injectable()
 export class GuildSettingsCommand
-  implements DiscordTransformedCommand<GuildSettingsParamsDTO>
+  implements DiscordTransformedCommand<GuildSettingsDTO>
 {
   private readonly logger = new Logger(GuildSettingsCommand.name);
 
@@ -254,18 +139,7 @@ export class GuildSettingsCommand
 
   @UseRequestContext()
   async handler(
-    @Payload() dto: GuildSettingsParamsDTO,
-    { interaction }: TransformedCommandExecutionContext,
-  ): Promise<MessagePayload> {
-    if (dto) {
-      return this.paramHandler(dto, { interaction });
-    } else {
-      return this.modalHandler({ interaction });
-    }
-  }
-
-  async paramHandler(
-    @Payload() dto: GuildSettingsParamsDTO,
+    @Payload() dto: GuildSettingsDTO,
     { interaction }: TransformedCommandExecutionContext,
   ): Promise<MessagePayload> {
     if (interaction.member == null) {
@@ -311,53 +185,4 @@ export class GuildSettingsCommand
       content: 'Updated guild settings',
     });
   }
-
-  async modalHandler({
-    interaction,
-  }: TransformedCommandExecutionContext): Promise<MessagePayload> {
-    const modal = new ModalBuilder()
-      .setTitle('Request participation')
-      .setCustomId(this.requestParticipantModalId);
-
-    const userNameInputComponent = new TextInputBuilder()
-      .setCustomId(this.usernameComponentId)
-      .setLabel('Your username')
-      .setStyle(TextInputStyle.Short);
-
-    const commentInputComponent = new TextInputBuilder()
-      .setCustomId(this.commentComponentId)
-      .setLabel('Add an explanatory comment')
-      .setStyle(TextInputStyle.Paragraph);
-
-    const rows = [userNameInputComponent, commentInputComponent].map(
-      (component) =>
-        new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
-          component,
-        ),
-    );
-
-    modal.addComponents(...rows);
-
-    await interaction.showModal(modal);
-  }
-
-  // @On('interactionCreate')
-  // @UseGuards(IsModalInteractionGuard)
-  // async onModalSubmit(
-  //   @IA(ModalFieldsTransformPipe) { username, comment }: FormDto,
-  //   @EventParams() eventArgs: ClientEvents['interactionCreate'],
-  // ): Promise<void> {
-  //   const [modal] = eventArgs;
-
-  //   if (!modal.isModalSubmit()) return;
-
-  //   this.logger.log(`Modal ${modal.customId} submit`);
-
-  //   if (modal.customId !== this.requestParticipantModalId) return;
-
-  //   await modal.reply(
-  //     `${username.value}, your request has been submitted.` +
-  //       codeBlock('markdown', comment),
-  //   );
-  // }
 }
