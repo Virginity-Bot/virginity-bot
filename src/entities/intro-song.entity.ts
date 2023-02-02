@@ -1,6 +1,6 @@
 import { Entity, PrimaryKey, Property, TextType } from '@mikro-orm/core';
-import { IntervalType } from 'src/utils/interval-type';
 
+import { IntervalType } from '../utils/interval-type';
 import { BaseEntity } from './base.entity';
 
 @Entity({ tableName: 'intro_song' })
