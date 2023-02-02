@@ -10,15 +10,15 @@ export class IntroSongEntity extends BaseEntity {
     type: TextType,
     comment: 'The hash of uploaded audio file. Uses SHA-256.',
   })
-  hash: string;
+  readonly hash: string;
 
   /** The name of the intro song. */
   @Property({ type: TextType, comment: 'The name of the intro song.' })
-  name: string;
+  readonly name: string;
 
   /** The MIME type of the file. */
   @Property({ type: TextType, comment: 'The MIME type of the file.' })
-  mime_type: string;
+  readonly mime_type: string;
 
   /** The duration of the intro song. */
   @Property({
@@ -26,7 +26,7 @@ export class IntroSongEntity extends BaseEntity {
     type: IntervalType,
     comment: 'The duration of the intro song.',
   })
-  duration_ms: number;
+  readonly duration_ms: number;
 
   /** The length of time before next play. */
   @Property({
@@ -34,7 +34,7 @@ export class IntroSongEntity extends BaseEntity {
     type: IntervalType,
     comment: 'The length of time before next play.',
   })
-  computed_timeout_ms: number;
+  readonly computed_timeout_ms: number;
 
   /**
    * Reference to an audio file.
@@ -48,7 +48,7 @@ export class IntroSongEntity extends BaseEntity {
     type: TextType,
     comment: `Reference to an audio file. Supports s3:// and vbot-builtin:// schemas.`,
   })
-  uri: string;
+  readonly uri: string;
 
   private _parsed_uri?: URL;
 
