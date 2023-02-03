@@ -88,8 +88,7 @@ export class GuildSettingsDTO {
   @Matches(
     /^(?:(?<sec>\S+) )?(?<min>\S+) (?<hr>\S+) (?<day_month>\S+) (?<month>\S+) (?<day_week>\S+)$/,
     {
-      message:
-        '`$property` must be a [CRON expression](https://crontab.guru/).',
+      message: '`$property` must be a [CRON expression](https://crontab.guru/)',
     },
   )
   score_reset_schedule?: string;
@@ -149,7 +148,7 @@ export class GuildSettingsDTO {
     type: ParamType.STRING,
   })
   @IsOptional()
-  @Length(1, 1, { message: '`role_emoji` must be a single character.' })
+  @Length(1, 1, { message: '`role_emoji` must be a single character' })
   @Matches(/^\p{Extended_Pictographic}$/u, {
     message: '`role_emoji` must be an emoji',
   })

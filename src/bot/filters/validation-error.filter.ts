@@ -12,13 +12,13 @@ export class ValidationErrorFilter implements ExceptionFilter {
     const interaction: CommandInteraction = host.getArgs()[0];
 
     const message: InteractionReplyOptions = {
-      content: `Invalid input received. ${validation_errors
+      content: `Invalid input received:\n${validation_errors
         .map((err) =>
           err.constraints != null
-            ? Object.values(err.constraints)
-            : `Check ${err.property}.`,
+            ? `- ${Object.values(err.constraints)}.`
+            : `- Check ${err.property}.`,
         )
-        .join(', ')}.`,
+        .join('\n')}`,
     };
 
     if (interaction.replied) {
