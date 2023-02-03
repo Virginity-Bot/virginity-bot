@@ -107,7 +107,8 @@ export class SettingsCommand implements DiscordTransformedCommand<SettingsDTO> {
         return new MessagePayload(interaction.channel, {
           content: `Your settings have been updated. Your intro cool-down will now be ${formatDuration(
             duration,
-          )} `,
+            { delimiter: ', ' },
+          )}.`,
         });
       } catch (e) {
         if (e instanceof UserFacingError) {
