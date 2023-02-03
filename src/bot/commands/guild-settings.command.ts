@@ -207,7 +207,8 @@ export class GuildSettingsCommand {
     guild_ent.score.multipliers_stack =
       dto.score_multipliers_stack ?? guild_ent.score.multipliers_stack;
 
-    // TODO: will this will unset a null value?
+    guild_ent.score.reset_enabled =
+      dto.score_reset_enabled ?? guild_ent.score.reset_enabled;
     guild_ent.score.reset_schedule =
       dto.score_reset_schedule ?? guild_ent.score.reset_schedule;
 
