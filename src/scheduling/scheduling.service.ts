@@ -31,8 +31,7 @@ export class TasksService {
     private readonly discord_helper: DiscordHelperService,
   ) {}
 
-  // TODO: allow configuration of the timezone
-  @Cron(configuration.score.reset_schedule, { timeZone: 'America/Los_Angeles' })
+  @Cron(configuration.score.reset_schedule, { timeZone: 'UTC' })
   @UseRequestContext()
   async scoreReset(): Promise<void> {
     const [guilds] = await Promise.all([
