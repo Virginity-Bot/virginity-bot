@@ -204,7 +204,7 @@ export class DiscordHelperService {
    */
   async assignBiggestVirginRole(biggest_virgin: VirginEntity) {
     if (biggest_virgin.cached_dur_in_vc === 0) {
-      this.logger.warn(`No users have been online. No user crowned.`);
+      this.logger.debug(`No users have been online. No user crowned.`);
       return;
     }
     const role = await this.findOrCreateBiggestVirginRole(biggest_virgin.guild);
