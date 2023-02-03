@@ -1,14 +1,19 @@
-import { Injectable, Logger, UseGuards } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  UseFilters,
+  UseGuards,
+  UsePipes,
+} from '@nestjs/common';
 import {
   Command,
   EventParams,
   Handler,
   IA,
-  InteractionEvent,
   Param,
   ParamType,
 } from '@discord-nestjs/core';
-import { SlashCommandPipe } from '@discord-nestjs/common';
+import { SlashCommandPipe, ValidationPipe } from '@discord-nestjs/common';
 import {
   CommandInteraction,
   HexColorString,
@@ -18,46 +23,50 @@ import {
 import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
+import { IsHexColor, IsOptional, Length, Matches, Min } from 'class-validator';
 
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { GuildEntity } from 'src/entities/guild';
 import { SettingsService } from './settings.service';
 import { GuildAdminGuard } from '../guards/guild-admin.guard';
+import { ValidationErrorFilter } from '../filters/validation-error.filter';
 
 export class GuildSettingsDTO {
   /** The score multiplier applied when sharing your screen in VC. */
   @Param({
-    name: 'score_multiplier_screen_sharing',
     description:
       'The score multiplier when sharing your screen. Also see `score_multipliers_stack`.',
     required: false,
     type: ParamType.NUMBER,
   })
+  @IsOptional()
+  @Min(0)
   score_multiplier_screen?: number;
 
   /** The score multiplier applied when sharing your webcam in VC. */
   @Param({
-    name: 'score_multiplier_webcamera',
     description:
       'The score multiplier applied when sharing your webcam. Also see `score_multipliers_stack`.',
     required: false,
     type: ParamType.NUMBER,
   })
+  @IsOptional()
+  @Min(0)
   score_multiplier_camera?: number;
 
   /** The score multiplier applied when gaming in VC. */
   @Param({
-    name: 'score_multiplier_gaming',
     description:
       'The score multiplier applied when gaming. Also see `score_multipliers_stack`.',
     required: false,
     type: ParamType.NUMBER,
   })
+  @IsOptional()
+  @Min(0)
   score_multiplier_gaming?: number;
 
   /** Whether or not score multipliers should stack, or use the highest value. */
   @Param({
-    name: 'score_multipliers_stack',
     description:
       'Whether or not score multipliers should stack, or use the highest value.',
     required: false,
@@ -70,55 +79,79 @@ export class GuildSettingsDTO {
    * Uses CRON-style denotation.
    */
   @Param({
-    name: 'reset_schedule',
     description: `A schedule for when to reset everyone's scores. Uses CRON-style denotation.`,
     required: false,
     type: ParamType.STRING,
   })
+  @IsOptional()
+  // TODO: validate that the reset isn't too frequent. Maybe min of 1 day?
+  @Matches(
+    /^(?:(?<sec>\S+) )?(?<min>\S+) (?<hr>\S+) (?<day_month>\S+) (?<month>\S+) (?<day_week>\S+)$/,
+    {
+      message:
+        '`$property` must be a [CRON expression](https://crontab.guru/).',
+    },
+  )
   score_reset_schedule?: string;
+
+  /** Whether or not to reset scores on a schedule. */
+  @Param({
+    description: 'Whether or not to reset scores on a schedule.',
+    required: false,
+    type: ParamType.BOOLEAN,
+  })
+  score_reset_enabled?: boolean;
 
   /** The name of the bot's text channel. */
   @Param({
-    name: 'channel_name',
     description: `The name of the bot's text channel.`,
     required: false,
     type: ParamType.STRING,
   })
+  @IsOptional()
+  @Length(1)
   channel_name?: string;
 
   /** The description of the bot's text channel. */
   @Param({
-    name: 'channel_description',
     description: `The description of the bot's text channel.`,
     required: false,
     type: ParamType.STRING,
   })
+  @IsOptional()
+  @Length(1)
   channel_description?: string;
 
   /** The name of the biggest virgin's role. */
   @Param({
-    name: 'role_name',
     description: `The name of the biggest virgin's role.`,
     required: false,
     type: ParamType.STRING,
   })
+  @IsOptional()
+  @Length(1)
   role_name?: string;
 
   /** The color of the biggest virgin's role. */
   @Param({
-    name: 'role_color',
     description: `The color of the biggest virgin's role.`,
     required: false,
     type: ParamType.STRING,
   })
+  @IsOptional()
+  @IsHexColor()
   role_color?: HexColorString;
 
   /** An emoji to adorn the biggest virgin's emoji. */
   @Param({
-    name: 'role_emoji',
     description: `An emoji to adorn the biggest virgin's emoji.`,
     required: false,
     type: ParamType.STRING,
+  })
+  @IsOptional()
+  @Length(1, 1, { message: '`role_emoji` must be a single character.' })
+  @Matches(/^\p{Extended_Pictographic}$/u, {
+    message: '`role_emoji` must be an emoji',
   })
   role_emoji?: string;
 }
@@ -130,6 +163,7 @@ export class GuildSettingsDTO {
   dmPermission: false,
 })
 @Injectable()
+@UseFilters(ValidationErrorFilter)
 export class GuildSettingsCommand {
   private readonly logger = new Logger(GuildSettingsCommand.name);
 
@@ -143,10 +177,12 @@ export class GuildSettingsCommand {
   ) {}
 
   @Handler()
+  @UseFilters(ValidationErrorFilter)
+  @UsePipes(SlashCommandPipe, ValidationPipe)
   @UseGuards(GuildAdminGuard)
   @UseRequestContext()
   async handler(
-    @IA(SlashCommandPipe) dto: GuildSettingsDTO,
+    @IA() dto: GuildSettingsDTO,
     @EventParams() [interaction]: [interaction: CommandInteraction],
   ): Promise<MessagePayload> {
     if (interaction.member == null) {
@@ -159,8 +195,6 @@ export class GuildSettingsCommand {
       this.logger.error([`interaction.guild was null somehow`, interaction]);
       throw new Error(`interaction.guild was null somehow`);
     }
-
-    interaction.channel.sendTyping();
 
     const guild_ent = await this.guilds.findOneOrFail(interaction.guild.id);
 
