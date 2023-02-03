@@ -14,6 +14,7 @@ import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import { HttpService } from '@nestjs/axios';
+import { Duration, formatDuration } from 'date-fns';
 
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { IntroSongEntity } from 'src/entities/intro-song.entity';
@@ -86,12 +87,28 @@ export class SettingsCommand implements DiscordTransformedCommand<SettingsDTO> {
       );
 
       try {
-        await this.settings.saveIntroSong(
+        const intro_song_ent = await this.settings.saveIntroSong(
           dto.virgin_to_modify ?? interaction.user.id,
           attachment,
           interaction.user,
           interaction.guild,
         );
+        const intro_song_timeout = new Date(intro_song_ent.computed_timeout_ms);
+        const duration: Duration = {
+          years: intro_song_timeout.getUTCFullYear() - 1970,
+          months: intro_song_timeout.getUTCMonth(),
+          days: intro_song_timeout.getUTCDate() - 1,
+          hours: intro_song_timeout.getUTCHours(),
+          minutes: intro_song_timeout.getUTCMinutes(),
+          seconds: intro_song_timeout.getUTCSeconds(),
+        };
+
+        // TODO(3): this prevents other settings from being applied at the same time.\\
+        return new MessagePayload(interaction.channel, {
+          content: `Your settings have been updated. Your intro cool-down will now be ${formatDuration(
+            duration,
+          )} `,
+        });
       } catch (e) {
         if (e instanceof UserFacingError) {
           return new MessagePayload(interaction.channel, {
@@ -104,11 +121,6 @@ export class SettingsCommand implements DiscordTransformedCommand<SettingsDTO> {
           });
         }
       }
-
-      // TODO(3): this prevents other settings from being applied at the same time.
-      return new MessagePayload(interaction.channel, {
-        content: `Your settings have been updated.`,
-      });
     } else {
       return new MessagePayload(interaction.channel, {
         content: `No File was received...`,
