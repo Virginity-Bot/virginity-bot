@@ -23,6 +23,7 @@ rules:
   'no-useless-return': 'off'
   'no-use-before-define': 'off'
   '@typescript-eslint/no-use-before-define': 'error'
+  '@shopify/binary-assignment-parens': 'off'
 settings:
   'import/resolver':
     typescript:

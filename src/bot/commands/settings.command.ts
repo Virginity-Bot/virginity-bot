@@ -1,15 +1,18 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { TransformPipe } from '@discord-nestjs/common';
+import { Injectable, Logger, UseGuards } from '@nestjs/common';
 import {
   Command,
-  DiscordTransformedCommand,
+  EventParams,
+  Handler,
+  InteractionEvent,
   Param,
   ParamType,
-  Payload,
-  TransformedCommandExecutionContext,
-  UsePipes,
 } from '@discord-nestjs/core';
-import { MessagePayload } from 'discord.js';
+import { SlashCommandPipe } from '@discord-nestjs/common';
+import {
+  CommandInteraction,
+  MessagePayload,
+  PermissionFlagsBits,
+} from 'discord.js';
 import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
@@ -20,6 +23,10 @@ import { VirginEntity } from 'src/entities/virgin.entity';
 import { IntroSongEntity } from 'src/entities/intro-song.entity';
 import { StorageService } from 'src/storage/storage.service';
 import { SettingsService, UserFacingError } from './settings.service';
+import {
+  GuildAdminIfParam,
+  GuildAdminIfParamGuard,
+} from '../guards/guild-admin-if-param.guard';
 
 export class SettingsDTO {
   /** User snowflake */
@@ -45,10 +52,10 @@ export class SettingsDTO {
 @Command({
   name: 'settings',
   description: `Changes a user's settings with Virginity Bot`,
+  defaultMemberPermissions: PermissionFlagsBits.SendMessages,
 })
-@UsePipes(TransformPipe)
 @Injectable()
-export class SettingsCommand implements DiscordTransformedCommand<SettingsDTO> {
+export class SettingsCommand {
   private readonly logger = new Logger(SettingsCommand.name);
 
   constructor(
@@ -62,10 +69,13 @@ export class SettingsCommand implements DiscordTransformedCommand<SettingsDTO> {
     private readonly settings: SettingsService,
   ) {}
 
+  @Handler()
+  @GuildAdminIfParam('virgin')
+  @UseGuards(GuildAdminIfParamGuard)
   @UseRequestContext()
   async handler(
-    @Payload() dto: SettingsDTO,
-    { interaction }: TransformedCommandExecutionContext,
+    @InteractionEvent(SlashCommandPipe) dto: SettingsDTO,
+    @EventParams() [interaction]: [interaction: CommandInteraction],
   ): Promise<MessagePayload> {
     if (interaction.member == null) {
       this.logger.error([`interaction.member was null somehow`, interaction]);
@@ -81,10 +91,14 @@ export class SettingsCommand implements DiscordTransformedCommand<SettingsDTO> {
     interaction.channel.sendTyping();
 
     if (dto.intro_song_file != null) {
-      const attachment = await interaction.options.getAttachment(
-        'intro_song',
-        false,
-      );
+      const attachment = await interaction.options.get('intro_song', false)
+        ?.attachment;
+
+      if (attachment == null) {
+        return new MessagePayload(interaction.channel, {
+          content: 'An unknown error occurred.',
+        });
+      }
 
       try {
         const intro_song_ent = await this.settings.saveIntroSong(
