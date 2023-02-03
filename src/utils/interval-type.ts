@@ -6,12 +6,6 @@ import {
 } from '@mikro-orm/core';
 import { TransformContext } from '@mikro-orm/core/types/Type';
 
-const regex_interval_style_postgres =
-  /^(?:(?<years>\d+) years ?)?(?:(?<months>\d+) mons ?)?(?:(?<days>\d+) days ?)?(?:(?<hours>\d{1,2}):(?=.+:))?(?:(?<minutes>\d{1,2}):)?(?:(?<seconds>\d{1,2}))?(?:\.(?<ms>\d+))?$/;
-const regex_interval_style_postgres_verbose = /i/;
-const regex_interval_style_sql_standard = /i/;
-const regex_interval_style_iso_8601 = /i/;
-
 /** Converts to/from JS numeric milliseconds to DB interval */
 export class IntervalType extends Type<number, string> {
   /**
@@ -45,7 +39,7 @@ export class IntervalType extends Type<number, string> {
   }
 
   convertToJSValueSQL(key: string, platform: Platform): string {
-    return `EXTRACT(MILLISECOND FROM ${key})`;
+    return `(EXTRACT(EPOCH FROM ${key}) * 1000)`;
   }
 
   toJSON(value: number, platform: Platform): string | number {

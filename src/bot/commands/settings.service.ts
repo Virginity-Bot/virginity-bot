@@ -37,7 +37,7 @@ export class SettingsService {
     attachment: Attachment | null,
     user: User,
     guild: Guild,
-  ): Promise<void> {
+  ): Promise<IntroSongEntity> {
     if (attachment == null) {
       this.logger.warn(
         'Failed to retrieve intro_song attachment when one was expected',
@@ -99,6 +99,7 @@ export class SettingsService {
       },
       { intro_song: intro_song_ent },
     );
+    return intro_song_ent;
   }
 
   /** @throws if the file is too large */
