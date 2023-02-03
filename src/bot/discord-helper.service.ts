@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
   Activity,
   ActivityType,
@@ -6,7 +6,9 @@ import {
   Client,
   DiscordAPIError,
   Events,
+  Guild,
   GuildMember,
+  GuildPremiumTier,
   PermissionsBitField,
   Role,
   TextChannel,
@@ -102,58 +104,116 @@ export class DiscordHelperService {
       throw new Error(`Could not access guild ${guild_ent.id}`);
 
     const role =
-      (await guild.roles.fetch()).find(
-        (role) => role.name === guild_ent.role.name,
-      ) ??
-      (await guild.roles
-        .create({
-          name: guild_ent.role.name,
-          color: guild_ent.role.color,
-          unicodeEmoji: guild_ent.role.emoji,
-          hoist: true,
-          mentionable: true,
-        })
-        .then<Role>((role) => {
-          this.logger.debug(
-            `Created virginity-bot text channel in guild "${guild.name}"`,
-          );
-          return role;
-        })
-        .then<Role>(async (role) => {
-          // TODO(2): does this actually work?
-          // await role.setPosition(0);
-          return role;
-        }));
+      guild_ent.biggest_virgin_role_id != null
+        ? await guild.roles
+            .fetch(guild_ent.biggest_virgin_role_id)
+            .then((role) => {
+              if (role == null) throw new NotFoundException();
+              else return role;
+            })
+            .then(async (role) => {
+              if (role.name !== guild_ent.role.name) {
+                await role
+                  .setName(guild_ent.role.name)
+                  .catch(
+                    this.handlePermissionErrors(
+                      `Failed to set role name of role ${role.id} in guild ${guild.id}`,
+                    ),
+                  );
+              }
 
-    if (role.name !== guild_ent.role.name) {
-      await role
-        .setName(guild_ent.role.name)
-        .catch(
-          this.handlePermissionErrors(
-            `Failed to set role name of role ${role.id} in guild ${guild.id}`,
-          ),
-        );
-    }
-    // TODO(2): role.color is a number, while config.role.color will always be a string, so we setColor every time.
-    if (
-      role.color.toString(16).toUpperCase() !== guild_ent.role.color.slice(1)
-    ) {
-      await role
-        .setColor(guild_ent.role.color)
-        .catch(
-          this.handlePermissionErrors(
-            `Failed to set role color of role ${role.id} in guild ${guild.id}`,
-          ),
-        );
-    }
-    // TODO(3): check if the guild is boosted enough to set role emojis
-    // if (role.unicodeEmoji !== configuration.role.emoji) {
-    //   await role.setUnicodeEmoji(configuration.role.emoji);
-    // }
+              if (
+                role.color.toString(16).toUpperCase() !==
+                guild_ent.role.color.slice(1)
+              ) {
+                await role
+                  .setColor(guild_ent.role.color)
+                  .catch(
+                    this.handlePermissionErrors(
+                      `Failed to set role color of role ${role.id} in guild ${guild.id}`,
+                    ),
+                  );
+              }
 
-    guild_ent.biggest_virgin_role_id = role.id;
+              const highest_possible_pos = await this.getBotsHighestRole(
+                guild,
+              ).then((role) => role.position - 1);
+              if (role.position < highest_possible_pos) {
+                await role
+                  .setPosition(highest_possible_pos)
+                  .then((role) => {
+                    if (role.position !== highest_possible_pos) {
+                      throw new Error(
+                        `Failed to set role position of ${role.id} in ${guild.id} to ${highest_possible_pos}`,
+                      );
+                    } else return role;
+                  })
+                  .catch(
+                    this.handlePermissionErrors(
+                      `Failed to set role position of ${role.id} in ${guild.id} to ${highest_possible_pos}`,
+                    ),
+                  );
+              }
+
+              if (
+                role.unicodeEmoji !== guild_ent.role.emoji &&
+                guild.premiumTier > GuildPremiumTier.Tier2
+              ) {
+                await role
+                  .setUnicodeEmoji(guild_ent.role.emoji)
+                  .catch((err) => {
+                    if (err instanceof DiscordAPIError && err.code === 50101) {
+                      this.logger.warn(
+                        `Failed to set role emoji for guild ${guild.id}, even though we thought we could`,
+                      );
+                    } else {
+                      return this.handlePermissionErrors(err);
+                    }
+                  });
+              }
+
+              return role;
+            })
+            .catch((err) => {
+              if (err instanceof NotFoundException) {
+                return this.createBiggestVirginRole(guild, guild_ent);
+              } else throw err;
+            })
+        : await this.createBiggestVirginRole(guild, guild_ent);
 
     return role;
+  }
+
+  async createBiggestVirginRole(
+    guild: Guild,
+    guild_ent: GuildEntity,
+  ): Promise<Role> {
+    const highest_possible_pos = await this.getBotsHighestRole(guild).then(
+      (role) => role.position - 1,
+    );
+
+    return guild.roles
+      .create({
+        name: guild_ent.role.name,
+        color: guild_ent.role.color,
+        unicodeEmoji: guild_ent.role.emoji,
+        hoist: true,
+        mentionable: true,
+        position: highest_possible_pos,
+      })
+      .then<Role>((role) => {
+        this.logger.debug(
+          `Created virginity-bot text channel in guild "${guild.name}"`,
+        );
+
+        guild_ent.biggest_virgin_role_id = role.id;
+
+        return role;
+      });
+  }
+
+  getBotsHighestRole(guild: Guild): Promise<Role> {
+    return guild.members.fetchMe().then((bot) => bot.roles.highest);
   }
 
   /**
