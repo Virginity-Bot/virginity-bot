@@ -157,7 +157,7 @@ export class GuildSettingsDTO {
 
 @Command({
   name: 'guild-settings',
-  description: `Changes your guild's settings for Virginity Bot`,
+  description: `Changes your guild's settings for Virginity Bot.`,
   defaultMemberPermissions: PermissionFlagsBits.Administrator,
   dmPermission: false,
 })
@@ -222,7 +222,7 @@ export class GuildSettingsCommand {
     await this.guilds.flush();
 
     return new MessagePayload(interaction.channel, {
-      content: 'Updated guild settings',
+      content: 'Updated guild settings.',
     });
   }
 }
