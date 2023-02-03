@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UseGuards } from '@nestjs/common';
 import {
   Command,
   EventParams,
@@ -22,6 +22,10 @@ import { VirginEntity } from 'src/entities/virgin.entity';
 import { IntroSongEntity } from 'src/entities/intro-song.entity';
 import { StorageService } from 'src/storage/storage.service';
 import { SettingsService, UserFacingError } from './settings.service';
+import {
+  GuildAdminIfParam,
+  GuildAdminIfParamGuard,
+} from '../guards/guild-admin-if-param.guard';
 
 export class SettingsDTO {
   /** User snowflake */
@@ -65,6 +69,8 @@ export class SettingsCommand {
   ) {}
 
   @Handler()
+  @GuildAdminIfParam('virgin')
+  @UseGuards(GuildAdminIfParamGuard)
   @UseRequestContext()
   async handler(
     @InteractionEvent(SlashCommandPipe) dto: SettingsDTO,
