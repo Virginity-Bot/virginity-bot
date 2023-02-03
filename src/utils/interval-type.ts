@@ -45,7 +45,7 @@ export class IntervalType extends Type<number, string> {
   }
 
   convertToJSValueSQL(key: string, platform: Platform): string {
-    return `EXTRACT(MILLISECOND FROM ${key})`;
+    return `(EXTRACT(EPOCH FROM ${key}) * 1000)`;
   }
 
   toJSON(value: number, platform: Platform): string | number {
