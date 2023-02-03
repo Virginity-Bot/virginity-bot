@@ -42,38 +42,40 @@ export class TasksService {
     ]);
 
     await Promise.all(
-      guilds.map(async (guild_ent) => {
-        // TODO: close all open events and start new ones in-place
+      guilds
+        .filter((guild_ent) => guild_ent.score.reset_enabled)
+        .map(async (guild_ent) => {
+          // TODO: close all open events and start new ones in-place
 
-        // Getting the Biggest Virgin for the announcement
-        const top_virgins = await this.virgins.find(
-          { guild: guild_ent.id },
-          { orderBy: [{ cached_dur_in_vc: -1 }], limit: 10 },
-        );
-        // send leaderboard to guild's vbot channel
-        const [leaderboard, channel] = await Promise.all([
-          this.leaderboard.buildLeaderboardEmbed(guild_ent),
-          this.discord_helper.findOrCreateVirginityBotChannel(guild_ent),
-        ]);
-        // TODO(4): "week" here assumes that our `score.reset_schedule` remains weekly
-        leaderboard.setTitle(`Last week's biggest virgins:`);
-        leaderboard.addFields({
-          name: ' ',
-          value: 'Scores have now been reset 😇',
-        });
+          // Getting the Biggest Virgin for the announcement
+          const top_virgins = await this.virgins.find(
+            { guild: guild_ent.id },
+            { orderBy: [{ cached_dur_in_vc: -1 }], limit: 10 },
+          );
+          // send leaderboard to guild's vbot channel
+          const [leaderboard, channel] = await Promise.all([
+            this.leaderboard.buildLeaderboardEmbed(guild_ent),
+            this.discord_helper.findOrCreateVirginityBotChannel(guild_ent),
+          ]);
+          // TODO(4): "week" here assumes that our `score.reset_schedule` remains weekly
+          leaderboard.setTitle(`Last week's biggest virgins:`);
+          leaderboard.addFields({
+            name: ' ',
+            value: 'Scores have now been reset 😇',
+          });
 
-        await channel.send({ embeds: [leaderboard] });
-        await channel.send(
-          `Congrats to this week's Chonkiest Virgin: ${top_virgins[0].nickname}`,
-        );
+          await channel.send({ embeds: [leaderboard] });
+          await channel.send(
+            `Congrats to this week's Chonkiest Virgin: ${top_virgins[0].nickname}`,
+          );
 
-        // reset scores
-        guild_ent.last_reset = new Date();
-        await this.virgins.nativeUpdate(
-          { guild: guild_ent.id },
-          { cached_dur_in_vc: 0 },
-        );
-      }),
+          // reset scores
+          guild_ent.last_reset = new Date();
+          await this.virgins.nativeUpdate(
+            { guild: guild_ent.id },
+            { cached_dur_in_vc: 0 },
+          );
+        }),
     );
 
     await this.guilds.flush();
