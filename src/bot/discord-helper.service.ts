@@ -50,9 +50,13 @@ export class DiscordHelperService {
 
     const client_id = client.application.id;
 
+    const username =
+      this.client.user != null ? `("${this.client.user?.tag}") ` : '';
     const link = `https://discord.com/api/oauth2/authorize?client_id=${client_id}&permissions=${permissions}&scope=bot`;
 
-    this.logger.log(`Invite the bot to your server using this link: ${link}`);
+    this.logger.log(
+      `Invite the bot ${username}to your server using this link: ${link}`,
+    );
   }
 
   /**
