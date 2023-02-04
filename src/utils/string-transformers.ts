@@ -15,6 +15,6 @@ export function virgin_display_name(
   }
 }
 
-export function pluralize(str: string): string {
+export function possess(str: string, count: number = 2): string {
   return `${str}'${str.at(-1) === 's' ? '' : 's'}`;
 }
