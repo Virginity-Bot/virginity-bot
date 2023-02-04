@@ -17,7 +17,7 @@ import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
-import { differenceInSeconds } from 'date-fns';
+import { differenceInMilliseconds } from 'date-fns';
 import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { IntroSongEntity } from 'src/entities/intro-song.entity';
@@ -67,7 +67,10 @@ export class IntroMusic {
       const now = new Date();
       if (
         Math.abs(
-          differenceInSeconds(now, virgin.intro_last_played ?? new Date(0)),
+          differenceInMilliseconds(
+            now,
+            virgin.intro_last_played ?? new Date(0),
+          ),
         ) >=
         (virgin.intro_song?.computed_timeout_ms ??
           configuration.audio.default_intro.timeout_ms)
