@@ -30,6 +30,7 @@ const configuration = {
       min: parseInt(process.env.DATABASE_POOL_MIN ?? '1'),
       max: parseInt(process.env.DATABASE_POOL_MAX ?? '5'),
     },
+    auto_migrate: (process.env.DATABASE_AUTO_MIGRATE ?? 'true') === 'true',
   },
 
   mikro_orm: {
