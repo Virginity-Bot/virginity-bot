@@ -25,6 +25,7 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import { IsHexColor, IsOptional, Length, Matches, Min } from 'class-validator';
 
+import { IsInfrequentCron } from 'src/validators/infrequent-cron.validator';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { GuildEntity } from 'src/entities/guild';
 import { SettingsService } from './settings.service';
@@ -84,13 +85,7 @@ export class GuildSettingsDTO {
     type: ParamType.STRING,
   })
   @IsOptional()
-  // TODO: validate that the reset isn't too frequent. Maybe min of 1 day?
-  @Matches(
-    /^(?:(?<sec>\S+) )?(?<min>\S+) (?<hr>\S+) (?<day_month>\S+) (?<month>\S+) (?<day_week>\S+)$/,
-    {
-      message: '`$property` must be a [CRON expression](https://crontab.guru/)',
-    },
-  )
+  @IsInfrequentCron()
   score_reset_schedule?: string;
 
   /** Whether or not to reset scores on a schedule. */
