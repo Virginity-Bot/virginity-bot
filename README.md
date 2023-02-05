@@ -1,6 +1,6 @@
 # VirginityBot <img alt="logo" src="assets/logo.png" height="20rem" />
 
-Discord Bot to track peoples' virginity, i.e. their accumulated online time on the server.
+A Discord Bot to track peoples' virginity, i.e. their accumulated online time in VC.
 
 [Invite the official Virginity Bot to your Server](https://discord.com/api/oauth2/authorize?client_id=943974476469645333&permissions=2452817936&scope=bot)
 
@@ -12,18 +12,17 @@ Discord Bot to track peoples' virginity, i.e. their accumulated online time on t
 
 ## How to Increase Your Virginity
 
-1. Join a public voice chat
-1. Virgins must not be muted or deafened
-1. Virgins may not be in the AFK channel
-1. Stream for more virginity points :)
-1. Share camera for even more points! :D
+1. Join a public voice chat.
+    1. Virgins must not be muted or deafened.
+    1. Virgins may not be in the AFK channel.
+1. Play games, stream, or share your camera for more virginity points :)
 
 ## Run your own Virginity Bot
 
-1. (Create a new Discord Application](https://discord.com/developers/applications/]
-    1. Retrieve your Bot Token from the bot tab
-2. Make sure to set the [/.env](/.env) variables appropriately.
-3. Run npm start to start the bot
+1. [Create a new Discord Application](https://discord.com/developers/applications/)
+    1. Retrieve your Bot Token from the bot tab.
+1. Make sure to set the [/.env](/.env) variables appropriately.
+1. Run `npm start` to start the bot.
 
 ## Permissions
 

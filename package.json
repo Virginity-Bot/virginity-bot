@@ -1,13 +1,16 @@
 {
-  "name": "project-name",
+  "name": "virginity-bot",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "A Discord Bot to track peoples' time in VC.",
+  "author": "EdgarSaldivar",
+  "contributors": [
+    {
+      "name": "dudeofawesome",
+      "email": "louis@orleans.io"
+    }
+  ],
   "private": true,
-  "license": "UNLICENSED",
-  "mikro-orm": {
-    "useTsNode": true
-  },
+  "license": "AGPL-3.0",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -24,6 +27,26 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "db:create": "mikro-orm migration:up",
     "db:drop": "mikro-orm schema:drop -r"
+  },
+  "mikro-orm": {
+    "useTsNode": true
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "src",
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "**/*.(t|j)s"
+    ],
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
   },
   "engines": {
     "node": "^18.10.0"
@@ -82,22 +105,5 @@
     "ts-node": "^10.0.0",
     "tsconfig-paths": "4.1.1",
     "typescript": "^4.7.4"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
   }
 }
