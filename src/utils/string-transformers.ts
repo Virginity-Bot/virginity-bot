@@ -18,3 +18,10 @@ export function virgin_display_name(
 export function possess(str: string, count: number = 2): string {
   return `${str}'${str.at(-1) === 's' ? '' : 's'}`;
 }
+
+export function pascal_spaces(str: string): string {
+  return str
+    .split(' ')
+    .map((s) => s[0].toUpperCase() + s.substring(1))
+    .join(' ');
+}

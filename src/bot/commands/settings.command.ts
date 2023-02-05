@@ -21,6 +21,7 @@ import { Duration, formatDuration } from 'date-fns';
 
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { IntroSongEntity } from 'src/entities/intro-song.entity';
+import { pascal_spaces, possess } from 'src/utils/string-transformers';
 import { StorageService } from 'src/storage/storage.service';
 import { SettingsService, UserFacingError } from './settings.service';
 import {
@@ -99,6 +100,13 @@ export class SettingsCommand {
     const messages: string[] = [];
 
     const target_user_snowflake = dto.virgin_to_modify ?? interaction.user.id;
+    const target_user = await this.virgins.findOneOrFail({
+      id: target_user_snowflake,
+    });
+    const target_user_name =
+      dto.virgin_to_modify != null
+        ? possess(target_user.nickname ?? target_user.username)
+        : 'your';
 
     if (dto.intro_song_snowflake != null) {
       const attachment = await interaction.options.get('intro_song', false)
@@ -129,10 +137,11 @@ export class SettingsCommand {
         };
 
         messages.push(
-          `Intro song updated. Your intro cool-down will now be ${formatDuration(
-            duration,
-            { delimiter: ', ' },
-          )}.`,
+          `Intro song updated. ${pascal_spaces(
+            target_user_name,
+          )} intro cool-down will now be ${formatDuration(duration, {
+            delimiter: ', ',
+          })}.`,
         );
       } catch (e) {
         if (e instanceof UserFacingError) {
@@ -150,7 +159,11 @@ export class SettingsCommand {
         { intro_song: null },
       );
 
-      messages.push(`Your intro song has been reset to default.`);
+      messages.push(
+        `${pascal_spaces(
+          target_user_name,
+        )} intro song has been reset to default.`,
+      );
     }
 
     interaction.followUp(
