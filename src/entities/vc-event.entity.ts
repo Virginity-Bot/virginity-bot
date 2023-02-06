@@ -1,4 +1,5 @@
 import {
+  Cascade,
   Entity,
   ManyToOne,
   PrimaryKey,
@@ -16,7 +17,10 @@ export class VCEventEntity extends BaseEntity {
   @PrimaryKey({ type: UuidType, defaultRaw: 'uuid_generate_v4()' })
   id: string = v4();
 
-  @ManyToOne({ fieldNames: ['virgin_snowflake', 'guild_snowflake'] })
+  @ManyToOne({
+    fieldNames: ['virgin_snowflake', 'guild_snowflake'],
+    cascade: [Cascade.ALL],
+  })
   virgin: VirginEntity;
 
   @ManyToOne({ fieldName: 'guild_snowflake', hidden: true, nullable: true })
