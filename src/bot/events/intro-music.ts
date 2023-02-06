@@ -17,7 +17,7 @@ import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
-import { differenceInSeconds } from 'date-fns';
+import { differenceInMilliseconds } from 'date-fns';
 import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { IntroSongEntity } from 'src/entities/intro-song.entity';
@@ -48,9 +48,7 @@ export class IntroMusic {
       // user is entering AFK
       new_state.channelId === new_state.guild.afkChannelId ||
       // there is no user
-      new_state.member == null ||
-      // channel only has 1 member
-      (new_state.channel?.members.size ?? 0) < 2
+      new_state.member == null
     ) {
       return;
     }
@@ -67,18 +65,31 @@ export class IntroMusic {
       const now = new Date();
       if (
         Math.abs(
-          differenceInSeconds(now, virgin.intro_last_played ?? new Date(0)),
+          differenceInMilliseconds(
+            now,
+            virgin.intro_last_played ?? new Date(0),
+          ),
         ) >=
         (virgin.intro_song?.computed_timeout_ms ??
           configuration.audio.default_intro.timeout_ms)
       ) {
+        // channel only has 1 member
+        if ((new_state.channel?.members.size ?? 0) >= 2) {
+          virgin.intro_last_played = now;
+          await this.virgins.flush();
+        }
+
         await this.playIntroMusic(new_state.guild, new_state.channelId, virgin);
-        virgin.intro_last_played = now;
-        await this.virgins.flush();
       }
     }
   }
 
+  /**
+   * Plays a virgin's intro song in the specified channel.
+   *
+   * **NOTE**: The returned promise resolves slightly before the bot has finished
+   *  leaving the channel.
+   */
   playIntroMusic(
     guild: Guild,
     channel_id: string,

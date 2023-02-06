@@ -20,7 +20,7 @@ import { EntityRepository } from '@mikro-orm/postgresql';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
 import { DatabaseService } from 'src/database/database.service';
-import { pluralize, virgin_display_name } from 'src/utils/string-transformers';
+import { possess, virgin_display_name } from 'src/utils/string-transformers';
 import { DiscordHelperService } from '../discord-helper.service';
 
 export class ScoreDTO {
@@ -95,7 +95,7 @@ export class CheckScoreCommand {
     return new MessagePayload(interaction.channel, {
       content: `${
         dto.virgin_to_check != null
-          ? `${pluralize(
+          ? `${possess(
               virgin_display_name(
                 virgin ??
                   (await this.discord_helper.fetchGuildMember(

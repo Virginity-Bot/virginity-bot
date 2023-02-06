@@ -89,6 +89,7 @@ export class TasksService implements OnApplicationBootstrap {
             { guild: guild_ent.id },
             { orderBy: [{ cached_dur_in_vc: -1 }] },
           );
+
           // build leaderboard with reset flavor
           const [leaderboard, channel] = await Promise.all([
             this.leaderboard.buildLeaderboardEmbed(guild_ent),
