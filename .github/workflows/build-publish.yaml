@@ -86,7 +86,7 @@ jobs:
           VERSION="$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')"
 
           # Use Docker `latest` tag convention
-          [ "$VERSION" == "main" ] || [ "$VERSION" == "master" ] && VERSION=latest
+          [ "$VERSION" == "${{ github.event.repository.default_branch }}" ] && VERSION="latest"
 
           echo "image_tag=$REPO/bot:$VERSION" >> "$GITHUB_OUTPUT"
 
@@ -108,6 +108,7 @@ jobs:
       - 'build-container'
       - 'lint'
       - 'test'
+    if: 'github.ref == refs/heads/${{ github.event.repository.default_branch }}'
     runs-on: 'ubuntu-latest'
     permissions:
       packages: 'write'
