@@ -20,6 +20,7 @@ RUN npm clean-install
 
 COPY . ${APP_DIR}/
 RUN npm run build
+RUN rm -rf node_modules
 
 # run stage
 FROM docker.io/library/node:${NODE_VERSION} as runner
