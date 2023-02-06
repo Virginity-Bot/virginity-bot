@@ -1,13 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { LogLevel as NestLogLevel } from '@nestjs/common';
-import * as dotenv from 'dotenv';
 import { MikroORM } from '@mikro-orm/core';
 import * as pluralize from 'pluralize';
 
 import { AppModule } from './app.module';
 import configuration, { LogLevel } from './config/configuration';
-
-dotenv.config();
 
 /**
  * Creates initial database schema if none exists.
