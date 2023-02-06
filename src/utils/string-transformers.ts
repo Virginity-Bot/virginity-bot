@@ -15,7 +15,7 @@ export function virgin_display_name(
   }
 }
 
-export function possess(str: string, count: number = 2): string {
+export function possess(str: string): string {
   return `${str}'${str.at(-1) === 's' ? '' : 's'}`;
 }
 

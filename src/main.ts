@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { LogLevel as NestLogLevel } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 import { MikroORM } from '@mikro-orm/core';
+import * as pluralize from 'pluralize';
 
 import { AppModule } from './app.module';
 import configuration, { LogLevel } from './config/configuration';
@@ -12,10 +13,20 @@ dotenv.config();
  * Creates initial database schema if none exists.
  */
 async function setup_db(orm: MikroORM) {
-  const schema_gen = orm.getSchemaGenerator();
+  const migrator = orm.getMigrator();
+  const pending_migrations = await migrator.getPendingMigrations();
 
-  // creates an empty schema?
-  await schema_gen.ensureDatabase();
+  if (pending_migrations.length > 0) {
+    if (configuration.db.auto_migrate) {
+      await migrator.up();
+    } else {
+      throw new Error(
+        `Database is not up-to-date and auto-migration is disabled. ${
+          pending_migrations.length
+        } ${pluralize('migration', pending_migrations.length)} pending.`,
+      );
+    }
+  }
 }
 
 async function bootstrap() {

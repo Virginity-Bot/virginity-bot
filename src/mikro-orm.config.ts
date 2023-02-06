@@ -47,6 +47,11 @@ const config: Options = {
 
   loadStrategy: LoadStrategy.JOINED,
   populateAfterFlush: true,
+
+  migrations: {
+    pathTs: 'src/migrations',
+    path: 'dist/migrations',
+  },
 };
 
 export default config;
