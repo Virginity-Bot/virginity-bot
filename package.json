@@ -14,19 +14,18 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start --exec 'node --require dotenv/config'",
-    "start:dev": "nest start --watch --exec 'node --require dotenv/config --inspect'",
-    "start:debug": "nest start --watch --exec 'node --require dotenv/config --inspect-brk'",
-    "start:debug:docker": "nest start --watch --exec 'node --require dotenv/config --inspect-brk=0.0.0.0'",
+    "start": "scripts/npm-start.sh",
+    "start:dev": "scripts/npm-start-dev.sh",
+    "start:debug": "scripts/npm-start-debug.sh",
+    "start:debug:docker": "scripts/npm-start-debug-docker.sh",
     "start:prod": "node --require=source-map-support/register dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register --require ts-node/register node_modules/.bin/jest --runInBand",
+    "test:debug": "scripts/npm-test-debug.sh",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "db:create": "mikro-orm migration:up",
-    "db:drop": "mikro-orm schema:drop -r"
+    "db:create": "mikro-orm migration:up"
   },
   "mikro-orm": {
     "useTsNode": true
