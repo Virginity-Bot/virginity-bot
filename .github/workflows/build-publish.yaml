@@ -81,17 +81,27 @@ jobs:
       - name: 'Get image tag names 🏷️'
         id: 'tag-image'
         run: |
-          REPO="ghcr.io/$(echo ${{ github.repository }} | tr '[A-Z]' '[a-z]')"
-          VERSION="${{ github.ref_name }}"
+          container_repo="ghcr.io/$(echo "${{ github.repository }}" | tr '[A-Z]' '[a-z]')"
+          versions="${{ github.ref_name }}"
           if [[ "${{ github.ref_type }}" == "branch" ]]; then
             package_json_version="$(jq --raw-output '.version' 'package.json')"
-            VERSION="$VERSION,$package_json_version"
+            versions="$versions,$package_json_version"
           fi
 
-          # Use Docker `latest` tag convention, only tagging `latest` on default branch.
-          [ "$VERSION" == "${{ github.event.repository.default_branch }}" ] && VERSION="$VERSION,latest"
+          echo "$versions"
 
-          echo "image_tags=$REPO/bot:$VERSION" >> "$GITHUB_OUTPUT"
+          # Use Docker `latest` tag convention, only tagging `latest` on default branch.
+          if [[ "$versions" =~ ,?${{ github.event.repository.default_branch }},? ]]; then
+            versions="$versions,latest"
+          fi
+
+          versions=$(echo $versions | tr ',' '\n')
+          image_tags="bot"
+          for version in $versions; do
+            image_tags="$image_tags,$container_repo/bot:$version"
+          done
+
+          echo "image_tags=$image_tags" >> "$GITHUB_OUTPUT"
 
       - name: 'Build container 🐳'
         uses: 'docker/build-push-action@v3'
