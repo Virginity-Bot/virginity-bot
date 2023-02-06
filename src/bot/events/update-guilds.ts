@@ -55,6 +55,7 @@ export class UpdatedGuilds {
       id: guild.id,
       name: guild.name,
     });
+    await this.guilds.flush();
 
     await this.discord_helper.findOrCreateBiggestVirginRole(guild_ent);
     await this.discord_helper.findOrCreateVirginityBotChannel(guild_ent);
