@@ -23,7 +23,7 @@ export class Migration20230131044648 extends Migration {
     this.addSql('comment on column "guild"."score_multiplier_gaming" is \'The score multiplier applied when gaming while in VC. This stacks with other multipliers if `score_multipliers_stack` is enabled.\';');
     this.addSql('comment on column "guild"."role_name" is \'The name of the chonkiest virgin\'\'s role in Discord.\';');
     this.addSql('comment on column "guild"."role_color" is \'The color of the chonkiest virgin\'\'s role in Discord.\';');
-    this.addSql('comment on column "guild"."role_emoji" is \'An emoji to adorn the chonkiest virgin\'\'s emoji in Discord.\';');
+    this.addSql('comment on column "guild"."role_emoji" is \'An emoji to adorn the chonkiest virgin\'\'s role in Discord.\';');
     this.addSql('comment on column "guild"."channel_name" is \'The name of the virginity bot text channel in Discord.\';');
     this.addSql('comment on column "guild"."channel_description" is \'The description of the virginity bot text channel in Discord.\';');
   }

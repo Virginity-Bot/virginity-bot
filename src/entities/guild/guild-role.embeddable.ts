@@ -19,11 +19,11 @@ export class GuildRoleSettings {
   })
   color: HexColorString = '#DA8C80';
 
-  /** An emoji to adorn the chonkiest virgin's emoji in Discord. */
+  /** An emoji to adorn the chonkiest virgin's role in Discord. */
   @Property({
     type: TextType,
     default: '👑',
-    comment: `An emoji to adorn the chonkiest virgin's emoji in Discord.`,
+    comment: `An emoji to adorn the chonkiest virgin's role in Discord.`,
   })
   emoji = '👑';
 }

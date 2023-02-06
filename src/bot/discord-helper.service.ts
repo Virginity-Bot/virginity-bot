@@ -196,10 +196,13 @@ export class DiscordHelperService {
       .create({
         name: guild_ent.role.name,
         color: guild_ent.role.color,
-        unicodeEmoji: guild_ent.role.emoji,
+        unicodeEmoji:
+          guild.premiumTier > GuildPremiumTier.Tier2
+            ? guild_ent.role.emoji
+            : undefined,
         hoist: true,
         mentionable: true,
-        position: highest_possible_pos,
+        position: highest_possible_pos + 1,
       })
       .then<Role>((role) => {
         this.logger.debug(
