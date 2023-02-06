@@ -136,9 +136,9 @@ export class GuildSettingsDTO {
   @IsHexColor()
   role_color?: HexColorString;
 
-  /** An emoji to adorn the biggest virgin's emoji. */
+  /** An emoji to adorn the biggest virgin's role. */
   @Param({
-    description: `An emoji to adorn the biggest virgin's emoji.`,
+    description: `An emoji to adorn the biggest virgin's role.`,
     required: false,
     type: ParamType.STRING,
   })
