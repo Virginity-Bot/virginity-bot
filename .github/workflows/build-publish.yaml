@@ -83,8 +83,8 @@ jobs:
       - name: 'Get image tag names 🏷️'
         id: 'tag-image'
         run: |
-          REPO=ghcr.io/$(echo ${{ github.repository }} | tr '[A-Z]' '[a-z]')
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          REPO="ghcr.io/${{ github.repository }}"
+          VERSION="$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')"
 
           # Use Docker `latest` tag convention
           [ "$VERSION" == "main" ] || [ "$VERSION" == "master" ] && VERSION=latest
