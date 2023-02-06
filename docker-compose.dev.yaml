@@ -11,6 +11,7 @@ services:
     env_file: '.env'
     environment:
       DATABASE_URL: 'postgres://postgres:password@db/virginity-bot'
+      DATABASE_AUTO_MIGRATE: 'false'
       STORAGE_S3_HOST: 'object-storage'
       STORAGE_S3_PORT: '9000'
       STORAGE_S3_SSL: 'false'
