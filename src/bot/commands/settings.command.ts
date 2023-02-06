@@ -21,6 +21,7 @@ import { Duration, formatDuration } from 'date-fns';
 
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { IntroSongEntity } from 'src/entities/intro-song.entity';
+import { pascal_spaces, possess } from 'src/utils/string-transformers';
 import { StorageService } from 'src/storage/storage.service';
 import { SettingsService, UserFacingError } from './settings.service';
 import {
@@ -46,7 +47,14 @@ export class SettingsDTO {
     required: false,
     type: ParamType.ATTACHMENT,
   })
-  intro_song_file?: string;
+  intro_song_snowflake?: string;
+
+  @Param({
+    description: 'Clears your custom intro song, resetting it to default.',
+    required: false,
+    type: ParamType.BOOLEAN,
+  })
+  clear_intro_song?: boolean;
 }
 
 @Command({
@@ -76,7 +84,7 @@ export class SettingsCommand {
   async handler(
     @InteractionEvent(SlashCommandPipe) dto: SettingsDTO,
     @EventParams() [interaction]: [interaction: CommandInteraction],
-  ): Promise<MessagePayload> {
+  ): Promise<void> {
     if (interaction.member == null) {
       this.logger.error([`interaction.member was null somehow`, interaction]);
       throw new Error(`interaction.member was null somehow`);
@@ -88,21 +96,32 @@ export class SettingsCommand {
       throw new Error(`interaction.guild was null somehow`);
     }
 
-    interaction.channel.sendTyping();
+    await interaction.deferReply();
+    const messages: string[] = [];
 
-    if (dto.intro_song_file != null) {
+    const target_user_snowflake = dto.virgin_to_modify ?? interaction.user.id;
+    const target_user = await this.virgins.findOneOrFail({
+      id: target_user_snowflake,
+    });
+    const target_user_name =
+      dto.virgin_to_modify != null
+        ? possess(target_user.nickname ?? target_user.username)
+        : 'your';
+
+    if (dto.intro_song_snowflake != null) {
       const attachment = await interaction.options.get('intro_song', false)
         ?.attachment;
 
-      if (attachment == null) {
-        return new MessagePayload(interaction.channel, {
-          content: 'An unknown error occurred.',
-        });
-      }
-
       try {
+        if (attachment == null) {
+          this.logger.warn(
+            `Could not find attachment ${dto.intro_song_snowflake}`,
+          );
+          throw new UserFacingError('An unknown error occurred.');
+        }
+
         const intro_song_ent = await this.settings.saveIntroSong(
-          dto.virgin_to_modify ?? interaction.user.id,
+          target_user_snowflake,
           attachment,
           interaction.user,
           interaction.guild,
@@ -117,29 +136,40 @@ export class SettingsCommand {
           seconds: intro_song_timeout.getUTCSeconds(),
         };
 
-        // TODO(3): this prevents other settings from being applied at the same time.\\
-        return new MessagePayload(interaction.channel, {
-          content: `Your settings have been updated. Your intro cool-down will now be ${formatDuration(
-            duration,
-            { delimiter: ', ' },
-          )}.`,
-        });
+        messages.push(
+          `Intro song updated. ${pascal_spaces(
+            target_user_name,
+          )} intro cool-down will now be ${formatDuration(duration, {
+            delimiter: ', ',
+          })}.`,
+        );
       } catch (e) {
         if (e instanceof UserFacingError) {
-          return new MessagePayload(interaction.channel, {
-            content: e.message,
-          });
+          messages.push(e.message);
         } else {
           this.logger.error(e);
-          return new MessagePayload(interaction.channel, {
-            content: 'An unknown error occurred.',
-          });
+          messages.push('An unknown error occurred.');
         }
       }
-    } else {
-      return new MessagePayload(interaction.channel, {
-        content: `No File was received...`,
-      });
     }
+
+    if (dto.clear_intro_song) {
+      await this.virgins.nativeUpdate(
+        { id: target_user_snowflake },
+        { intro_song: null },
+      );
+
+      messages.push(
+        `${pascal_spaces(
+          target_user_name,
+        )} intro song has been reset to default.`,
+      );
+    }
+
+    interaction.followUp(
+      new MessagePayload(interaction.channel, {
+        content: messages.join('\n'),
+      }),
+    );
   }
 }
