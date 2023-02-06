@@ -111,6 +111,7 @@ jobs:
       - 'test'
     runs-on: 'ubuntu-latest'
     permissions:
+      contents: 'read'
       packages: 'write'
     steps:
       - name: 'Checkout Repository 🛎️'
