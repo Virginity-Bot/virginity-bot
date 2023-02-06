@@ -82,7 +82,7 @@ jobs:
         id: 'tag-image'
         run: |
           REPO="ghcr.io/$(echo ${{ github.repository }} | tr '[A-Z]' '[a-z]')"
-          VERSION="$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')"
+          VERSION="${{ github.ref_name }}"
 
           # Use Docker `latest` tag convention
           [ "$VERSION" == "${{ github.event.repository.default_branch }}" ] && VERSION="latest"
