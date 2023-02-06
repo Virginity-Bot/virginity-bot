@@ -6,19 +6,91 @@ import {
   IsEnum,
   validate,
   IsInt,
-  Min,
-  Max,
   IsString,
   Matches,
+  Max,
+  Min,
+  IsBoolean,
+  IsFQDN,
+  IsUrl,
+  ValidationError,
 } from 'class-validator';
-
-// TODO: switch to using @nestjs/config
+import { red } from 'chalk';
 
 export enum LogLevel {
   QUIET,
   ERROR,
   WARN,
   DEBUG,
+}
+
+class MikroORMConf {
+  @IsString()
+  cache_dir = process.env.MIKRO_ORM_CACHE_DIR ?? `${process.cwd()}/temp`;
+}
+
+class DBConfPool {
+  @IsInt()
+  @Min(1)
+  min = parseInt(process.env.DATABASE_POOL_MIN ?? '1');
+  @IsInt()
+  @Min(1)
+  max = parseInt(process.env.DATABASE_POOL_MAX ?? '5');
+}
+
+class DBConf {
+  @IsString()
+  type = (process.env.DATABASE_TYPE ?? 'postgresql') as
+    | 'postgresql'
+    | 'mongo'
+    | 'mysql'
+    | 'mariadb'
+    | 'sqlite'
+    | 'better-sqlite';
+  @IsUrl()
+  url = process.env.DATABASE_URL;
+  pool = new DBConfPool();
+  @IsBoolean()
+  auto_migrate = (process.env.DATABASE_AUTO_MIGRATE ?? 'true') === 'true';
+}
+
+class StorageConfS3 {
+  @IsFQDN()
+  host = process.env.STORAGE_S3_HOST as string;
+  @IsInt()
+  @Min(1)
+  @Max(65535)
+  port = parseInt(process.env.STORAGE_S3_PORT as string);
+  @IsBoolean()
+  ssl = (process.env.STORAGE_S3_SSL ?? 'true') === 'true';
+  @IsString()
+  region = process.env.STORAGE_S3_REGION as string;
+  @IsString()
+  access_key_id = process.env.STORAGE_S3_ACCESS_KEY_ID as string;
+  @IsString()
+  secret_access_key = process.env.STORAGE_S3_SECRET_ACCESS_KEY as string;
+  @IsString()
+  bucket_name = process.env.STORAGE_S3_BUCKET_NAME ?? 'intro-songs';
+}
+
+class StorageConfAudio {
+  @IsInt()
+  max_file_size_b =
+    parseFloat(process.env.STORAGE_AUDIO_MAX_FILE_SIZE_KiB ?? '1024') * 1024;
+}
+
+class StorageConf {
+  s3 = new StorageConfS3();
+  audio = new StorageConfAudio();
+}
+
+class AudioConfDefaultIntro {
+  path = 'assets/entrance_theme.opus';
+  timeout_ms = minutesToMilliseconds(4.9);
+}
+
+class AudioConf {
+  default_intro = new AudioConfDefaultIntro();
 }
 
 class Configuration {
@@ -30,43 +102,11 @@ class Configuration {
       ? LogLevel[process.env.LOG_LEVEL]
       : LogLevel.WARN;
 
-  db = {
-    type: (process.env.DATABASE_TYPE ?? 'postgresql') as
-      | 'postgresql'
-      | 'mongo'
-      | 'mysql'
-      | 'mariadb'
-      | 'sqlite'
-      | 'better-sqlite',
-    url: process.env.DATABASE_URL,
-    pool: {
-      min: parseInt(process.env.DATABASE_POOL_MIN ?? '1'),
-      max: parseInt(process.env.DATABASE_POOL_MAX ?? '5'),
-    },
-    auto_migrate: (process.env.DATABASE_AUTO_MIGRATE ?? 'true') === 'true',
-  };
+  db = new DBConf();
 
-  mikro_orm = {
-    cache_dir: process.env.MIKRO_ORM_CACHE_DIR ?? `${process.cwd()}/temp`,
-  };
+  mikro_orm = new MikroORMConf();
 
-  storage = {
-    s3: {
-      host: process.env.STORAGE_S3_HOST as string,
-      port: parseInt(process.env.STORAGE_S3_PORT as string),
-      ssl: (process.env.STORAGE_S3_SSL ?? 'true') === 'true',
-      region: process.env.STORAGE_S3_REGION as string,
-      access_key_id: process.env.STORAGE_S3_ACCESS_KEY_ID as string,
-      secret_access_key: process.env.STORAGE_S3_SECRET_ACCESS_KEY as string,
-      bucket_name: process.env.STORAGE_S3_BUCKET_NAME ?? 'intro-songs',
-    },
-
-    audio: {
-      max_file_size_b:
-        parseFloat(process.env.STORAGE_AUDIO_MAX_FILE_SIZE_KiB ?? '1024') *
-        1024,
-    },
-  };
+  storage = new StorageConf();
 
   @IsInt()
   @Min(1)
@@ -77,34 +117,33 @@ class Configuration {
   @Matches(/^\S+$/)
   discord_token = process.env.DISCORD_TOKEN as string;
 
-  score = {
-    reset_schedule: process.env.SCORE_RESET_SCHEDULE ?? '0 2 * * Tue',
-  };
-
-  audio = {
-    default_intro: {
-      path: 'assets/entrance_theme.opus',
-      timeout_ms: minutesToMilliseconds(4.9),
-    },
-  };
+  audio = new AudioConf();
 }
 
 const configuration = new Configuration();
 validate(configuration)
-  .then((errs) => {
-    console.error(
-      errs
-        .map((err) =>
-          err.constraints != null
-            ? Object.values(err.constraints)
-                .map((m) => `${m}.`)
-                .join('\n')
-            : `Check ${err.property}.`,
-        )
-        .join('\n'),
-    );
-    process.exit(1);
+  .then((err) => {
+    if (err != null && Array.isArray(err) && err[0] != null) throw err;
   })
-  .catch((err) => console.error(err));
+  .catch((err) => {
+    if (Array.isArray(err) && err[0] instanceof ValidationError) {
+      console.error(
+        red(
+          err
+            .map((err) =>
+              err.constraints != null
+                ? Object.values(err.constraints)
+                    .map((m) => `${m}.`)
+                    .join('\n')
+                : `Check ${err.property}.`,
+            )
+            .join('\n'),
+        ),
+      );
+    } else {
+      console.error(err);
+    }
+    process.exit(1);
+  });
 
 export default configuration;
