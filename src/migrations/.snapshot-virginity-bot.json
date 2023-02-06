@@ -191,16 +191,16 @@
           "comment": "The score multiplier applied when sharing your camera in VC. This stacks with other multipliers if `score_multipliers_stack` is enabled.",
           "mappedType": "double"
         },
-        "score_reset_schedule": {
-          "name": "score_reset_schedule",
-          "type": "text",
+        "score_reset_enabled": {
+          "name": "score_reset_enabled",
+          "type": "boolean",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": true,
-          "default": "'0 2 * * Tue'",
-          "comment": "When to reset a guild's scores. Uses CRON-style denotation. If null, scores will never reset.",
-          "mappedType": "text"
+          "nullable": false,
+          "default": "true",
+          "comment": "Wether or not the guild has score resets enabled.",
+          "mappedType": "boolean"
         },
         "score_multiplier_gaming": {
           "name": "score_multiplier_gaming",
@@ -212,6 +212,17 @@
           "default": "1.5",
           "comment": "The score multiplier applied when gaming while in VC. This stacks with other multipliers if `score_multipliers_stack` is enabled.",
           "mappedType": "double"
+        },
+        "score_reset_schedule": {
+          "name": "score_reset_schedule",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'0 2 * * Tue'",
+          "comment": "When to reset a guild's scores. Uses CRON-style denotation. If null, scores will never reset.",
+          "mappedType": "text"
         },
         "role_name": {
           "name": "role_name",
@@ -811,18 +822,6 @@
             "guild_snowflake"
           ],
           "referencedTableName": "public.virgin",
-          "updateRule": "cascade"
-        },
-        "vc_event_guild_snowflake_foreign": {
-          "constraintName": "vc_event_guild_snowflake_foreign",
-          "columnNames": [
-            "guild_snowflake"
-          ],
-          "localTableName": "public.vc_event",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.guild",
           "updateRule": "cascade"
         }
       }

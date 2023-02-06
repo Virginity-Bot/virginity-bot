@@ -60,6 +60,13 @@ export class GuildScoreSettings {
   })
   multipliers_stack = true;
 
+  /** Wether or not the guild has score resets enabled. */
+  @Property({
+    default: true,
+    comment: 'Wether or not the guild has score resets enabled.',
+  })
+  reset_enabled = true;
+
   /**
    * When to reset a guild's scores. Uses CRON-style denotation.
    * If null, scores will never reset.
@@ -69,5 +76,5 @@ export class GuildScoreSettings {
     default: '0 2 * * Tue',
     comment: `When to reset a guild's scores. Uses CRON-style denotation. If null, scores will never reset.`,
   })
-  reset_schedule? = '0 2 * * Tue';
+  reset_schedule = '0 2 * * Tue';
 }
