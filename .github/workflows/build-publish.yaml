@@ -2,9 +2,8 @@ name: 'Build & Publish Container images'
 
 on:
   push:
-    branches:
-      - 'main'
-      - 'master'
+  pull_request:
+  release:
 
 permissions:
   contents: 'read'
