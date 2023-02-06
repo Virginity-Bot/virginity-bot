@@ -111,7 +111,7 @@ jobs:
       - 'build-container'
       - 'lint'
       - 'test'
-    if: 'github.ref == refs/heads/${{ github.event.repository.default_branch }}'
+    if: 'contains(needs.build-container.outputs.image_tags.includes, ":latest")'
     runs-on: 'ubuntu-latest'
     permissions:
       packages: 'write'
