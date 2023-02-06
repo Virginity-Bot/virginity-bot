@@ -1,12 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
+import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import { SchedulerRegistry } from '@nestjs/schedule';
 import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import { InjectDiscordClient } from '@discord-nestjs/core';
 import { Client } from 'discord.js';
+import { CronJob } from 'cron';
 
-import configuration from 'src/config/configuration';
 import { LeaderboardService } from 'src/bot/leaderboard.service';
 import { DiscordHelperService } from 'src/bot/discord-helper.service';
 import { GuildEntity } from 'src/entities/guild/guild.entity';
@@ -14,7 +14,7 @@ import { VirginEntity } from 'src/entities/virgin.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
 
 @Injectable()
-export class TasksService {
+export class TasksService implements OnApplicationBootstrap {
   private readonly logger = new Logger(TasksService.name);
 
   constructor(
@@ -24,18 +24,56 @@ export class TasksService {
     @InjectRepository(GuildEntity)
     private readonly guilds: EntityRepository<GuildEntity>,
     @InjectRepository(VCEventEntity)
-    private readonly vcEvents: EntityRepository<VCEventEntity>,
+    private readonly vc_events: EntityRepository<VCEventEntity>,
     @InjectDiscordClient()
     private readonly client: Client,
     private readonly leaderboard: LeaderboardService,
     private readonly discord_helper: DiscordHelperService,
+    private readonly scheduler: SchedulerRegistry,
   ) {}
 
-  @Cron(configuration.score.reset_schedule, { timeZone: 'UTC' })
   @UseRequestContext()
-  async scoreReset(): Promise<void> {
+  async onApplicationBootstrap() {
+    const guilds = await this.guilds.findAll();
+    // TODO(3): do we actually want to batch up our jobs?
+    const schedules = guilds
+      .filter((guild) => guild.score.reset_enabled)
+      .reduce((schedules, guild) => {
+        // TODO: get timezone from guild?
+        if (
+          schedules.get([guild.score.reset_schedule, 'UTC'])?.push(guild.id) ==
+          null
+        ) {
+          schedules.set([guild.score.reset_schedule, 'UTC'], [guild.id]);
+        }
+        return schedules;
+      }, new Map<[string, string], string[]>());
+
+    for (const [schedule, guild_ids] of schedules) {
+      const expr = schedule[0];
+      const tz = schedule[1];
+      try {
+        this.scheduler.addCronJob(
+          `guild_reset ${schedule}`,
+          new CronJob({
+            cronTime: expr,
+            timeZone: tz,
+            onTick: () => this.scoreReset(guild_ids),
+            context: this,
+            start: true,
+          }),
+        );
+      } catch (err) {
+        this.logger.warn(err);
+      }
+    }
+  }
+
+  async scoreReset(guild_ids?: string[]): Promise<void> {
     const [guilds] = await Promise.all([
-      this.guilds.findAll(),
+      guild_ids == null
+        ? this.guilds.findAll()
+        : this.guilds.find({ id: guild_ids }),
       // preload guilds
       this.client.guilds.fetch(),
     ]);
@@ -46,12 +84,13 @@ export class TasksService {
         .map(async (guild_ent) => {
           // TODO: close all open events and start new ones in-place
 
-          // Getting the Biggest Virgin for the announcement
-          const top_virgins = await this.virgins.find(
+          // get the Biggest Virgin for the announcement
+          const top_virgin = await this.virgins.findOneOrFail(
             { guild: guild_ent.id },
-            { orderBy: [{ cached_dur_in_vc: -1 }], limit: 10 },
+            { orderBy: [{ cached_dur_in_vc: -1 }] },
           );
-          // send leaderboard to guild's vbot channel
+
+          // build leaderboard with reset flavor
           const [leaderboard, channel] = await Promise.all([
             this.leaderboard.buildLeaderboardEmbed(guild_ent),
             this.discord_helper.findOrCreateVirginityBotChannel(guild_ent),
@@ -63,10 +102,13 @@ export class TasksService {
             value: 'Scores have now been reset 😇',
           });
 
-          await channel.send({ embeds: [leaderboard] });
-          await channel.send(
-            `Congrats to this week's Chonkiest Virgin: ${top_virgins[0].nickname}`,
-          );
+          // send leaderboard to guild's vbot channel
+          await channel.send({
+            embeds: [leaderboard],
+            content: `Congrats to the week's Chonkiest Virgin: **${
+              top_virgin.nickname ?? top_virgin.username
+            }**!`,
+          });
 
           // reset scores
           guild_ent.last_reset = new Date();
@@ -79,6 +121,10 @@ export class TasksService {
 
     await this.guilds.flush();
 
-    this.logger.log('Reset scores');
+    this.logger.log(
+      `Reset scores for ${
+        guild_ids != null ? guild_ids.join(', ') : 'all guilds'
+      }.`,
+    );
   }
 }
