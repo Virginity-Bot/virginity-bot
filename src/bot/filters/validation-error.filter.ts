@@ -15,7 +15,9 @@ export class ValidationErrorFilter implements ExceptionFilter {
       content: `Invalid input received:\n${validation_errors
         .map((err) =>
           err.constraints != null
-            ? `- ${Object.values(err.constraints)}.`
+            ? Object.values(err.constraints)
+                .map((m) => `- ${m}.`)
+                .join('\n')
             : `- Check ${err.property}.`,
         )
         .join('\n')}`,
