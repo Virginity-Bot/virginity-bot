@@ -104,7 +104,7 @@ jobs:
       - 'build-container'
       - 'lint'
       - 'test'
-    if: "contains(needs.build-container.outputs.image_tags.includes, ':latest')"
+    if: "contains(needs.build-container.outputs.image_tags, ':latest')"
     runs-on: 'ubuntu-latest'
     permissions:
       packages: 'write'
