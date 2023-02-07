@@ -81,7 +81,7 @@ jobs:
       - name: 'Get image tag names 🏷️'
         id: 'tag-image'
         working-directory: '.github/workflows/scripts'
-        run: 'get-image-tags.sh'
+        run: './get-image-tags.sh'
       - name: 'Build container 🐳'
         uses: 'docker/build-push-action@v3'
         with:
