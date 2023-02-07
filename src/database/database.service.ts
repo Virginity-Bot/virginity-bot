@@ -156,7 +156,7 @@ export class DatabaseService {
         return event;
       }
       default:
-        throw new TypeError(`Invalid parameters`);
+        throw new TypeError(`Expected 2 or 3 parameters.`);
     }
   }
 
