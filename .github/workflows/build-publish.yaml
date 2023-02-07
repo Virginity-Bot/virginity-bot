@@ -80,9 +80,8 @@ jobs:
           echo "node_version=$(cat '.nvmrc')" >> "$GITHUB_OUTPUT"
       - name: 'Get image tag names 🏷️'
         id: 'tag-image'
-        working-directory: '.github/workflows/scripts'
         run: |
-          ./get-image-tags.sh \
+          .github/workflows/scriptsget-image-tags.sh \
             "${{ github.repository }}" \
             "${{ github.ref_name }}" \
             "${{ github.ref_type }}" \
