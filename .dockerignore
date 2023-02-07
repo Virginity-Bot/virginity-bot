@@ -3,6 +3,10 @@
 /temp
 /build
 
+# unwanted assets
+/docs
+CONTRIBUTING.md
+
 # dependencies
 /node_modules
 
@@ -15,8 +19,9 @@
 # git
 /.git
 .gitignore
+/.github
 
-# self
+# docker
 .dockerignore
 docker-compose*.yaml
 
