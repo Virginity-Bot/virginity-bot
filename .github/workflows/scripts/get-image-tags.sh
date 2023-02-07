@@ -17,12 +17,12 @@ if [[ "$GITHUB_REF_TYPE" == "branch" ]]; then
   versions="$versions,$package_json_version"
 fi
 
-echo "$versions"
-
 # Use Docker `latest` tag convention, only tagging `latest` on default branch.
 if [[ "$versions" =~ ,?$GITHUB_EVENT_REPOSITORY_DEFAULT_BRANCH,? ]]; then
   versions="$versions,latest"
 fi
+
+echo "$versions"
 
 versions=$(echo $versions | tr ',' '\n')
 image_tags="bot"
