@@ -2,9 +2,10 @@ import { DiscordModule } from '@discord-nestjs/core';
 import { forwardRef, Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 
-import { DiscordConfigService } from 'src/bot/discord-config.service';
+import { SchedulingModule } from 'src/scheduling/scheduling.module';
 import { DatabaseModule } from 'src/database/database.module';
 import { StorageModule } from 'src/storage/storage.module';
+import { DiscordConfigService } from 'src/bot/discord-config.service';
 import { DiscordHelperService } from './discord-helper.service';
 import { UpdatedGuilds } from './events/update-guilds';
 import { IntroMusic } from './events/intro-music';
@@ -27,6 +28,7 @@ import { GuildAdminGuard } from './guards/guild-admin.guard';
     }),
     forwardRef(() => DatabaseModule),
     StorageModule,
+    forwardRef(() => SchedulingModule),
   ],
   providers: [
     DiscordHelperService,

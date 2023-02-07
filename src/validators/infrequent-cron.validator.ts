@@ -3,7 +3,7 @@ import { registerDecorator, ValidationOptions } from 'class-validator';
 const cron_exp_regex =
   /^(?:(?<sec>\S+) )?(?<min>\S+) (?<hr>\S+) (?<day_month>\S+) (?<month>\S+) (?<day_week>\S+)$/;
 const slow_cron_regex =
-  /^(?:(?<sec>\d+) )?(?<min>\d+) (?<hr>\d+) (?<day_month>[1-9*]\d*(?:[-/]?\d*|(?:,\d+)+)) (?<month>[1-9*]\d*(?:[-/]?\d*|(?:,\d+)+)) (?<day_week>[0-6*](?:[-/]?[0-6]|(?:,[0-6])*))$/;
+  /^(?:(?<sec>\d+) )?(?<min>\d+) (?<hr>\d+) (?<day_month>[1-9*]\d*(?:[-/]?\d*|(?:,\d+)+)) (?<month>[1-9*]\d*(?:[-/]?\d*|(?:,\d+)+)) (?<day_week>(?:[0-6*](?:[-/]?[0-6]|(?:,[0-6])*)|\S+))$/;
 
 export function IsInfrequentCron(options?: ValidationOptions) {
   return function (object: object, propertyName: string) {
