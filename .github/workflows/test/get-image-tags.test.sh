@@ -16,7 +16,7 @@ _script=$( \
 
 export GITHUB_OUTPUT="/dev/stdout"
 
-tmp_dir="$(dirname "$BASH_SOURCE")/tmp"
+tmp_dir="$(dirname "$BASH_SOURCE")/temp"
 mkdir -p "$tmp_dir"
 tmp_file="$tmp_dir/get-image-tags.sh"
 echo "$_script" > "$tmp_file"
