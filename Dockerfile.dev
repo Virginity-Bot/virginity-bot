@@ -10,9 +10,6 @@ ARG APP_DIR
 RUN mkdir -p "$APP_DIR"
 WORKDIR ${APP_DIR}
 
-# COPY package*.json ${APP_DIR}/
-# RUN npm clean-install
-
 ENV MIKRO_ORM_CACHE_DIR=/tmp/mikroorm-cache
 
 ARG PORT=3000
