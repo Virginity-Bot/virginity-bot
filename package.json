@@ -18,7 +18,7 @@
     "start:dev": "scripts/npm-start-dev.sh",
     "start:debug": "scripts/npm-start-debug.sh",
     "start:debug:docker": "scripts/npm-start-debug-docker.sh",
-    "start:prod": "node --require=source-map-support/register dist/main",
+    "start:prod": "node --enable-source-maps dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -82,7 +82,6 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
     "sodium-native": "^4.0.0",
-    "source-map-support": "^0.5.21",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
