@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 GITHUB_REPOSITORY="$1"
 GITHUB_REF_NAME="$2"
