@@ -14,8 +14,8 @@ import { VirginEntity } from 'src/entities/virgin.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
 
 @Injectable()
-export class TasksService implements OnApplicationBootstrap {
-  private readonly logger = new Logger(TasksService.name);
+export class SchedulingService implements OnApplicationBootstrap {
+  private readonly logger = new Logger(SchedulingService.name);
 
   constructor(
     private readonly orm: MikroORM,
@@ -32,8 +32,12 @@ export class TasksService implements OnApplicationBootstrap {
     private readonly scheduler: SchedulerRegistry,
   ) {}
 
-  @UseRequestContext()
   async onApplicationBootstrap() {
+    this.scheduleResets();
+  }
+
+  @UseRequestContext()
+  async scheduleResets() {
     const guilds = await this.guilds.findAll();
     // TODO(3): do we actually want to batch up our jobs?
     const schedules = guilds
@@ -49,6 +53,12 @@ export class TasksService implements OnApplicationBootstrap {
         return schedules;
       }, new Map<[string, string], string[]>());
 
+    // clear scheduled jobs
+    this.scheduler
+      .getCronJobs()
+      .forEach((job, name) => this.scheduler.deleteCronJob(name));
+
+    // rebuild scheduled jobs
     for (const [schedule, guild_ids] of schedules) {
       const expr = schedule[0];
       const tz = schedule[1];

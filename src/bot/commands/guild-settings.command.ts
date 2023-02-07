@@ -25,10 +25,9 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import { IsHexColor, IsOptional, Length, Matches, Min } from 'class-validator';
 
+import { SchedulingService } from 'src/scheduling/scheduling.service';
 import { IsInfrequentCron } from 'src/validators/infrequent-cron.validator';
-import { VirginEntity } from 'src/entities/virgin.entity';
 import { GuildEntity } from 'src/entities/guild';
-import { SettingsService } from './settings.service';
 import { GuildAdminGuard } from '../guards/guild-admin.guard';
 import { ValidationErrorFilter } from '../filters/validation-error.filter';
 
@@ -165,9 +164,7 @@ export class GuildSettingsCommand {
     private readonly orm: MikroORM,
     @InjectRepository(GuildEntity)
     private readonly guilds: EntityRepository<GuildEntity>,
-    @InjectRepository(VirginEntity)
-    private readonly virgins: EntityRepository<VirginEntity>,
-    private readonly settings: SettingsService,
+    private readonly scheduling: SchedulingService,
   ) {}
 
   @Handler()
@@ -216,6 +213,13 @@ export class GuildSettingsCommand {
     guild_ent.role.emoji = dto.role_emoji ?? guild_ent.role.emoji;
 
     await this.guilds.flush();
+
+    if (dto.score_reset_enabled != null || dto.score_reset_schedule != null) {
+      await this.scheduling.scheduleResets();
+      this.logger.debug(
+        `Re-scheduled cronjobs for guild ${interaction.guild.id}`,
+      );
+    }
 
     return new MessagePayload(interaction.channel, {
       content: 'Updated guild settings.',
