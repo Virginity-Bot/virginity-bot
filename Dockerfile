@@ -3,7 +3,7 @@ ARG APP_DIR=/home/${USER}/app
 ARG NODE_VERSION=18
 
 # build stage
-FROM docker.io/library/node:${NODE_VERSION} AS builder
+FROM docker.io/library/node:${NODE_VERSION}-slim AS builder
 
 ARG USER
 ARG APP_DIR
@@ -23,7 +23,7 @@ RUN npm run build
 RUN rm -rf node_modules
 
 # run stage
-FROM docker.io/library/node:${NODE_VERSION} as runner
+FROM docker.io/library/node:${NODE_VERSION}-slim as runner
 LABEL maintainer="louis@orleans.io"
 
 ARG USER
