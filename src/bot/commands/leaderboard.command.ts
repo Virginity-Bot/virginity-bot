@@ -1,11 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Command, Handler, InjectDiscordClient } from '@discord-nestjs/core';
 import {
-  ButtonInteraction,
-  CacheType,
-  ChatInputCommandInteraction,
   MessagePayload,
-  StringSelectMenuInteraction,
   Client,
   CommandInteraction,
   Message,
