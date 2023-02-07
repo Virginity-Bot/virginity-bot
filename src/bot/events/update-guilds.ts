@@ -51,11 +51,23 @@ export class UpdatedGuilds {
   @On(Events.GuildCreate)
   @UseRequestContext()
   async guildJoined(guild: Guild | OAuth2Guild): Promise<GuildEntity> {
-    const guild_ent = await this.guilds.upsert({
-      id: guild.id,
-      name: guild.name,
-    });
-    await this.guilds.flush();
+    const guild_ent = await this.guilds
+      .findOneOrFail({
+        id: guild.id,
+        name: guild.name,
+      })
+      .catch(async (err) => {
+        if (err instanceof NotFoundError) {
+          const guild_ent = this.guilds.create({
+            id: guild.id,
+            name: guild.name,
+          } as GuildEntity);
+          await this.guilds.flush();
+          return guild_ent;
+        } else {
+          throw err;
+        }
+      });
 
     await this.discord_helper.findOrCreateBiggestVirginRole(guild_ent);
     await this.discord_helper.findOrCreateVirginityBotChannel(guild_ent);
