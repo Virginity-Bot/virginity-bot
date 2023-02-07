@@ -58,10 +58,15 @@ export class IntroMusic {
       guild_ent.biggest_virgin_role_id == null ||
       new_state.member?.roles.resolve(guild_ent.biggest_virgin_role_id) != null
     ) {
-      const virgin = await this.virgins.findOneOrFail(
+      const virgin = await this.virgins.findOne(
         [new_state.member.id, new_state.guild.id],
         { populate: ['intro_song'] },
       );
+
+      if (virgin == null) {
+        return this.playIntroMusic(new_state.guild, new_state.channelId);
+      }
+
       const now = new Date();
       if (
         Math.abs(
