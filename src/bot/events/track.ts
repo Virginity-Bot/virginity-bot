@@ -251,6 +251,6 @@ export class Track {
    * Evaluates whether or not a given voice state is eligible to earn score.
    */
   isEligible(state: VoiceState): boolean {
-    return !state.deaf && !state.mute;
+    return !(state.deaf || state.mute || state.suppress);
   }
 }
