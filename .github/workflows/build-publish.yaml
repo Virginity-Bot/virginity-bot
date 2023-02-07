@@ -81,7 +81,7 @@ jobs:
       - name: 'Get image tag names 🏷️'
         id: 'tag-image'
         run: |
-          .github/workflows/scriptsget-image-tags.sh \
+          .github/workflows/scripts/get-image-tags.sh \
             "${{ github.repository }}" \
             "${{ github.ref_name }}" \
             "${{ github.ref_type }}" \
