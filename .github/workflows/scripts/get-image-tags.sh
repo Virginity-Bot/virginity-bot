@@ -25,7 +25,7 @@ fi
 echo "$versions"
 
 versions=$(echo $versions | tr ',' '\n')
-image_tags="bot"
+image_tags="$container_repo/bot"
 for version in $versions; do
   image_tags="$image_tags,$container_repo/bot:$version"
 done
