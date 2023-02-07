@@ -73,8 +73,8 @@ export class GuildScoreSettings {
    */
   @Property({
     type: TextType,
-    default: '0 2 * * Tue',
+    default: '0 18 * * Tue',
     comment: `When to reset a guild's scores. Uses CRON-style denotation. If null, scores will never reset.`,
   })
-  reset_schedule = '0 2 * * Tue';
+  reset_schedule = '0 18 * * Tue';
 }
