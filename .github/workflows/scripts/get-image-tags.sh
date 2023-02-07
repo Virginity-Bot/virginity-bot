@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
 
-container_repo="ghcr.io/$(echo "${{ github.repository }}" | tr '[A-Z]' '[a-z]')"
-# Name components may contain lowercase letters, digits and separators.
-# A separator is defined as a period, one or two underscores, or one or more hyphens.
-# A name component may not start or end with a separator
+GITHUB_REPOSITORY="$1"
+GITHUB_REF_NAME="$2"
+GITHUB_REF_TYPE="$3"
+GITHUB_EVENT_REPOSITORY_DEFAULT_BRANCH="$4"
+
+container_repo="ghcr.io/$(echo "$GITHUB_REPOSITORY" | tr '[A-Z]' '[a-z]')"
 versions="$(
-  echo "${{ github.ref_name }}" \
+  echo "$GITHUB_REF_NAME" \
   | tr '[A-Z]' '[a-z]' \
   | perl -ne 's/[^a-z0-9._\n]+/-/g; print' \
 )"
-if [[ "${{ github.ref_type }}" == "branch" ]]; then
+if [[ "$GITHUB_REF_TYPE" == "branch" ]]; then
   package_json_version="$(jq --raw-output '.version' 'package.json')"
   versions="$versions,$package_json_version"
 fi
@@ -17,7 +19,7 @@ fi
 echo "$versions"
 
 # Use Docker `latest` tag convention, only tagging `latest` on default branch.
-if [[ "$versions" =~ ,?${{ github.event.repository.default_branch }},? ]]; then
+if [[ "$versions" =~ ,?$GITHUB_EVENT_REPOSITORY_DEFAULT_BRANCH,? ]]; then
   versions="$versions,latest"
 fi
 

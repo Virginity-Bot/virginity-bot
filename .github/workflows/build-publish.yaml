@@ -81,13 +81,18 @@ jobs:
       - name: 'Get image tag names 🏷️'
         id: 'tag-image'
         working-directory: '.github/workflows/scripts'
-        run: './get-image-tags.sh'
+        run: |
+          ./get-image-tags.sh \
+            "${{ github.repository }}" \
+            "${{ github.ref_name }}" \
+            "${{ github.ref_type }}" \
+            "${{ github.event.repository.default_branch }}"
       - name: 'Build container 🐳'
         uses: 'docker/build-push-action@v3'
         with:
           file: 'Dockerfile'
           build-args: 'NODE_VERSION=${{ steps.node-version.outputs.node_version }}'
-          tags: 'bot,${{ steps.tag-image.outputs.image_tags }}'
+          tags: '${{ steps.tag-image.outputs.image_tags }}'
           cache-from: 'type=gha'
           cache-to: 'type=gha,mode=max'
 
