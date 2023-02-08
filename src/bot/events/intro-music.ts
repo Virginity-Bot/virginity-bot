@@ -17,7 +17,7 @@ import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
-import { differenceInMilliseconds } from 'date-fns';
+import { differenceInMilliseconds, millisecondsToSeconds } from 'date-fns';
 import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { IntroSongEntity } from 'src/entities/intro-song.entity';
@@ -71,7 +71,11 @@ export class IntroMusic {
       const ms_since_last_play = Math.abs(
         differenceInMilliseconds(now, virgin.intro_last_played ?? new Date(0)),
       );
-      const timeout_ms = guild_ent.intro.custom_enabled
+      const play_custom_intro =
+        guild_ent.intro.custom_enabled &&
+        guild_ent.intro.max_duration_s >
+          millisecondsToSeconds(virgin.intro_song?.duration_ms ?? 0);
+      const timeout_ms = play_custom_intro
         ? virgin.intro_song?.computed_timeout_ms ??
           configuration.audio.default_intro.timeout_ms
         : configuration.audio.default_intro.timeout_ms;
@@ -88,7 +92,7 @@ export class IntroMusic {
         return this.playIntroMusic(
           new_state.guild,
           new_state.channel.id,
-          guild_ent.intro.custom_enabled ? virgin.intro_song : undefined,
+          play_custom_intro ? virgin.intro_song : undefined,
         );
       }
     }

@@ -16,19 +16,16 @@ import {
 import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
-import { HttpService } from '@nestjs/axios';
 import { Duration, formatDuration } from 'date-fns';
 
+import { GuildEntity } from 'src/entities/guild';
 import { VirginEntity } from 'src/entities/virgin.entity';
-import { IntroSongEntity } from 'src/entities/intro-song.entity';
 import { pascal_spaces, possess } from 'src/utils/string-transformers';
-import { StorageService } from 'src/storage/storage.service';
 import { SettingsService, UserFacingError } from './settings.service';
 import {
   GuildAdminIfParam,
   GuildAdminIfParamGuard,
 } from '../guards/guild-admin-if-param.guard';
-import { GuildEntity } from 'src/entities/guild';
 
 export class SettingsDTO {
   /** User snowflake */
@@ -43,8 +40,7 @@ export class SettingsDTO {
   /** Attachment snowflake */
   @Param({
     name: 'intro_song',
-    // TODO(2): add info about limitations (file size, length, etc)
-    description: 'Your intro song file. (8MB or less unless boosted)',
+    description: 'Your intro song file.',
     required: false,
     type: ParamType.ATTACHMENT,
   })
@@ -130,6 +126,7 @@ export class SettingsCommand {
             attachment,
             interaction.user,
             interaction.guild,
+            guild_ent.intro.max_duration_s,
           );
           const intro_song_timeout = new Date(
             intro_song_ent.computed_timeout_ms,
