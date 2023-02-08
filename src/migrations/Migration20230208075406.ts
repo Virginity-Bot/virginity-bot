@@ -11,11 +11,13 @@ export class Migration20230208075406 extends Migration {
     `)
     this.addSql('comment on column "intro_song"."public" is \'Whether or not this song should be visible to other users.\';');
     this.addSql('create index "intro_song_public_index" on "intro_song" ("public");');
+    this.addSql('create index "intro_song_name_index" on "intro_song" ("name");');
   }
 
   async down(): Promise<void> {
     this.addSql('drop index "intro_song_public_index";');
     this.addSql('alter table "intro_song" drop column "public";');
+    this.addSql('drop index "intro_song_name_index";');
   }
 
 }

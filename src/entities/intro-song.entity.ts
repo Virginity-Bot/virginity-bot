@@ -13,7 +13,11 @@ export class IntroSongEntity extends BaseEntity {
   readonly hash: string;
 
   /** The name of the intro song. */
-  @Property({ type: TextType, comment: 'The name of the intro song.' })
+  @Property({
+    type: TextType,
+    comment: 'The name of the intro song.',
+    index: true,
+  })
   readonly name: string;
 
   /** The MIME type of the file. */
@@ -52,8 +56,8 @@ export class IntroSongEntity extends BaseEntity {
 
   /** Whether or not this song should be visible to other users. */
   @Property({
-    index: true,
     comment: 'Whether or not this song should be visible to other users.',
+    index: true,
   })
   public = true;
 

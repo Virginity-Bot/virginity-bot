@@ -462,6 +462,15 @@
         },
         {
           "columnNames": [
+            "name"
+          ],
+          "composite": false,
+          "keyName": "intro_song_name_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
             "public"
           ],
           "composite": false,
