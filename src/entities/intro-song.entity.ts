@@ -50,6 +50,13 @@ export class IntroSongEntity extends BaseEntity {
   })
   readonly uri: string;
 
+  /** Whether or not this song should be visible to other users. */
+  @Property({
+    index: true,
+    comment: 'Whether or not this song should be visible to other users.',
+  })
+  public = true;
+
   private _parsed_uri?: URL;
 
   /** @example 's3' */

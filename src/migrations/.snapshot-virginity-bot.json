@@ -426,6 +426,17 @@
           "nullable": false,
           "comment": "Reference to an audio file. Supports s3:// and vbot-builtin:// schemas.",
           "mappedType": "text"
+        },
+        "public": {
+          "name": "public",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "true",
+          "comment": "Whether or not this song should be visible to other users.",
+          "mappedType": "boolean"
         }
       },
       "name": "intro_song",
@@ -446,6 +457,15 @@
           ],
           "composite": false,
           "keyName": "intro_song_updated_at_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "public"
+          ],
+          "composite": false,
+          "keyName": "intro_song_public_index",
           "primary": false,
           "unique": false
         },
