@@ -35,6 +35,7 @@ export class SettingsService {
   async saveIntroSong(
     target_user_id: string,
     attachment: Attachment | null,
+    make_public: boolean,
     user: User,
     guild: Guild,
     guild_max_dur_s: number,
@@ -86,6 +87,7 @@ export class SettingsService {
             mime_type: attachment.contentType,
             duration_ms: secondsToMilliseconds(intro_duration_s),
             computed_timeout_ms: minutesToMilliseconds(intro_timeout_m),
+            public: make_public,
           } as IntroSongEntity);
 
           await this.intro_songs.persistAndFlush(new_ent);

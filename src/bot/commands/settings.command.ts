@@ -27,6 +27,8 @@ import {
   GuildAdminIfParamGuard,
 } from '../guards/guild-admin-if-param.guard';
 
+const intro_song_file = 'intro_song_file';
+
 export class SettingsDTO {
   /** User snowflake */
   @Param({
@@ -39,12 +41,20 @@ export class SettingsDTO {
 
   /** Attachment snowflake */
   @Param({
-    name: 'intro_song',
+    name: intro_song_file,
     description: 'Your intro song file.',
     required: false,
     type: ParamType.ATTACHMENT,
   })
-  intro_song_snowflake?: string;
+  intro_song_file_snowflake?: string;
+
+  @Param({
+    description:
+      'Whether or not to make your new intro song public (default true). Cannot be changed later.',
+    required: false,
+    type: ParamType.BOOLEAN,
+  })
+  make_new_intro_public: boolean = true;
 
   @Param({
     description: 'Clears your custom intro song, resetting it to default.',
@@ -106,17 +116,19 @@ export class SettingsCommand {
       id: interaction.guild.id,
     });
 
-    if (dto.intro_song_snowflake != null) {
+    if (dto.intro_song_file_snowflake != null) {
       if (!guild_ent.intro.custom_enabled) {
         messages.push(`Custom intro songs are disabled in this server.`);
       } else {
-        const attachment = await interaction.options.get('intro_song', false)
-          ?.attachment;
+        const attachment = interaction.options.get(
+          intro_song_file,
+          false,
+        )?.attachment;
 
         try {
           if (attachment == null) {
             this.logger.warn(
-              `Could not find attachment ${dto.intro_song_snowflake}`,
+              `Could not find attachment ${dto.intro_song_file_snowflake}`,
             );
             throw new UserFacingError('An unknown error occurred.');
           }
@@ -124,6 +136,7 @@ export class SettingsCommand {
           const intro_song_ent = await this.settings.saveIntroSong(
             target_user_snowflake,
             attachment,
+            dto.make_new_intro_public,
             interaction.user,
             interaction.guild,
             guild_ent.intro.max_duration_s,
@@ -156,25 +169,25 @@ export class SettingsCommand {
           }
         }
       }
-    }
 
-    if (dto.clear_intro_song) {
-      await this.virgins.nativeUpdate(
-        { id: target_user_snowflake },
-        { intro_song: null },
+      if (dto.clear_intro_song) {
+        await this.virgins.nativeUpdate(
+          { id: target_user_snowflake },
+          { intro_song: null },
+        );
+
+        messages.push(
+          `${pascal_spaces(
+            target_user_name,
+          )} intro song has been reset to default.`,
+        );
+      }
+
+      interaction.followUp(
+        new MessagePayload(interaction.channel, {
+          content: messages.join('\n'),
+        }),
       );
-
-      messages.push(
-        `${pascal_spaces(
-          target_user_name,
-        )} intro song has been reset to default.`,
-      );
     }
-
-    interaction.followUp(
-      new MessagePayload(interaction.channel, {
-        content: messages.join('\n'),
-      }),
-    );
   }
 }
