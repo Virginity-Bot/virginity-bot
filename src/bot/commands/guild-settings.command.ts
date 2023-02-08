@@ -256,10 +256,17 @@ export class GuildSettingsCommand {
       );
     }
 
-    messages.push('Updated guild settings.');
+    messages.push(this.generateUpdateMessage(dto));
 
     return new MessagePayload(interaction.channel, {
       content: messages.join('\n'),
     });
+  }
+
+  generateUpdateMessage(dto: GuildSettingsDTO): string {
+    return `Updated ${Object.entries(dto)
+      .filter(([k, v]) => v != null)
+      .map(([k, v]) => `\`${k}\``)
+      .join(', ')}`;
   }
 }
