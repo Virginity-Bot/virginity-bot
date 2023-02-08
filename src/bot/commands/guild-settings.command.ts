@@ -30,6 +30,7 @@ import { IsInfrequentCron } from 'src/validators/infrequent-cron.validator';
 import { GuildEntity } from 'src/entities/guild';
 import { GuildAdminGuard } from '../guards/guild-admin.guard';
 import { ValidationErrorFilter } from '../filters/validation-error.filter';
+import configuration from 'src/config/configuration';
 
 export class GuildSettingsDTO {
   /** The score multiplier applied when sharing your screen in VC. */
@@ -147,6 +148,24 @@ export class GuildSettingsDTO {
     message: '`role_emoji` must be an emoji',
   })
   role_emoji?: string;
+
+  /** Whether or not custom intro songs should be enabled. */
+  @Param({
+    description: `Whether or not custom intro songs should be enabled.`,
+    required: false,
+    type: ParamType.BOOLEAN,
+  })
+  @IsOptional()
+  custom_intros_enabled?: boolean;
+
+  /** The maximum duration in seconds that a custom intro song can play. */
+  @Param({
+    description: `The maximum duration in seconds that a custom intro song can play.`,
+    required: false,
+    type: ParamType.INTEGER,
+  })
+  @IsOptional()
+  custom_intros_max_duration_s?: number;
 }
 
 @Command({
@@ -189,6 +208,8 @@ export class GuildSettingsCommand {
 
     const guild_ent = await this.guilds.findOneOrFail(interaction.guild.id);
 
+    const messages: string[] = [];
+
     guild_ent.score.multiplier.camera =
       dto.score_multiplier_camera ?? guild_ent.score.multiplier.camera;
     guild_ent.score.multiplier.gaming =
@@ -212,6 +233,20 @@ export class GuildSettingsCommand {
     guild_ent.role.color = dto.role_color ?? guild_ent.role.color;
     guild_ent.role.emoji = dto.role_emoji ?? guild_ent.role.emoji;
 
+    guild_ent.intro.custom_enabled =
+      dto.custom_intros_enabled ?? guild_ent.intro.custom_enabled;
+    guild_ent.intro.max_duration_s =
+      dto.custom_intros_max_duration_s ?? guild_ent.intro.max_duration_s;
+
+    if (
+      (dto.custom_intros_max_duration_s ?? 0) >
+      configuration.audio.custom_intro.max_dur_s
+    ) {
+      messages.push(
+        `Virginity Bot's maximum allowed intro is ${configuration.audio.custom_intro.max_dur_s}.`,
+      );
+    }
+
     await this.guilds.flush();
 
     if (dto.score_reset_enabled != null || dto.score_reset_schedule != null) {
@@ -221,8 +256,10 @@ export class GuildSettingsCommand {
       );
     }
 
+    messages.push('Updated guild settings.');
+
     return new MessagePayload(interaction.channel, {
-      content: 'Updated guild settings.',
+      content: messages.join('\n'),
     });
   }
 }
