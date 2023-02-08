@@ -77,6 +77,8 @@ export class SchedulingService implements OnApplicationBootstrap {
         this.logger.warn(err);
       }
     }
+
+    this.logger.debug('Scheduled score resets.');
   }
 
   async scoreReset(guild_ids?: string[]): Promise<void> {
