@@ -5,6 +5,7 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { MikroORM, NotFoundError, UseRequestContext } from '@mikro-orm/core';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
+import { SchedulingService } from 'src/scheduling/scheduling.service';
 import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { DiscordHelperService } from '../discord-helper.service';
 
@@ -15,6 +16,7 @@ export class UpdatedGuilds {
     @InjectRepository(GuildEntity)
     private readonly guilds: EntityRepository<GuildEntity>,
     private readonly discord_helper: DiscordHelperService,
+    private readonly scheduling: SchedulingService,
     @InjectDiscordClient()
     private readonly client: Client,
   ) {}
@@ -73,6 +75,9 @@ export class UpdatedGuilds {
     await this.discord_helper.findOrCreateVirginityBotChannel(guild_ent);
 
     await this.guilds.flush();
+
+    await this.scheduling.scheduleResets();
+
     return guild_ent;
   }
 
