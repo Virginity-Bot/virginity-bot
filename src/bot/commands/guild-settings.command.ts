@@ -222,7 +222,14 @@ export class GuildSettingsCommand {
     }
 
     return new MessagePayload(interaction.channel, {
-      content: 'Updated guild settings.',
+      content: this.generateUpdateMessage(dto),
     });
+  }
+
+  generateUpdateMessage(dto: GuildSettingsDTO): string {
+    return `Updated ${Object.entries(dto)
+      .filter(([k, v]) => v != null)
+      .map(([k, v]) => `\`${k}\``)
+      .join(', ')}`;
   }
 }
