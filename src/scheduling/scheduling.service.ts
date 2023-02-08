@@ -77,6 +77,8 @@ export class SchedulingService implements OnApplicationBootstrap {
         this.logger.warn(err);
       }
     }
+
+    this.logger.debug('Scheduled score resets.');
   }
 
   async scoreReset(guild_ids?: string[]): Promise<void> {
@@ -88,44 +90,48 @@ export class SchedulingService implements OnApplicationBootstrap {
       this.client.guilds.fetch(),
     ]);
 
-    await Promise.all(
+    await Promise.allSettled(
       guilds
         .filter((guild_ent) => guild_ent.score.reset_enabled)
         .map(async (guild_ent) => {
-          // TODO: close all open events and start new ones in-place
+          try {
+            // TODO: close all open events and start new ones in-place
 
-          // get the Biggest Virgin for the announcement
-          const top_virgin = await this.virgins.findOneOrFail(
-            { guild: guild_ent.id },
-            { orderBy: [{ cached_dur_in_vc: -1 }] },
-          );
+            // get the Biggest Virgin for the announcement
+            const top_virgin = await this.virgins.findOneOrFail(
+              { guild: guild_ent.id },
+              { orderBy: [{ cached_dur_in_vc: -1 }] },
+            );
 
-          // build leaderboard with reset flavor
-          const [leaderboard, channel] = await Promise.all([
-            this.leaderboard.buildLeaderboardEmbed(guild_ent),
-            this.discord_helper.findOrCreateVirginityBotChannel(guild_ent),
-          ]);
-          // TODO(4): "week" here assumes that our `score.reset_schedule` remains weekly
-          leaderboard.setTitle(`Last week's biggest virgins:`);
-          leaderboard.addFields({
-            name: ' ',
-            value: 'Scores have now been reset 😇',
-          });
+            // build leaderboard with reset flavor
+            const [leaderboard, channel] = await Promise.all([
+              this.leaderboard.buildLeaderboardEmbed(guild_ent),
+              this.discord_helper.findOrCreateVirginityBotChannel(guild_ent),
+            ]);
+            // TODO(4): "week" here assumes that our `score.reset_schedule` remains weekly
+            leaderboard.setTitle(`Last week's biggest virgins:`);
+            leaderboard.addFields({
+              name: ' ',
+              value: 'Scores have now been reset 😇',
+            });
 
-          // send leaderboard to guild's vbot channel
-          await channel.send({
-            embeds: [leaderboard],
-            content: `Congrats to the week's Chonkiest Virgin: **${
-              top_virgin.nickname ?? top_virgin.username
-            }**!`,
-          });
+            // send leaderboard to guild's vbot channel
+            await channel.send({
+              embeds: [leaderboard],
+              content: `Congrats to the week's Chonkiest Virgin: **${
+                top_virgin.nickname ?? top_virgin.username
+              }**!`,
+            });
 
-          // reset scores
-          guild_ent.last_reset = new Date();
-          await this.virgins.nativeUpdate(
-            { guild: guild_ent.id },
-            { cached_dur_in_vc: 0 },
-          );
+            // reset scores
+            guild_ent.last_reset = new Date();
+            await this.virgins.nativeUpdate(
+              { guild: guild_ent.id },
+              { cached_dur_in_vc: 0 },
+            );
+          } catch (e) {
+            this.logger.error(e);
+          }
         }),
     );
 

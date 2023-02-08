@@ -37,6 +37,7 @@ export class SettingsService {
     attachment: Attachment | null,
     user: User,
     guild: Guild,
+    guild_max_dur_s: number,
   ): Promise<IntroSongEntity> {
     if (attachment == null) {
       this.logger.warn(
@@ -58,6 +59,7 @@ export class SettingsService {
       file,
       user,
       guild,
+      Math.min(guild_max_dur_s, configuration.audio.custom_intro.max_dur_s),
     );
 
     const hash = await createHash('sha256').update(file).digest('base64url');
@@ -152,20 +154,23 @@ export class SettingsService {
     stream: Buffer,
     user: User,
     guild: Guild,
+    max_dur_s: number = 30,
   ): Promise<number> {
     const duration_s = await this.audio.getTrackDuration(stream);
 
-    if (duration_s <= 30) {
+    if (duration_s <= max_dur_s) {
       return duration_s;
     } else {
       this.logger.debug(
         `${userLogHeader(
           user,
           guild,
-        )} tried to upload an intro song that was over 30 seconds long (${duration_s}s).`,
+        )} tried to upload an intro song that was over ${max_dur_s} seconds long (${duration_s}s).`,
       );
       throw new UserFacingError(
-        `The track you uploaded is ${duration_s}s long, which is over the max length of 30s.`,
+        `The track you uploaded is ${Math.round(
+          duration_s,
+        )}s long, which is over the max length of ${max_dur_s}s.`,
       );
     }
   }

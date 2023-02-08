@@ -17,7 +17,7 @@ import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
-import { differenceInMilliseconds } from 'date-fns';
+import { differenceInMilliseconds, millisecondsToSeconds } from 'date-fns';
 import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { IntroSongEntity } from 'src/entities/intro-song.entity';
@@ -42,7 +42,7 @@ export class IntroMusic {
   async voiceStateUpdate(old_state: VoiceState, new_state: VoiceState) {
     if (
       // user is leaving VC
-      new_state.channelId == null ||
+      new_state.channel == null ||
       // user is switching from one VC to another
       new_state.channelId === old_state.channelId ||
       // user is entering AFK
@@ -64,27 +64,36 @@ export class IntroMusic {
       );
 
       if (virgin == null) {
-        return this.playIntroMusic(new_state.guild, new_state.channelId);
+        return this.playIntroMusic(new_state.guild, new_state.channel.id);
       }
 
       const now = new Date();
-      if (
-        Math.abs(
-          differenceInMilliseconds(
-            now,
-            virgin.intro_last_played ?? new Date(0),
-          ),
-        ) >=
-        (virgin.intro_song?.computed_timeout_ms ??
-          configuration.audio.default_intro.timeout_ms)
-      ) {
-        // channel only has 1 member
-        if ((new_state.channel?.members.size ?? 0) >= 2) {
+      const ms_since_last_play = Math.abs(
+        differenceInMilliseconds(now, virgin.intro_last_played ?? new Date(0)),
+      );
+      const play_custom_intro =
+        guild_ent.intro.custom_enabled &&
+        guild_ent.intro.max_duration_s >
+          millisecondsToSeconds(virgin.intro_song?.duration_ms ?? 0);
+      const timeout_ms = play_custom_intro
+        ? virgin.intro_song?.computed_timeout_ms ??
+          configuration.audio.default_intro.timeout_ms
+        : configuration.audio.default_intro.timeout_ms;
+
+      if (ms_since_last_play >= timeout_ms) {
+        if (
+          // channel has more than 1 member
+          new_state.channel.members.size > 1
+        ) {
           virgin.intro_last_played = now;
           await this.virgins.flush();
         }
 
-        await this.playIntroMusic(new_state.guild, new_state.channelId, virgin);
+        return this.playIntroMusic(
+          new_state.guild,
+          new_state.channel.id,
+          play_custom_intro ? virgin.intro_song : undefined,
+        );
       }
     }
   }
@@ -98,7 +107,7 @@ export class IntroMusic {
   playIntroMusic(
     guild: Guild,
     channel_id: string,
-    virgin?: VirginEntity | null,
+    intro?: IntroSongEntity,
   ): Promise<void> {
     return new Promise<void>((resolve) => {
       const connection = joinVoiceChannel({
@@ -113,7 +122,7 @@ export class IntroMusic {
         },
       });
 
-      return this.getAudioResource(virgin?.intro_song).then((resource) => {
+      return this.getAudioResource(intro).then((resource) => {
         connection.subscribe(player);
         player.play(resource);
         this.logger.debug('Started playing intro song');

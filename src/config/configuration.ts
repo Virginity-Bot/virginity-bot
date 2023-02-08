@@ -89,8 +89,13 @@ class AudioConfDefaultIntro {
   timeout_ms = minutesToMilliseconds(4.9);
 }
 
+class AudioConfCustomIntro {
+  max_dur_s = 30;
+}
+
 class AudioConf {
   default_intro = new AudioConfDefaultIntro();
+  custom_intro = new AudioConfCustomIntro();
 }
 
 class Configuration {
