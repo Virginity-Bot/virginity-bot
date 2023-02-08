@@ -15,6 +15,7 @@ import { VirginEntity } from './entities/virgin.entity';
 import { IntroSongEntity } from './entities/intro-song.entity';
 import { VCEventEntity } from './entities/vc-event.entity';
 import { DeletedRecord } from './entities/deleted-record.entity';
+import { GuildIntroSettings } from './entities/guild/guild-intro.embeddable';
 
 const logger = new Logger('MikroORM');
 const config: Options = {
@@ -34,6 +35,7 @@ const config: Options = {
     GuildScoreMultiplierSettings,
     GuildRoleSettings,
     GuildChannelSettings,
+    GuildIntroSettings,
     VirginEntity,
     IntroSongEntity,
     VCEventEntity,

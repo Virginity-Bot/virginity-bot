@@ -11,6 +11,7 @@ import {
 import { BaseEntity } from '../base.entity';
 import { VirginEntity } from '../virgin.entity';
 import { GuildChannelSettings } from './guild-channel.embeddable';
+import { GuildIntroSettings } from './guild-intro.embeddable';
 import { GuildRoleSettings } from './guild-role.embeddable';
 import { GuildScoreSettings } from './guild-score.embeddable';
 
@@ -55,4 +56,7 @@ export class GuildEntity extends BaseEntity {
 
   @Embedded()
   channel = new GuildChannelSettings();
+
+  @Embedded()
+  intro = new GuildIntroSettings();
 }
