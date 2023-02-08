@@ -44,14 +44,12 @@ export class SchedulingService implements OnApplicationBootstrap {
       .filter((guild) => guild.score.reset_enabled)
       .reduce((schedules, guild) => {
         // TODO: get timezone from guild?
-        if (
-          schedules.get([guild.score.reset_schedule, 'UTC'])?.push(guild.id) ==
-          null
-        ) {
-          schedules.set([guild.score.reset_schedule, 'UTC'], [guild.id]);
+        const key = `${guild.score.reset_schedule}\n${'UTC'}`;
+        if (schedules.get(key)?.push(guild.id) == null) {
+          schedules.set(key, [guild.id]);
         }
         return schedules;
-      }, new Map<[string, string], string[]>());
+      }, new Map<string, string[]>());
 
     // clear scheduled jobs
     this.scheduler
@@ -60,8 +58,7 @@ export class SchedulingService implements OnApplicationBootstrap {
 
     // rebuild scheduled jobs
     for (const [schedule, guild_ids] of schedules) {
-      const expr = schedule[0];
-      const tz = schedule[1];
+      const [expr, tz] = schedule.split('\n');
       try {
         this.scheduler.addCronJob(
           `guild_reset ${schedule}`,
