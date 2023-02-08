@@ -16,13 +16,11 @@ import {
 import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
-import { HttpService } from '@nestjs/axios';
 import { Duration, formatDuration } from 'date-fns';
 
+import { GuildEntity } from 'src/entities/guild';
 import { VirginEntity } from 'src/entities/virgin.entity';
-import { IntroSongEntity } from 'src/entities/intro-song.entity';
 import { pascal_spaces, possess } from 'src/utils/string-transformers';
-import { StorageService } from 'src/storage/storage.service';
 import { SettingsService, UserFacingError } from './settings.service';
 import {
   GuildAdminIfParam,
@@ -42,8 +40,7 @@ export class SettingsDTO {
   /** Attachment snowflake */
   @Param({
     name: 'intro_song',
-    // TODO(2): add info about limitations (file size, length, etc)
-    description: 'Your intro song file. (8MB or less unless boosted)',
+    description: 'Your intro song file.',
     required: false,
     type: ParamType.ATTACHMENT,
   })
@@ -70,10 +67,8 @@ export class SettingsCommand {
     private readonly orm: MikroORM,
     @InjectRepository(VirginEntity)
     private readonly virgins: EntityRepository<VirginEntity>,
-    @InjectRepository(IntroSongEntity)
-    private readonly intro_songs: EntityRepository<IntroSongEntity>,
-    private readonly http: HttpService,
-    private readonly storage: StorageService,
+    @InjectRepository(GuildEntity)
+    private readonly guilds: EntityRepository<GuildEntity>,
     private readonly settings: SettingsService,
   ) {}
 
@@ -107,48 +102,58 @@ export class SettingsCommand {
       dto.virgin_to_modify != null
         ? possess(target_user.nickname ?? target_user.username)
         : 'your';
+    const guild_ent = await this.guilds.findOneOrFail({
+      id: interaction.guild.id,
+    });
 
     if (dto.intro_song_snowflake != null) {
-      const attachment = await interaction.options.get('intro_song', false)
-        ?.attachment;
+      if (!guild_ent.intro.custom_enabled) {
+        messages.push(`Custom intro songs are disabled in this server.`);
+      } else {
+        const attachment = await interaction.options.get('intro_song', false)
+          ?.attachment;
 
-      try {
-        if (attachment == null) {
-          this.logger.warn(
-            `Could not find attachment ${dto.intro_song_snowflake}`,
+        try {
+          if (attachment == null) {
+            this.logger.warn(
+              `Could not find attachment ${dto.intro_song_snowflake}`,
+            );
+            throw new UserFacingError('An unknown error occurred.');
+          }
+
+          const intro_song_ent = await this.settings.saveIntroSong(
+            target_user_snowflake,
+            attachment,
+            interaction.user,
+            interaction.guild,
+            guild_ent.intro.max_duration_s,
           );
-          throw new UserFacingError('An unknown error occurred.');
-        }
+          const intro_song_timeout = new Date(
+            intro_song_ent.computed_timeout_ms,
+          );
+          const duration: Duration = {
+            years: intro_song_timeout.getUTCFullYear() - 1970,
+            months: intro_song_timeout.getUTCMonth(),
+            days: intro_song_timeout.getUTCDate() - 1,
+            hours: intro_song_timeout.getUTCHours(),
+            minutes: intro_song_timeout.getUTCMinutes(),
+            seconds: intro_song_timeout.getUTCSeconds(),
+          };
 
-        const intro_song_ent = await this.settings.saveIntroSong(
-          target_user_snowflake,
-          attachment,
-          interaction.user,
-          interaction.guild,
-        );
-        const intro_song_timeout = new Date(intro_song_ent.computed_timeout_ms);
-        const duration: Duration = {
-          years: intro_song_timeout.getUTCFullYear() - 1970,
-          months: intro_song_timeout.getUTCMonth(),
-          days: intro_song_timeout.getUTCDate() - 1,
-          hours: intro_song_timeout.getUTCHours(),
-          minutes: intro_song_timeout.getUTCMinutes(),
-          seconds: intro_song_timeout.getUTCSeconds(),
-        };
-
-        messages.push(
-          `Intro song updated. ${pascal_spaces(
-            target_user_name,
-          )} intro cool-down will now be ${formatDuration(duration, {
-            delimiter: ', ',
-          })}.`,
-        );
-      } catch (e) {
-        if (e instanceof UserFacingError) {
-          messages.push(e.message);
-        } else {
-          this.logger.error(e);
-          messages.push('An unknown error occurred.');
+          messages.push(
+            `Intro song updated. ${pascal_spaces(
+              target_user_name,
+            )} intro cool-down will now be ${formatDuration(duration, {
+              delimiter: ', ',
+            })}.`,
+          );
+        } catch (e) {
+          if (e instanceof UserFacingError) {
+            messages.push(e.message);
+          } else {
+            this.logger.error(e);
+            messages.push('An unknown error occurred.');
+          }
         }
       }
     }

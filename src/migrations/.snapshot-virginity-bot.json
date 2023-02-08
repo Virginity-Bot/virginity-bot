@@ -278,6 +278,28 @@
           "default": "'Compete with other virgins to claim the honor of being the biggest virgin.'",
           "comment": "The description of the virginity bot text channel in Discord.",
           "mappedType": "text"
+        },
+        "intro_max_duration_s": {
+          "name": "intro_max_duration_s",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "30",
+          "comment": "The maximum duration in seconds that a custom intro song can play.",
+          "mappedType": "integer"
+        },
+        "intro_custom_enabled": {
+          "name": "intro_custom_enabled",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "true",
+          "comment": "Whether or not custom intro songs should be enabled.",
+          "mappedType": "boolean"
         }
       },
       "name": "guild",
