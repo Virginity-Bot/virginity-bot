@@ -19,7 +19,7 @@ import {
   Client,
   ApplicationCommandOptionChoiceData,
 } from 'discord.js';
-import { MikroORM, UseRequestContext } from '@mikro-orm/core';
+import { FilterQuery, MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import { Duration, formatDuration, secondsToMilliseconds } from 'date-fns';
@@ -269,7 +269,7 @@ export class SettingsCommand {
       id: interaction.guild.id,
     });
 
-    const intro_songs = await this.intro_songs.find({
+    const query: FilterQuery<IntroSongEntity> = {
       public: true,
       duration_ms: {
         $lte: secondsToMilliseconds(
@@ -279,6 +279,16 @@ export class SettingsCommand {
           ),
         ),
       },
+    };
+
+    const search = interaction.options.get('intro_song', false);
+    if (search?.value != null && search.focused === true) {
+      query.name = { $ilike: `%${search.value}%` };
+    }
+
+    const intro_songs = await this.intro_songs.find(query, {
+      limit: 10,
+      orderBy: [{ created_at: -1 }],
     });
 
     return interaction.respond(
