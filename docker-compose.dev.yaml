@@ -16,15 +16,18 @@ services:
       STORAGE_S3_PORT: '9000'
       STORAGE_S3_SSL: 'false'
       STORAGE_S3_REGION: 'local'
+      LOG_LOKI_ORIGIN: 'http://loki:3100'
     volumes:
       - './:${PWD}'
     ports:
       - '9229:9229'
     networks:
       - 'virgin-net'
+      - 'logger-net'
     depends_on:
       - 'db'
       - 'object-storage'
+      - 'loki'
   db:
     image: 'docker.io/library/postgres:15'
     environment:
@@ -32,7 +35,7 @@ services:
       POSTGRES_PASSWORD: 'password'
       POSTGRES_DB: 'virginity-bot'
     volumes:
-      - 'virginity-bot-db:/var/lib/postgresql/data'
+      - 'db:/var/lib/postgresql/data'
     ports:
       - '5432:5432/tcp'
     networks:
@@ -45,16 +48,64 @@ services:
       MINIO_ROOT_PASSWORD: 'password'
       MINIO_REGION: 'local'
     volumes:
-      - 'virginity-bot-object-storage:/data'
+      - 'object-storage:/data'
     ports:
       - '9000:9000'
       - '9001:9001'
     networks:
       - 'virgin-net'
 
+  loki:
+    image: 'docker.io/grafana/loki:latest'
+    command: '-config.file=/etc/loki/local-config.yaml'
+    volumes:
+      - 'loki:/etc/loki'
+    networks:
+      - 'logger-net'
+  grafana:
+    image: 'docker.io/grafana/grafana:latest'
+    volumes:
+      - 'grafana:/var/lib/grafana'
+    environment:
+      GF_SECURITY_ADMIN_USER: 'admin'
+      GF_SECURITY_ADMIN_PASSWORD: 'password'
+
+      GF_DATABASE_TYPE: 'postgres'
+      GF_DATABASE_HOST: 'grafana-db:5432'
+      GF_DATABASE_USER: 'postgres'
+      GF_DATABASE_PASSWORD: 'password'
+      GF_DATABASE_NAME: 'grafana'
+    ports:
+      - '3000:3000'
+    networks:
+      - 'grafana-net'
+      - 'logger-net'
+    healthcheck:
+      test: 'wget --quiet -O - http://localhost:3000/api/health'
+    depends_on:
+      - 'grafana-db'
+      - 'loki'
+  grafana-db:
+    image: 'docker.io/library/postgres:15'
+    volumes:
+      - 'grafana-db:/var/lib/postgresql/data'
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'password'
+      POSTGRES_DB: 'grafana'
+    networks:
+      - 'grafana-net'
+    healthcheck:
+      test: 'pg_isready --quiet --username="$$(env | grep POSTGRES_USER | cut -d = -f2)" --dbname="$$(env | grep POSTGRES_DB | cut -d = -f2)"'
+
 networks:
   virgin-net:
+  grafana-net:
+  logger-net:
 
 volumes:
-  virginity-bot-db:
-  virginity-bot-object-storage:
+  db:
+  object-storage:
+  loki:
+  grafana:
+  grafana-db:
