@@ -4,7 +4,7 @@ This Privacy Policy outlines the information collected and used by the "Virginit
 
 ## Collection of Data
 
-The "Virginity Bot" records user voice chat presence and other status data in order to calculate their score. This information is necessary for the functioning of the bot in order to provide users with accurate and up-to-date scores.
+The "Virginity Bot" records user voice chat presence and other status data in order to calculate their score, as well as usernames and other data related to user Discord accounts and preferences. This information is necessary for the functioning of the bot in order to provide users with accurate and up-to-date scores.
 
 ## Use of Data
 
