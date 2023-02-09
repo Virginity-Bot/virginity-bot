@@ -152,7 +152,7 @@ export class SettingsCommand {
           intro_song_ent.duration_ms >
           secondsToMilliseconds(guild_ent.intro.max_duration_s)
         ) {
-          messages.push('Selected song it too long.');
+          messages.push('Selected song is too long.');
         } else {
           target_user.intro_song = intro_song_ent;
           await this.virgins.flush();
