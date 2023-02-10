@@ -1,10 +1,10 @@
 import { NestFactory } from '@nestjs/core';
-import { LogLevel as NestLogLevel } from '@nestjs/common';
 import { MikroORM } from '@mikro-orm/core';
-import * as pluralize from 'pluralize';
+import pluralize from 'pluralize';
 
+import configuration from './config/configuration';
 import { AppModule } from './app.module';
-import configuration, { LogLevel } from './config/configuration';
+import { logger } from './utils/logger';
 
 /**
  * Creates initial database schema if none exists.
@@ -27,29 +27,7 @@ async function setup_db(orm: MikroORM) {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    logger: Object.keys(LogLevel)
-      .map((i) => parseInt(i))
-      .filter((i) => !isNaN(i))
-      .reduce((levels, curr) => {
-        if (curr <= configuration.log_level) {
-          switch (curr) {
-            case LogLevel.QUIET:
-              return [];
-            case LogLevel.ERROR:
-              levels.push('error');
-              break;
-            case LogLevel.WARN:
-              levels.push('warn', 'log');
-              break;
-            case LogLevel.DEBUG:
-              levels.push('debug', 'verbose');
-              break;
-          }
-        }
-        return levels;
-      }, new Array<NestLogLevel>()),
-  });
+  const app = await NestFactory.create(AppModule, { logger });
   app.enableShutdownHooks();
 
   const orm = app.get(MikroORM);
