@@ -27,6 +27,8 @@ export enum LogLevel {
 }
 
 class LokiConf {
+  @IsBoolean()
+  enabled = (process.env.LOG_LOKI_ENABLED ?? 'false') === 'true';
   @IsOptional()
   @IsUrl({
     allow_query_components: false,
