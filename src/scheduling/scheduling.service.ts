@@ -12,6 +12,7 @@ import { DiscordHelperService } from 'src/bot/discord-helper.service';
 import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
+import { boldify } from 'src/utils/logs';
 
 @Injectable()
 export class SchedulingService implements OnApplicationBootstrap {
@@ -135,7 +136,7 @@ export class SchedulingService implements OnApplicationBootstrap {
     await this.guilds.flush();
 
     this.logger.log(
-      `Reset scores for ${
+      boldify`Reset scores for ${
         guild_ids != null ? guild_ids.join(', ') : 'all guilds'
       }.`,
     );

@@ -1,5 +1,6 @@
 /* eslint no-process-env: "off" */
 /* eslint no-console: "off" */
+/* eslint @typescript-eslint/no-non-null-assertion: 'off' */
 
 import { minutesToMilliseconds } from 'date-fns';
 import {
@@ -14,6 +15,7 @@ import {
   IsFQDN,
   IsUrl,
   ValidationError,
+  IsOptional,
 } from 'class-validator';
 import { red } from 'chalk';
 
@@ -22,6 +24,39 @@ export enum LogLevel {
   ERROR,
   WARN,
   DEBUG,
+}
+
+class LokiConf {
+  @IsBoolean()
+  enabled = (process.env.LOG_LOKI_ENABLED ?? 'false') === 'true';
+  @IsOptional()
+  @IsUrl({
+    allow_query_components: false,
+    allow_trailing_dot: false,
+    allow_fragments: false,
+    require_protocol: true,
+    disallow_auth: true,
+    protocols: ['http', 'https'],
+  })
+  origin = process.env.LOG_LOKI_ORIGIN!;
+  @IsOptional()
+  @IsString()
+  username = process.env.LOG_LOKI_USERNAME;
+  @IsOptional()
+  @IsString()
+  password = process.env.LOG_LOKI_PASSWORD;
+}
+
+class LogConf {
+  @IsEnum(LogLevel, {
+    message: `$property must be one of QUIET, ERROR, WARN, DEBUG`,
+  })
+  level: LogLevel =
+    process.env.LOG_LEVEL != null
+      ? LogLevel[process.env.LOG_LEVEL]
+      : LogLevel.WARN;
+
+  driver = new LokiConf();
 }
 
 class MikroORMConf {
@@ -48,7 +83,7 @@ class DBConf {
     | 'sqlite'
     | 'better-sqlite';
   @IsUrl()
-  url = process.env.DATABASE_URL;
+  url = process.env.DATABASE_URL!;
   pool = new DBConfPool();
   @IsBoolean()
   auto_migrate = (process.env.DATABASE_AUTO_MIGRATE ?? 'true') === 'true';
@@ -56,19 +91,19 @@ class DBConf {
 
 class StorageConfS3 {
   @IsFQDN()
-  host = process.env.STORAGE_S3_HOST as string;
+  host = process.env.STORAGE_S3_HOST!;
   @IsInt()
   @Min(1)
   @Max(65535)
-  port = parseInt(process.env.STORAGE_S3_PORT as string);
+  port = parseInt(process.env.STORAGE_S3_PORT!);
   @IsBoolean()
   ssl = (process.env.STORAGE_S3_SSL ?? 'true') === 'true';
   @IsString()
-  region = process.env.STORAGE_S3_REGION as string;
+  region = process.env.STORAGE_S3_REGION!;
   @IsString()
-  access_key_id = process.env.STORAGE_S3_ACCESS_KEY_ID as string;
+  access_key_id = process.env.STORAGE_S3_ACCESS_KEY_ID!;
   @IsString()
-  secret_access_key = process.env.STORAGE_S3_SECRET_ACCESS_KEY as string;
+  secret_access_key = process.env.STORAGE_S3_SECRET_ACCESS_KEY!;
   @IsString()
   bucket_name = process.env.STORAGE_S3_BUCKET_NAME ?? 'intro-songs';
 }
@@ -99,13 +134,7 @@ class AudioConf {
 }
 
 class Configuration {
-  @IsEnum(LogLevel, {
-    message: `$property must be one of QUIET, ERROR, WARN, DEBUG`,
-  })
-  log_level =
-    process.env.LOG_LEVEL != null
-      ? LogLevel[process.env.LOG_LEVEL]
-      : LogLevel.WARN;
+  log = new LogConf();
 
   db = new DBConf();
 
@@ -120,7 +149,7 @@ class Configuration {
 
   @IsString()
   @Matches(/^\S+$/)
-  discord_token = process.env.DISCORD_TOKEN as string;
+  discord_token = process.env.DISCORD_TOKEN!;
 
   audio = new AudioConf();
 }
