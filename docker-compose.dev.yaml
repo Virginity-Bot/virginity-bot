@@ -1,5 +1,14 @@
 version: '3.8'
 
+# README!
+#   This file does not describe a production-ready deployment!
+#   A number of things are set for convenience rather than security or stability.
+#   Among those are:
+#     - weak default credentials
+#     - in-container file storage
+#     - exposed services / ports
+#   to name a few.
+
 services:
   server:
     build:
@@ -61,6 +70,8 @@ services:
     command: '-config.file=/etc/loki/local-config.yaml'
     volumes:
       - 'loki:/etc/loki'
+    ports:
+      - '3100:3100'
     networks:
       - 'logger-net'
   grafana:
