@@ -1,26 +1,36 @@
 import { hostname } from 'node:os';
 
-import { WinstonModule, utilities } from 'nest-winston';
+import { WinstonModule } from 'nest-winston';
 import { format } from 'winston';
 import type TransportStream from 'winston-transport';
 import { Console } from 'winston/lib/winston/transports';
 import LokiTransport from 'winston-loki';
 import { format as dateFormat } from 'date-fns';
-import {
-  bold,
-  green,
-  yellow,
-  red,
-  magentaBright,
-  cyanBright,
-  gray,
-} from 'chalk';
+import { green, yellow, red, magentaBright, cyanBright, gray } from 'chalk';
 
 import configuration, { LogLevel } from 'src/config/configuration';
 
 const MAX_LEVEL_LENGTH = Math.max(
   ...['info', 'error', 'warn', 'debug', 'verbose'].map((l) => l.length),
 );
+
+export class ContextAwareLokiTransport extends LokiTransport {
+  override log(
+    info: unknown & { labels?: Record<string, string>; context?: string },
+    callback: () => void,
+  ) {
+    super.log?.(
+      {
+        ...info,
+        labels: {
+          ...(info.labels ?? {}),
+          context: info.context,
+        },
+      },
+      callback,
+    );
+  }
+}
 
 export const logger = WinstonModule.createLogger({
   level: ((level): string => {
@@ -62,20 +72,18 @@ export const logger = WinstonModule.createLogger({
         }
       })(level);
 
-      const parts: string[] = [
+      return [
         gray(timestamp),
         color(level.toUpperCase().padStart(MAX_LEVEL_LENGTH)),
         yellow`[${context}]`,
         log.stack == null ? String(message) : log.stack,
-      ]; /* .filter((part): part is string => part != null) */
-
-      return parts.join(' ');
+      ].join(' ');
     }),
   ),
-  transports: [
-    new Console(),
+  transports: <TransportStream[]>[
+    new Console() as TransportStream,
     configuration.log.driver.enabled
-      ? new LokiTransport({
+      ? new ContextAwareLokiTransport({
           labels: {
             app: 'virginity-bot',
             host: hostname(),
