@@ -72,13 +72,16 @@ export class LeaderboardCommand {
       boldify`Built leaderboard for guild ${interaction.guild.id}.`,
     );
 
-    await interaction.followUp(
-      new MessagePayload(interaction.channel, { embeds: [leaderboard] }),
-    );
-
-    this.logger.debug(
-      boldify`Sent leaderboard for guild ${interaction.guild.id}.`,
-    );
+    return interaction
+      .followUp(
+        new MessagePayload(interaction.channel, { embeds: [leaderboard] }),
+      )
+      .then((message) => {
+        this.logger.debug(
+          boldify`Sent leaderboard for guild ${interaction.guildId}.`,
+        );
+        return message;
+      });
   }
 
   async recalculateScores(guild_id: string) {
