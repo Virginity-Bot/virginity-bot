@@ -46,7 +46,7 @@ function interleave<T>(a: T[], b: T[]): T[] {
   );
 }
 
-export function bolder(
+export function boldify(
   strings: string[] | TemplateStringsArray,
   ...expressions: unknown[]
 ): string {

@@ -20,7 +20,7 @@ import { underline } from 'chalk';
 
 import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { VirginEntity } from 'src/entities/virgin.entity';
-import { bolder, userLogHeader } from 'src/utils/logs';
+import { boldify, userLogHeader } from 'src/utils/logs';
 
 @Injectable()
 export class DiscordHelperService {
@@ -54,7 +54,7 @@ export class DiscordHelperService {
     const client_id = client.application.id;
 
     const username =
-      this.client.user != null ? bolder`("${this.client.user.tag}") ` : '';
+      this.client.user != null ? boldify`("${this.client.user.tag}") ` : '';
     const link = `https://discord.com/api/oauth2/authorize?client_id=${client_id}&permissions=${permissions}&scope=bot`;
 
     this.logger.log(
@@ -104,7 +104,7 @@ export class DiscordHelperService {
   async findOrCreateBiggestVirginRole(guild_ent: GuildEntity): Promise<Role> {
     const guild = this.client.guilds.resolve(guild_ent.id);
     if (guild == null)
-      throw new Error(bolder`Could not access guild ${guild_ent.id}`);
+      throw new Error(boldify`Could not access guild ${guild_ent.id}`);
 
     const role =
       guild_ent.biggest_virgin_role_id != null
@@ -120,7 +120,7 @@ export class DiscordHelperService {
                   .setName(guild_ent.role.name)
                   .catch(
                     this.handlePermissionErrors(
-                      bolder`Failed to set role name of role ${role.id} in guild ${guild.id}`,
+                      boldify`Failed to set role name of role ${role.id} in guild ${guild.id}`,
                     ),
                   );
               }
@@ -133,7 +133,7 @@ export class DiscordHelperService {
                   .setColor(guild_ent.role.color)
                   .catch(
                     this.handlePermissionErrors(
-                      bolder`Failed to set role color of role ${role.id} in guild ${guild.id}`,
+                      boldify`Failed to set role color of role ${role.id} in guild ${guild.id}`,
                     ),
                   );
               }
@@ -147,13 +147,13 @@ export class DiscordHelperService {
                   .then((role) => {
                     if (role.position !== highest_possible_pos) {
                       throw new Error(
-                        bolder`Failed to set role position of ${role.id} in ${guild.id} to ${highest_possible_pos}`,
+                        boldify`Failed to set role position of ${role.id} in ${guild.id} to ${highest_possible_pos}`,
                       );
                     } else return role;
                   })
                   .catch(
                     this.handlePermissionErrors(
-                      bolder`Failed to set role position of ${role.id} in ${guild.id} to ${highest_possible_pos}`,
+                      boldify`Failed to set role position of ${role.id} in ${guild.id} to ${highest_possible_pos}`,
                     ),
                   );
               }
@@ -167,7 +167,7 @@ export class DiscordHelperService {
                   .catch((err) => {
                     if (err instanceof DiscordAPIError && err.code === 50101) {
                       this.logger.warn(
-                        bolder`Failed to set role emoji for guild ${guild.id}, even though we thought we could`,
+                        boldify`Failed to set role emoji for guild ${guild.id}, even though we thought we could`,
                       );
                     } else {
                       return this.handlePermissionErrors(err);
@@ -209,7 +209,7 @@ export class DiscordHelperService {
       })
       .then<Role>((role) => {
         this.logger.debug(
-          bolder`Created virginity-bot text channel in guild "${guild.name}"`,
+          boldify`Created virginity-bot text channel in guild "${guild.name}"`,
         );
 
         guild_ent.biggest_virgin_role_id = role.id;
@@ -230,7 +230,7 @@ export class DiscordHelperService {
   ): Promise<TextChannel> {
     const guild = this.client.guilds.resolve(guild_ent.id);
     if (guild == null)
-      throw new Error(bolder`Could not access guild ${guild_ent.id}`);
+      throw new Error(boldify`Could not access guild ${guild_ent.id}`);
 
     const channel =
       (guild_ent.bot_channel_id != null
@@ -260,7 +260,7 @@ export class DiscordHelperService {
         })
         .then<TextChannel>((guild) => {
           this.logger.debug(
-            bolder`Created virginity-bot text channel in guild "${guild.name}"`,
+            boldify`Created virginity-bot text channel in guild "${guild.name}"`,
           );
           return guild;
         }));
@@ -293,7 +293,7 @@ export class DiscordHelperService {
           .remove(role.id)
           .catch(
             this.handlePermissionErrors(
-              bolder`Failed to remove role from user ${m.id} in guild ${m.guild.id}`,
+              boldify`Failed to remove role from user ${m.id} in guild ${m.guild.id}`,
             ),
           ),
       ),
@@ -303,11 +303,11 @@ export class DiscordHelperService {
       await member?.roles
         .add(role.id)
         .then(() =>
-          this.logger.debug(bolder`Crowned ${userLogHeader(member)}.`),
+          this.logger.debug(boldify`Crowned ${userLogHeader(member)}.`),
         )
         .catch(
           this.handlePermissionErrors(
-            bolder`Failed to add role to user ${member.id} in guild ${member.guild.id}`,
+            boldify`Failed to add role to user ${member.id} in guild ${member.guild.id}`,
           ),
         );
     } else {

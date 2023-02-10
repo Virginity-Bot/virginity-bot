@@ -14,7 +14,7 @@ import { differenceInMinutes } from 'date-fns';
 
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
-import { bolder, userLogHeader } from 'src/utils/logs';
+import { boldify, userLogHeader } from 'src/utils/logs';
 import { DiscordHelperService } from 'src/bot/discord-helper.service';
 import { GuildEntity } from 'src/entities/guild';
 
@@ -177,7 +177,7 @@ export class DatabaseService {
 
     if (event_ent == null) {
       this.logger.warn(
-        bolder`Virgin ${virgin_ent.id} tried to leave VC, but did not have any open vc_events`,
+        boldify`Virgin ${virgin_ent.id} tried to leave VC, but did not have any open vc_events`,
       );
       return;
     }
@@ -189,7 +189,7 @@ export class DatabaseService {
     // TODO(1): this should probably just recalculate their whole score
     const additional_score = this.calculateScoreForEvent(event_ent);
     this.logger.debug(
-      bolder`Giving ${userLogHeader(
+      boldify`Giving ${userLogHeader(
         virgin_ent,
         guild,
       )} ${additional_score} points`,
@@ -201,12 +201,12 @@ export class DatabaseService {
     if (additive_score !== total_score) {
       this.logger.warn(
         [
-          bolder`Score mismatch! User ${userLogHeader(
+          boldify`Score mismatch! User ${userLogHeader(
             virgin_ent,
             guild,
           )}'s score did not match our expected value from calculations!`,
-          bolder`Cached: ${additive_score}`,
-          bolder`Calculated SQL: ${total_score}`,
+          boldify`Cached: ${additive_score}`,
+          boldify`Calculated SQL: ${total_score}`,
         ].join(' '),
       );
     }

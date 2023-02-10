@@ -10,7 +10,7 @@ import { minutesToMilliseconds, secondsToMilliseconds } from 'date-fns';
 
 import configuration from 'src/config/configuration';
 import { VirginEntity } from 'src/entities/virgin.entity';
-import { bolder, userLogHeader } from 'src/utils/logs';
+import { boldify, userLogHeader } from 'src/utils/logs';
 import { IntroSongEntity } from 'src/entities/intro-song.entity';
 import { StorageService } from 'src/storage/storage.service';
 import { AudioService } from '../audio.service';
@@ -112,7 +112,7 @@ export class SettingsService {
       return;
     } else {
       this.logger.debug(
-        bolder`${userLogHeader(
+        boldify`${userLogHeader(
           user,
           guild,
         )} tried to upload an intro song that was too large (${
@@ -136,7 +136,7 @@ export class SettingsService {
       return;
     } else {
       this.logger.debug(
-        bolder`${userLogHeader(
+        boldify`${userLogHeader(
           user,
           guild,
         )} tried to upload an intro song with an invalid contentType ("${
@@ -164,7 +164,7 @@ export class SettingsService {
       return duration_s;
     } else {
       this.logger.debug(
-        bolder`${userLogHeader(
+        boldify`${userLogHeader(
           user,
           guild,
         )} tried to upload an intro song that was over ${max_dur_s} seconds long (${duration_s}s).`,
