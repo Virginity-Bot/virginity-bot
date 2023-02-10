@@ -31,6 +31,7 @@ import { GuildEntity } from 'src/entities/guild';
 import { GuildAdminGuard } from '../guards/guild-admin.guard';
 import { ValidationErrorFilter } from '../filters/validation-error.filter';
 import configuration from 'src/config/configuration';
+import { bolder } from 'src/utils/logs';
 
 export class GuildSettingsDTO {
   /** The score multiplier applied when sharing your screen in VC. */
@@ -252,7 +253,7 @@ export class GuildSettingsCommand {
     if (dto.score_reset_enabled != null || dto.score_reset_schedule != null) {
       await this.scheduling.scheduleResets();
       this.logger.debug(
-        `Re-scheduled cronjobs for guild ${interaction.guild.id}`,
+        bolder`Re-scheduled cronjobs for guild ${interaction.guild.id}`,
       );
     }
 

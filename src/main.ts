@@ -5,6 +5,7 @@ import pluralize from 'pluralize';
 import configuration from './config/configuration';
 import { AppModule } from './app.module';
 import { logger } from './utils/logger';
+import { bolder } from './utils/logs';
 
 /**
  * Creates initial database schema if none exists.
@@ -18,7 +19,7 @@ async function setup_db(orm: MikroORM) {
       await migrator.up();
     } else {
       throw new Error(
-        `Database is not up-to-date and auto-migration is disabled. ${
+        bolder`Database is not up-to-date and auto-migration is disabled. ${
           pending_migrations.length
         } ${pluralize('migration', pending_migrations.length)} pending.`,
       );

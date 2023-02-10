@@ -14,7 +14,7 @@ import { VirginEntity } from 'src/entities/virgin.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
 import { DatabaseService } from 'src/database/database.service';
 import { DiscordHelperService } from 'src/bot/discord-helper.service';
-import { userLogHeader } from 'src/utils/logs';
+import { bolder, userLogHeader } from 'src/utils/logs';
 
 @Injectable()
 export class Track {
@@ -50,7 +50,7 @@ export class Track {
         this.isEligible(new_state))
     ) {
       this.logger.debug(
-        `${userLogHeader(new_state)} entered VC or unmuted / undeafened.`,
+        bolder`${userLogHeader(new_state)} entered VC or unmuted / undeafened.`,
       );
       // create new event
       const event = await this.database.openEvent(new_state, timestamp);
@@ -64,7 +64,7 @@ export class Track {
         !this.isEligible(new_state))
     ) {
       this.logger.debug(
-        `${userLogHeader(new_state)} left VC or muted / deafened.`,
+        bolder`${userLogHeader(new_state)} left VC or muted / deafened.`,
       );
       // close old event
       const event = await this.database.closeEvent(
@@ -87,7 +87,7 @@ export class Track {
       old_state.selfVideo !== new_state.selfVideo
     ) {
       this.logger.debug(
-        `${userLogHeader(new_state)} caused a score multiplier change.`,
+        bolder`${userLogHeader(new_state)} caused a score multiplier change.`,
       );
       const events = [
         // close old event
@@ -106,7 +106,7 @@ export class Track {
       this.discord_helper.assignBiggestVirginRoleGuild(guild);
     } else {
       this.logger.debug([
-        `${userLogHeader(new_state)} made an unrecognized action.`,
+        bolder`${userLogHeader(new_state)} made an unrecognized action.`,
         old_state,
         new_state,
       ]);
@@ -161,7 +161,7 @@ export class Track {
       new_game_activities.length > 0
     ) {
       this.logger.debug(
-        `${userLogHeader(
+        bolder`${userLogHeader(
           old_vc_event.virgin,
           new_presence.guild,
         )} started playing a game while in VC.`,
@@ -184,7 +184,7 @@ export class Track {
       new_game_activities.length === 0
     ) {
       this.logger.debug(
-        `${userLogHeader(
+        bolder`${userLogHeader(
           old_vc_event.virgin,
           new_presence.guild,
         )} stopped playing a game while in VC.`,
