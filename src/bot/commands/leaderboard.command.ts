@@ -17,6 +17,7 @@ import { VCEventEntity } from 'src/entities/vc-event.entity';
 import { DatabaseService } from 'src/database/database.service';
 import { DiscordHelperService } from '../discord-helper.service';
 import { LeaderboardService } from '../leaderboard.service';
+import { boldify } from 'src/utils/logs';
 
 @Command({
   name: 'leaderboard',
@@ -67,8 +68,16 @@ export class LeaderboardCommand {
       interaction.user,
     );
 
-    return interaction.followUp(
+    this.logger.debug(
+      boldify`Built leaderboard for guild ${interaction.guild.id}.`,
+    );
+
+    await interaction.followUp(
       new MessagePayload(interaction.channel, { embeds: [leaderboard] }),
+    );
+
+    this.logger.debug(
+      boldify`Sent leaderboard for guild ${interaction.guild.id}.`,
     );
   }
 
