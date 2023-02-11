@@ -42,6 +42,9 @@ ARG PORT=3000
 EXPOSE $PORT/tcp
 ENV PORT $PORT
 
+# Ensure Chalk outputs colors
+ENV FORCE_COLOR 1
+
 USER ${USER}
 CMD npm run start:prod
 

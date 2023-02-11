@@ -16,6 +16,9 @@ ARG PORT=3000
 ENV PORT $PORT
 EXPOSE $PORT/tcp
 
+# Ensure Chalk outputs colors
+ENV FORCE_COLOR 1
+
 # debugger port
 EXPOSE 9229
 

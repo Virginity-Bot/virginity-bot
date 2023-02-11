@@ -1,4 +1,6 @@
 import { Guild, GuildMember, User, VoiceState } from 'discord.js';
+import { bold } from 'chalk';
+
 import { VirginEntity } from 'src/entities/virgin.entity';
 
 export type Virginish = Pick<User | VirginEntity, 'username' | 'discriminator'>;
@@ -35,4 +37,21 @@ export function userLogHeader(...args: unknown[]): string {
   }
 
   return `${user.username}#${user.discriminator} of "${guild.name}"`;
+}
+
+function interleave<T>(a: T[], b: T[]): T[] {
+  return a.reduce(
+    (output, element, i) => output.concat(element, b[i]),
+    <T[]>[],
+  );
+}
+
+export function boldify(
+  strings: string[] | TemplateStringsArray,
+  ...expressions: unknown[]
+): string {
+  return interleave(
+    strings as string[],
+    expressions.map((exp) => bold`${exp}`),
+  ).join('');
 }

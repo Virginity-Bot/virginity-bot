@@ -10,7 +10,7 @@ import { minutesToMilliseconds, secondsToMilliseconds } from 'date-fns';
 
 import configuration from 'src/config/configuration';
 import { VirginEntity } from 'src/entities/virgin.entity';
-import { userLogHeader } from 'src/utils/logs';
+import { boldify, userLogHeader } from 'src/utils/logs';
 import { IntroSongEntity } from 'src/entities/intro-song.entity';
 import { StorageService } from 'src/storage/storage.service';
 import { AudioService } from '../audio.service';
@@ -35,6 +35,7 @@ export class SettingsService {
   async saveIntroSong(
     target_user_id: string,
     attachment: Attachment | null,
+    make_public: boolean,
     user: User,
     guild: Guild,
     guild_max_dur_s: number,
@@ -86,6 +87,7 @@ export class SettingsService {
             mime_type: attachment.contentType,
             duration_ms: secondsToMilliseconds(intro_duration_s),
             computed_timeout_ms: minutesToMilliseconds(intro_timeout_m),
+            public: make_public,
           } as IntroSongEntity);
 
           await this.intro_songs.persistAndFlush(new_ent);
@@ -110,7 +112,7 @@ export class SettingsService {
       return;
     } else {
       this.logger.debug(
-        `${userLogHeader(
+        boldify`${userLogHeader(
           user,
           guild,
         )} tried to upload an intro song that was too large (${
@@ -134,7 +136,7 @@ export class SettingsService {
       return;
     } else {
       this.logger.debug(
-        `${userLogHeader(
+        boldify`${userLogHeader(
           user,
           guild,
         )} tried to upload an intro song with an invalid contentType ("${
@@ -162,7 +164,7 @@ export class SettingsService {
       return duration_s;
     } else {
       this.logger.debug(
-        `${userLogHeader(
+        boldify`${userLogHeader(
           user,
           guild,
         )} tried to upload an intro song that was over ${max_dur_s} seconds long (${duration_s}s).`,

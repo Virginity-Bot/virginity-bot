@@ -13,7 +13,11 @@ export class IntroSongEntity extends BaseEntity {
   readonly hash: string;
 
   /** The name of the intro song. */
-  @Property({ type: TextType, comment: 'The name of the intro song.' })
+  @Property({
+    type: TextType,
+    comment: 'The name of the intro song.',
+    index: true,
+  })
   readonly name: string;
 
   /** The MIME type of the file. */
@@ -49,6 +53,13 @@ export class IntroSongEntity extends BaseEntity {
     comment: `Reference to an audio file. Supports s3:// and vbot-builtin:// schemas.`,
   })
   readonly uri: string;
+
+  /** Whether or not this song should be visible to other users. */
+  @Property({
+    comment: 'Whether or not this song should be visible to other users.',
+    index: true,
+  })
+  public = true;
 
   private _parsed_uri?: URL;
 

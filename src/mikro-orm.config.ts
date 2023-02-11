@@ -20,7 +20,7 @@ import { GuildIntroSettings } from './entities/guild/guild-intro.embeddable';
 const logger = new Logger('MikroORM');
 const config: Options = {
   logger: Logger.log.bind(logger),
-  debug: configuration.log_level >= LogLevel.DEBUG,
+  debug: configuration.log.level >= LogLevel.DEBUG,
 
   type: configuration.db.type,
   clientUrl: configuration.db.url,
