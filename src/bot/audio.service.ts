@@ -1,7 +1,7 @@
 import { Readable } from 'stream';
 import { spawn } from 'child_process';
 import { Injectable, Logger } from '@nestjs/common';
-import * as ffmpeg_path from 'ffmpeg-static';
+import ffmpeg_path from 'ffmpeg-static';
 import { parse } from 'date-fns';
 
 @Injectable()
@@ -16,7 +16,7 @@ export class AudioService {
         `ffmpeg_path was null. Maybe ffmpeg-static was not installed correctly?`,
       );
     }
-    this.ffmpeg_bin = ffmpeg_path as unknown as string;
+    this.ffmpeg_bin = ffmpeg_path as string;
   }
 
   /** Gets the duration of the 1st audio track in a file in seconds. */
