@@ -38,14 +38,17 @@ export class DatabaseService {
   /**
    * Finds the most recent unclosed event for a given virgin.
    */
-  async findEventToClose(virgin: VirginEntity): Promise<VCEventEntity> {
-    // TODO(1): limit this to one result?
-    const events = await virgin.vc_events.loadItems({
-      where: { connection_end: null },
-      orderBy: [{ connection_start: -1 }],
-      populate: ['guild'],
-    });
-    return events[0];
+  async findEventToClose(virgin: VirginEntity): Promise<VCEventEntity | null> {
+    return this.vcEventsRepo.findOne(
+      {
+        virgin,
+        connection_end: null,
+      },
+      {
+        orderBy: [{ connection_start: -1 }],
+        populate: ['guild'],
+      },
+    );
   }
 
   calculateScoreForEvent(event: VCEventEntity): number {
@@ -172,8 +175,6 @@ export class DatabaseService {
     // TODO: maybe we don't actually need to talk to the DB right here?
     const virgin_ent = await this.findOrCreateVirgin(guild, member);
     const event_ent = await this.findEventToClose(virgin_ent);
-    if (event_ent.guild == null)
-      event_ent.guild = await this.guilds.findOneOrFail(guild.id);
 
     if (event_ent == null) {
       this.logger.warn(
@@ -181,6 +182,9 @@ export class DatabaseService {
       );
       return;
     }
+
+    if (event_ent.guild == null)
+      event_ent.guild = await this.guilds.findOneOrFail(guild.id);
 
     event_ent.connection_end = timestamp;
     // TODO: once our scoring lines up 100%, remove this flush
