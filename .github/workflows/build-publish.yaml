@@ -9,6 +9,14 @@ permissions:
   contents: 'read'
 
 jobs:
+  test-scripts:
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: 'Checkout Repository 🛎️'
+        uses: 'actions/checkout@v3'
+      - name: 'Test 🧪'
+        run: 'ruby .github/workflows/scripts/test/get-image-tags.unit.rb'
+
   build:
     runs-on: 'ubuntu-latest'
     steps:
@@ -68,6 +76,7 @@ jobs:
         run: 'npm run test'
 
   build-container:
+    needs: 'test-scripts'
     runs-on: 'ubuntu-latest'
     steps:
       - name: 'Checkout Repository 🛎️'
@@ -81,7 +90,7 @@ jobs:
       - name: 'Get image tag names 🏷️'
         id: 'tag-image'
         run: |
-          .github/workflows/scripts/get-image-tags.sh \
+          .github/workflows/scripts/get-image-tags.rb \
             "${{ github.repository }}" \
             "${{ github.ref_name }}" \
             "${{ github.ref_type }}" \
