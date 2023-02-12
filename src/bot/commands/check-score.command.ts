@@ -23,7 +23,7 @@ import { DatabaseService } from 'src/database/database.service';
 import { possess, virgin_display_name } from 'src/utils/string-transformers';
 import { DiscordHelperService } from '../discord-helper.service';
 
-export class ScoreDTO {
+export class CheckScoreDTO {
   @Param({
     name: 'virgin',
     description: 'The user to check',
@@ -56,7 +56,7 @@ export class CheckScoreCommand {
   @Handler()
   @UseRequestContext()
   async handler(
-    @InteractionEvent(SlashCommandPipe) dto: ScoreDTO,
+    @InteractionEvent(SlashCommandPipe) dto: CheckScoreDTO,
     @EventParams() [interaction]: [interaction: CommandInteraction],
   ): Promise<MessagePayload> {
     if (interaction.member == null) {
