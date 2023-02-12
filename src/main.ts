@@ -1,10 +1,14 @@
+import { join } from 'node:path';
+
 import { NestFactory } from '@nestjs/core';
+import { Logger } from '@nestjs/common';
 import { MikroORM } from '@mikro-orm/core';
+import { ShardingManager } from 'discord.js';
 import pluralize from 'pluralize';
 
 import configuration from './config/configuration';
 import { AppModule } from './app.module';
-import { logger } from './utils/logger';
+import { logger as NestLogger } from './utils/logger';
 import { boldify } from './utils/logs';
 
 /**
@@ -28,14 +32,39 @@ async function setup_db(orm: MikroORM) {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { logger });
+  const app = await NestFactory.create(AppModule, { logger: NestLogger });
   app.enableShutdownHooks();
+
+  const logger = new Logger('bootstrap');
 
   const orm = app.get(MikroORM);
   // TODO: do we actually want to do this in prod?
   await setup_db(orm);
 
-  await app.listen(configuration.port);
+  const manager = new ShardingManager(join(__dirname, 'bot.js'), {
+    token: 'secret', // config.get<string>('discord.bot.token')
+  });
+
+  manager.spawn();
+
+  manager.on('shardCreate', (shard) => {
+    shard.on('reconnecting', () => {
+      logger.log(`Reconnecting shard: [${shard.id}]`);
+    });
+    shard.on('spawn', () => {
+      logger.log(`Spawned shard: [${shard.id}]`);
+    });
+    shard.on('ready', () => {
+      logger.log(` Shard [${shard.id}] is ready`);
+    });
+    shard.on('death', () => {
+      logger.log(`Shard died: [${shard.id}]`);
+    });
+    shard.on('error', (err) => {
+      logger.log(`Error in  [${shard.id}] with : ${err} `);
+      shard.respawn();
+    });
+  });
 }
 
 bootstrap();
