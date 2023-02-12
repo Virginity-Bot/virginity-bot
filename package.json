@@ -25,7 +25,11 @@
     "test:cov": "jest --coverage",
     "test:debug": "scripts/npm-test-debug.sh",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "db:create": "mikro-orm migration:up"
+    "db:create": "mikro-orm migration:up",
+    "bump": "ts-node scripts/bump.ts"
+  },
+  "bin": {
+    "bump": "ts-node scripts/bump.ts"
   },
   "mikro-orm": {
     "useTsNode": true
