@@ -49,6 +49,12 @@ export class LeaderboardCommand {
   async handler(
     interaction: CommandInteraction,
   ): Promise<MessagePayload | Message<boolean>> {
+    this.logger.debug(
+      boldify`[${interaction.id}] ${'/leaderboard'} called from guild ${
+        interaction.guildId
+      }.`,
+    );
+
     if (interaction.guildId == null || interaction.guild == null) {
       this.logger.error([`interaction.guildId was null somehow`, interaction]);
       throw new Error(`interaction.guildId was null somehow`);
@@ -58,10 +64,21 @@ export class LeaderboardCommand {
     }
 
     await interaction.deferReply();
+    this.logger.debug(
+      boldify`[${interaction.id}] Deferred reply ${interaction.id}.`,
+    );
 
     await this.recalculateScores(interaction.guildId);
 
+    this.logger.debug(
+      boldify`[${interaction.id}] Recalculated scores for ${interaction.guild.id}.`,
+    );
+
     const guild_ent = await this.guilds.findOneOrFail(interaction.guildId);
+
+    this.logger.debug(
+      boldify`[${interaction.id}] Found guild ${interaction.guild.id}.`,
+    );
 
     const leaderboard = await this.leaderboard.buildLeaderboardEmbed(
       guild_ent,
@@ -69,7 +86,7 @@ export class LeaderboardCommand {
     );
 
     this.logger.debug(
-      boldify`Built leaderboard for guild ${interaction.guild.id}.`,
+      boldify`[${interaction.id}] Built leaderboard for guild ${interaction.guild.id}.`,
     );
 
     return interaction
@@ -78,7 +95,7 @@ export class LeaderboardCommand {
       )
       .then((message) => {
         this.logger.debug(
-          boldify`Sent leaderboard for guild ${interaction.guildId}.`,
+          boldify`[${interaction.id}] Sent leaderboard to guild ${interaction.guildId}.`,
         );
         return message;
       });
