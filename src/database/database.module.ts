@@ -8,7 +8,7 @@ import { BotModule } from 'src/bot/bot.module';
 
 @Module({
   imports: [
-    MikroOrmModule.forRoot(),
+    MikroOrmModule.forRoot(config),
     MikroOrmModule.forFeature({
       entities: config.entities as EntityName<Partial<unknown>>[],
     }),

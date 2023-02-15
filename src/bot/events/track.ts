@@ -1,4 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  UseInterceptors,
+} from '@nestjs/common';
 import { On } from '@discord-nestjs/core';
 import { Client, Events, Presence, VoiceState } from 'discord.js';
 import {
@@ -15,8 +19,10 @@ import { VCEventEntity } from 'src/entities/vc-event.entity';
 import { DatabaseService } from 'src/database/database.service';
 import { DiscordHelperService } from 'src/bot/discord-helper.service';
 import { boldify, userLogHeader } from 'src/utils/logs';
+import { LoggingInterceptor } from '../interceptors/logging.interceptor';
 
 @Injectable()
+@UseInterceptors(new LoggingInterceptor(Track.name))
 export class Track {
   private readonly logger = new Logger(Track.name);
 

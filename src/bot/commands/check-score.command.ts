@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UseInterceptors } from '@nestjs/common';
 import {
   Command,
   EventParams,
@@ -21,7 +21,9 @@ import { VirginEntity } from 'src/entities/virgin.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
 import { DatabaseService } from 'src/database/database.service';
 import { possess, virgin_display_name } from 'src/utils/string-transformers';
+import { boldify } from 'src/utils/logs';
 import { DiscordHelperService } from '../discord-helper.service';
+import { LoggingInterceptor } from '../interceptors/logging.interceptor';
 
 export class CheckScoreDTO {
   @Param({
@@ -40,6 +42,7 @@ export class CheckScoreDTO {
   dmPermission: false,
 })
 @Injectable()
+@UseInterceptors(new LoggingInterceptor(CheckScoreCommand.name))
 export class CheckScoreCommand {
   private readonly logger = new Logger(CheckScoreCommand.name);
 
