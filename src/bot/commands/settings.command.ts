@@ -246,6 +246,11 @@ export class SettingsCommand {
       }
     }
 
+    if (messages.length === 0) {
+      // TODO: should this maybe show your settings instead?
+      messages.push('No settings updated.');
+    }
+
     interaction.followUp(
       new MessagePayload(interaction.channel, {
         content: messages.join('\n'),
