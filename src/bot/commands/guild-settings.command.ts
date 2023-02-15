@@ -3,6 +3,7 @@ import {
   Logger,
   UseFilters,
   UseGuards,
+  UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
 import {
@@ -25,13 +26,14 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import { IsHexColor, IsOptional, Length, Matches, Min } from 'class-validator';
 
+import configuration from 'src/config/configuration';
+import { boldify } from 'src/utils/logs';
 import { SchedulingService } from 'src/scheduling/scheduling.service';
 import { IsInfrequentCron } from 'src/validators/infrequent-cron.validator';
 import { GuildEntity } from 'src/entities/guild';
 import { GuildAdminGuard } from '../guards/guild-admin.guard';
 import { ValidationErrorFilter } from '../filters/validation-error.filter';
-import configuration from 'src/config/configuration';
-import { boldify } from 'src/utils/logs';
+import { LoggingInterceptor } from '../interceptors/logging.interceptor';
 
 export class GuildSettingsDTO {
   /** The score multiplier applied when sharing your screen in VC. */
@@ -176,6 +178,7 @@ export class GuildSettingsDTO {
   dmPermission: false,
 })
 @Injectable()
+@UseInterceptors(new LoggingInterceptor(GuildSettingsCommand.name))
 @UseFilters(ValidationErrorFilter)
 export class GuildSettingsCommand {
   private readonly logger = new Logger(GuildSettingsCommand.name);

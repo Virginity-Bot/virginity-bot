@@ -1,4 +1,9 @@
-import { Injectable, Logger, UseGuards } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import {
   Command,
   EventParams,
@@ -35,6 +40,7 @@ import {
   GuildAdminIfParamGuard,
 } from '../guards/guild-admin-if-param.guard';
 import { IsAutocompleteInteractionGuard } from '../guards/is-autocomplete-interaction.guard';
+import { LoggingInterceptor } from '../interceptors/logging.interceptor';
 
 const intro_song_file = 'intro_song_file';
 
@@ -107,6 +113,7 @@ export class SettingsCommand {
   @Handler()
   @GuildAdminIfParam('virgin')
   @UseGuards(GuildAdminIfParamGuard)
+  @UseInterceptors(new LoggingInterceptor(SettingsCommand.name, 'handler'))
   @UseRequestContext()
   async handler(
     @InteractionEvent(SlashCommandPipe) dto: SettingsDTO,
@@ -255,6 +262,7 @@ export class SettingsCommand {
 
   @On(Events.InteractionCreate)
   @UseGuards(IsAutocompleteInteractionGuard)
+  @UseInterceptors(new LoggingInterceptor(SettingsCommand.name, 'autocomplete'))
   @UseRequestContext()
   async autocomplete(interaction: AutocompleteInteraction): Promise<void> {
     if (interaction.member == null) {
