@@ -82,7 +82,8 @@
     "sodium-native": "^4.0.0",
     "uuid": "^9.0.0",
     "winston": "^3.8.2",
-    "winston-loki": "^6.0.6"
+    "winston-loki": "^6.0.6",
+    "winston-transport": "^4.5.0"
   },
   "devDependencies": {
     "@iunu-inc/code-style": "^0.0.12",
