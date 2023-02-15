@@ -1,10 +1,13 @@
 import {
+  CanActivate,
+  ExecutionContext,
   Injectable,
   Logger,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { On } from '@discord-nestjs/core';
-import { Client, Events, Presence, VoiceState } from 'discord.js';
+import { Client, Events, GuildMember, Presence, VoiceState } from 'discord.js';
 import {
   MikroORM,
   NotFoundError,
@@ -20,6 +23,24 @@ import { DatabaseService } from 'src/database/database.service';
 import { DiscordHelperService } from 'src/bot/discord-helper.service';
 import { boldify, userLogHeader } from 'src/utils/logs';
 import { LoggingInterceptor } from '../interceptors/logging.interceptor';
+
+type CheckedVoiceState = VoiceState & { member: GuildMember };
+
+export class TrackVoiceStateGuard implements CanActivate {
+  canActivate(context: ExecutionContext): boolean {
+    const [old_state, new_state] = context.getArgs<[VoiceState, VoiceState]>();
+
+    if (
+      new_state.member == null ||
+      // User is a bot, so we don't need to track them.
+      new_state.member.user.bot
+    ) {
+      return false;
+    }
+
+    return true;
+  }
+}
 
 @Injectable()
 @UseInterceptors(new LoggingInterceptor(Track.name))
@@ -37,13 +58,9 @@ export class Track {
   ) {}
 
   @On(Events.VoiceStateUpdate)
+  @UseGuards(TrackVoiceStateGuard)
   @UseRequestContext()
-  async voiceStateUpdate(old_state: VoiceState, new_state: VoiceState) {
-    if (new_state.member == null || new_state.member.user.bot) {
-      // User is a bot, so we don't need to track them.
-      return;
-    }
-
+  async voiceStateUpdate(old_state: VoiceState, new_state: CheckedVoiceState) {
     const timestamp = new Date();
     if (
       // Entering VC
