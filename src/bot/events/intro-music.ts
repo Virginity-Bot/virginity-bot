@@ -7,7 +7,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { On } from '@discord-nestjs/core';
-import { Guild, VoiceState } from 'discord.js';
+import { Guild, VoiceState, Events } from 'discord.js';
 import {
   createAudioResource,
   joinVoiceChannel,
