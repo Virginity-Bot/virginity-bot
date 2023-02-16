@@ -63,8 +63,6 @@ export default async function bump(): Promise<void> {
     }
 
     repo = remote.find((remote) => remote.name === 'origin')!.refs.fetch;
-
-    console.log('Remote repository URL:', repo);
   });
 
   git
