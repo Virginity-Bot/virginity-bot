@@ -19,17 +19,22 @@ services:
         APP_DIR: '${PWD}'
     env_file: '.env'
     environment:
+      PORT: '8000'
+
       DATABASE_URL: 'postgres://postgres:password@db/virginity-bot'
       DATABASE_AUTO_MIGRATE: 'false'
+
       STORAGE_S3_HOST: 'object-storage'
       STORAGE_S3_PORT: '9000'
       STORAGE_S3_SSL: 'false'
       STORAGE_S3_REGION: 'local'
+
       LOG_LOKI_ENABLED: 'true'
       LOG_LOKI_ORIGIN: 'http://loki:3100'
     volumes:
       - './:${PWD}'
     ports:
+      - '8000:8000'
       - '9229:9229'
     networks:
       - 'virgin-net'
@@ -74,6 +79,10 @@ services:
       - '3100:3100'
     networks:
       - 'logger-net'
+
+  # prometheus:
+  #   image: 'docker.io/prometheus/prometheus:latest'
+
   grafana:
     image: 'docker.io/grafana/grafana:latest'
     volumes:
