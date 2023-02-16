@@ -52,23 +52,14 @@ export default async function bump(): Promise<void> {
   const branchName = branchSummary.current;
   packageJson.version = newVersion;
   writePackageJson(packageJson);
-  let repo;
+  const url = `git@github.com:Virginity-Bot/virginity-bot.git`;
 
   console.log(`Bumped version from ${currentVersion} to ${newVersion}`);
-
-  git.getRemotes(true, (err, remote) => {
-    if (err) {
-      console.log('Error:', err);
-      return;
-    }
-
-    repo = remote.find((remote) => remote.name === 'origin')!.refs.fetch;
-  });
 
   git
     .add(`./`)
     .commit(`🚀🔖 release v${newVersion}`)
-    .addRemote(`${branchName}`, `${repo}`);
+    .addRemote(`${branchName}`, `${url}`);
 
   // Commit the changes with a message
 }
