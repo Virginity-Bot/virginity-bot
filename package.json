@@ -83,6 +83,7 @@
     "pluralize": "^8.0.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
+    "simple-git": "^3.16.0",
     "sodium-native": "^4.0.0",
     "uuid": "^9.0.0",
     "winston": "^3.8.2",

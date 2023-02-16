@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import simpleGit, { SimpleGitOptions } from 'simple-git';
 
 // Increments the specified version based on the release type
 function incrementVersion(version: string, release: string): string {
@@ -34,14 +35,44 @@ function writePackageJson(packageJson: any): void {
 }
 
 // Bumps the version in the package.json file
-export default function bump(): void {
+export default async function bump(): Promise<void> {
+  const options: Partial<SimpleGitOptions> = {
+    baseDir: process.cwd(),
+    binary: 'git',
+    maxConcurrentProcesses: 6,
+    trimmed: false,
+  };
+
+  const git = simpleGit(options);
   const release: string = process.argv.slice(2) as unknown as string;
   const packageJson = readPackageJson();
   const currentVersion = packageJson.version;
   const newVersion = incrementVersion(currentVersion, release);
+  const branchSummary = await git.branch();
+  const branchName = branchSummary.current;
   packageJson.version = newVersion;
   writePackageJson(packageJson);
+  let repo;
+
   console.log(`Bumped version from ${currentVersion} to ${newVersion}`);
+
+  git.getRemotes(true, (err, remote) => {
+    if (err) {
+      console.log('Error:', err);
+      return;
+    }
+
+    repo = remote.find((remote) => remote.name === 'origin')!.refs.fetch;
+
+    console.log('Remote repository URL:', repo);
+  });
+
+  git
+    .add(`./`)
+    .commit(`🚀🔖 release v${newVersion}`)
+    .addRemote(`${branchName}`, `${repo}`);
+
+  // Commit the changes with a message
 }
 
 bump();
