@@ -1,9 +1,13 @@
 import {
   CallHandler,
   ExecutionContext,
+  Inject,
+  Injectable,
   Logger,
   NestInterceptor,
+  SetMetadata,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import {
   CommandInteraction,
   Events,
@@ -15,15 +19,32 @@ import { Observable, tap } from 'rxjs';
 import { red } from 'chalk';
 
 import { boldify } from 'src/utils/logs';
+import { PrometheusService } from 'src/prometheus/prometheus.service';
 
-export class LoggingInterceptor implements NestInterceptor {
-  private readonly logger;
+const metadata_name = 'vbot_req_logging';
 
-  constructor(component: string, private readonly custom_context?: string) {
-    this.logger = new Logger(`${LoggingInterceptor.name}, ${component}`);
-  }
+export function TimingLogContext(custom_context: string) {
+  return SetMetadata(metadata_name, custom_context);
+}
+
+@Injectable()
+export class TimingLogInterceptor implements NestInterceptor {
+  constructor(
+    @Inject(Reflector) private readonly reflector: Reflector,
+    private readonly prometheus: PrometheusService,
+  ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
+    const component_name = context.getClass().name;
+    const custom_context = this.reflector.get<string>(
+      metadata_name,
+      context.getHandler(),
+    );
+
+    const logger = new Logger(
+      `${TimingLogInterceptor.name}, ${component_name}`,
+    );
+
     const args = context.getArgs();
     const type: { event: Events } = args.at(-1);
 
@@ -31,7 +52,7 @@ export class LoggingInterceptor implements NestInterceptor {
     let interaction_id: string | undefined;
     let guild_id: string | undefined;
     let user_id: string | undefined;
-    let request: string | undefined = this.custom_context;
+    let request: string | undefined = custom_context;
 
     switch (type.event) {
       case Events.InteractionCreate: {
@@ -75,20 +96,23 @@ export class LoggingInterceptor implements NestInterceptor {
         return next.handle();
       }
       default: {
-        this.logger.warn(boldify`Unhandled event type: ${red(type.event)}`);
+        logger.warn(boldify`Unhandled event type: ${red(type.event)}`);
         return next.handle();
       }
     }
 
     return next.handle().pipe(
       tap(() => {
-        this.logger.log({
+        const response_time_ms = Date.now() - start;
+
+        logger.log({
           interaction_id,
           guild_id,
           user_id,
           request,
-          response_time_ms: Date.now() - start,
+          response_time_ms,
         });
+        this.prometheus.response_time_s.observe(response_time_ms / 1000);
       }),
     );
   }

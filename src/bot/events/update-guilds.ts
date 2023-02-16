@@ -8,10 +8,10 @@ import { EntityRepository } from '@mikro-orm/postgresql';
 import { SchedulingService } from 'src/scheduling/scheduling.service';
 import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { DiscordHelperService } from '../discord-helper.service';
-import { LoggingInterceptor } from '../interceptors/logging.interceptor';
+import { TimingLogInterceptor } from '../interceptors/logging.interceptor';
 
 @Injectable()
-@UseInterceptors(new LoggingInterceptor(UpdatedGuilds.name))
+@UseInterceptors(TimingLogInterceptor)
 export class UpdatedGuilds {
   constructor(
     private readonly orm: MikroORM,
