@@ -1,6 +1,7 @@
 import {
   Injectable,
   Logger,
+  UseFilters,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -41,6 +42,8 @@ import {
 } from '../guards/guild-admin-if-param.guard';
 import { IsAutocompleteInteractionGuard } from '../guards/is-autocomplete-interaction.guard';
 import { LoggingInterceptor } from '../interceptors/logging.interceptor';
+import { ValidationErrorFilter } from '../filters/validation-error.filter';
+import { CatchallErrorFilter } from '../filters/catchall-error.filter';
 
 const intro_song_file = 'intro_song_file';
 
@@ -94,6 +97,7 @@ export class SettingsDTO {
   defaultMemberPermissions: PermissionFlagsBits.SendMessages,
 })
 @Injectable()
+@UseFilters(ValidationErrorFilter, CatchallErrorFilter)
 export class SettingsCommand {
   private readonly logger = new Logger(SettingsCommand.name);
 

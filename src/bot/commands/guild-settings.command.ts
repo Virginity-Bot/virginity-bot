@@ -34,6 +34,7 @@ import { GuildEntity } from 'src/entities/guild';
 import { GuildAdminGuard } from '../guards/guild-admin.guard';
 import { ValidationErrorFilter } from '../filters/validation-error.filter';
 import { LoggingInterceptor } from '../interceptors/logging.interceptor';
+import { CatchallErrorFilter } from '../filters/catchall-error.filter';
 
 export class GuildSettingsDTO {
   /** The score multiplier applied when sharing your screen in VC. */
@@ -179,7 +180,7 @@ export class GuildSettingsDTO {
 })
 @Injectable()
 @UseInterceptors(new LoggingInterceptor(GuildSettingsCommand.name))
-@UseFilters(ValidationErrorFilter)
+@UseFilters(ValidationErrorFilter, CatchallErrorFilter)
 export class GuildSettingsCommand {
   private readonly logger = new Logger(GuildSettingsCommand.name);
 

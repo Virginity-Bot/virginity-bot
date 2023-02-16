@@ -5,9 +5,18 @@ import {
   Injectable,
   Logger,
   UseInterceptors,
+  ExecutionContext,
+  CanActivate,
+  UseGuards,
 } from '@nestjs/common';
 import { On } from '@discord-nestjs/core';
-import { Guild, VoiceState, Events } from 'discord.js';
+import {
+  Events,
+  Guild,
+  GuildMember,
+  VoiceBasedChannel,
+  VoiceState,
+} from 'discord.js';
 import {
   createAudioResource,
   joinVoiceChannel,
@@ -30,7 +39,34 @@ import { StorageService } from 'src/storage/storage.service';
 import configuration from 'src/config/configuration';
 import { LoggingInterceptor } from '../interceptors/logging.interceptor';
 
+type CheckedVoiceState = VoiceState & {
+  channel: VoiceBasedChannel;
+  member: GuildMember;
+};
+
+export class IntroMusicGuard implements CanActivate {
+  canActivate(context: ExecutionContext): boolean {
+    const [old_state, new_state] = context.getArgs<[VoiceState, VoiceState]>();
+
+    if (
+      // user is leaving VC
+      new_state.channel == null ||
+      // user is switching from one VC to another
+      new_state.channelId === old_state.channelId ||
+      // user is entering AFK
+      new_state.channelId === new_state.guild.afkChannelId ||
+      // there is no user
+      new_state.member == null
+    ) {
+      return false;
+    }
+
+    return true;
+  }
+}
+
 @Injectable()
+@UseGuards(IntroMusicGuard)
 @UseInterceptors(new LoggingInterceptor(IntroMusic.name))
 export class IntroMusic {
   private readonly logger = new Logger(IntroMusic.name);
@@ -46,20 +82,7 @@ export class IntroMusic {
 
   @On(Events.VoiceStateUpdate)
   @UseRequestContext()
-  async voiceStateUpdate(old_state: VoiceState, new_state: VoiceState) {
-    if (
-      // user is leaving VC
-      new_state.channel == null ||
-      // user is switching from one VC to another
-      new_state.channelId === old_state.channelId ||
-      // user is entering AFK
-      new_state.channelId === new_state.guild.afkChannelId ||
-      // there is no user
-      new_state.member == null
-    ) {
-      return;
-    }
-
+  async voiceStateUpdate(old_state: VoiceState, new_state: CheckedVoiceState) {
     const guild_ent = await this.guilds.findOneOrFail(new_state.guild.id);
     if (
       guild_ent.biggest_virgin_role_id == null ||
