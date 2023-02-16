@@ -258,4 +258,26 @@ export class DatabaseService {
 
     return parseInt(res[0]?.sum ?? '0');
   }
+
+  getGuildCount(): Promise<number> {
+    return this.guilds.count();
+  }
+
+  getUserCount(): Promise<number> {
+    return this.virginsRepo.count();
+  }
+
+  getVCEventCount(): Promise<number> {
+    return this.vcEventsRepo.count();
+  }
+
+  getUnclosedVCEventCount({
+    start = new Date(0),
+    end = new Date(),
+  } = {}): Promise<number> {
+    return this.vcEventsRepo.count({
+      connection_start: { $gte: start, $lte: end },
+      connection_end: null,
+    });
+  }
 }

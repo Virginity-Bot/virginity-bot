@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 
 import { BotModule } from './bot/bot.module';
 import { DatabaseModule } from './database/database.module';
+import { PrometheusModule } from './prometheus/prometheus.module';
 import { SchedulingModule } from './scheduling/scheduling.module';
 import { StorageModule } from './storage/storage.module';
 
@@ -12,6 +13,7 @@ import { StorageModule } from './storage/storage.module';
     StorageModule,
     BotModule,
     SchedulingModule,
+    PrometheusModule,
   ],
 })
 export class AppModule {}
