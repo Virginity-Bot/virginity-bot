@@ -1,4 +1,3 @@
-import { join, resolve } from 'node:path';
 import { hostname } from 'node:os';
 
 import { WinstonModule } from 'nest-winston';

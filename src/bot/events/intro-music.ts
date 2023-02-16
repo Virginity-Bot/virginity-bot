@@ -5,13 +5,10 @@ import {
   Injectable,
   Logger,
   UseInterceptors,
-  CallHandler,
   ExecutionContext,
-  NestInterceptor,
   CanActivate,
   UseGuards,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
 import { On } from '@discord-nestjs/core';
 import {
   Events,

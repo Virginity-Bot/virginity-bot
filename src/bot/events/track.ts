@@ -28,7 +28,7 @@ type CheckedVoiceState = VoiceState & { member: GuildMember };
 
 export class TrackVoiceStateGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
-    const [old_state, new_state] = context.getArgs<[VoiceState, VoiceState]>();
+    const [_old_state, new_state] = context.getArgs<[VoiceState, VoiceState]>();
 
     if (
       new_state.member == null ||
