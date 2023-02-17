@@ -23,10 +23,12 @@ import { PrometheusService } from 'src/prometheus/prometheus.service';
 
 const metadata_name = 'vbot_req_logging';
 
+/** Tells the `TimingLogInterceptor` how to label logs. */
 export function TimingLogContext(custom_context: string) {
   return SetMetadata(metadata_name, custom_context);
 }
 
+/** Logs data about requests, including timing. */
 @Injectable()
 export class TimingLogInterceptor implements NestInterceptor {
   constructor(
