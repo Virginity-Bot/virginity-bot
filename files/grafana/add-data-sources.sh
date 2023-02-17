@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+set -e
 
 username="admin"
 password="password"
@@ -7,7 +8,7 @@ password="password"
 sleep 5
 
 curl --request POST \
-  --url http://$username:$password@grafana:3000/api/datasources \
+  --url "http://$username:$password@grafana:3000/api/datasources" \
   --header 'Content-Type: application/json' \
   --data '{
     "name":"Loki",
@@ -18,7 +19,7 @@ curl --request POST \
   }'
 
 curl --request POST \
-  --url http://$username:$password@grafana:3000/api/datasources \
+  --url "http://$username:$password@grafana:3000/api/datasources" \
   --header 'Content-Type: application/json' \
   --data '{
     "name":"Prometheus",

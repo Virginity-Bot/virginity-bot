@@ -28,6 +28,8 @@ services:
       STORAGE_S3_PORT: '9000'
       STORAGE_S3_SSL: 'false'
       STORAGE_S3_REGION: 'local'
+      STORAGE_S3_ACCESS_KEY_ID: 'admin'
+      STORAGE_S3_SECRET_ACCESS_KEY: 'password'
 
       LOG_LOKI_ENABLED: 'true'
       LOG_LOKI_ORIGIN: 'http://loki:3100'
@@ -38,6 +40,7 @@ services:
       - '9229:9229'
     networks:
       - 'virgin-net'
+      - 's3-net'
       - 'logger-net'
       - 'prometheus-net'
     depends_on:
@@ -69,7 +72,14 @@ services:
       - '9000:9000'
       - '9001:9001'
     networks:
-      - 'virgin-net'
+      - 's3-net'
+  object-storage-create-bucket:
+    image: 'quay.io/minio/minio:latest'
+    entrypoint: '/create-bucket.sh'
+    volumes:
+      - './files/object-storage/create-bucket.sh:/create-bucket.sh:ro'
+    networks:
+      - 's3-net'
 
   loki:
     image: 'docker.io/grafana/loki:latest'
@@ -143,7 +153,7 @@ services:
       test: 'pg_isready --quiet --username="$$(env | grep POSTGRES_USER | cut -d = -f2)" --dbname="$$(env | grep POSTGRES_DB | cut -d = -f2)"'
   grafana-setup-datasources:
     image: 'docker.io/curlimages/curl:latest'
-    command: '/add-data-sources.sh'
+    entrypoint: '/add-data-sources.sh'
     volumes:
       - './files/grafana/add-data-sources.sh:/add-data-sources.sh:ro'
     networks:
@@ -151,6 +161,7 @@ services:
 
 networks:
   virgin-net:
+  s3-net:
   grafana-net:
   logger-net:
   prometheus-net:
