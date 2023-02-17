@@ -1,4 +1,23 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
-echo “Bumping...”
-# --exec npm version
+echo "Bumping... "
+re='^[0-9]+$'
+list='major minor patch'
+message="🚀🔖 release v%s"
+
+if [[ ! -z "$1" ]] ; then
+      npm version -m $message
+      exit 1
+fi
+
+echo "Getting args"
+
+if ! [[ $1 =~ $re ]] ; then
+  if [[ $list =~ (^|[[:space:]])$1($|[[:space:]]) ]] ; then
+    if [[ ! -z "$2" ]] ; then
+      npm version $1 -m $message
+    else
+      npm version $1 $2 -m $message
+    fi
+  fi
+fi
