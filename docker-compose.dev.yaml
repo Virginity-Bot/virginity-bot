@@ -159,6 +159,7 @@ services:
       - './files/grafana/add-data-sources.sh:/add-data-sources.sh:ro'
     networks:
       - 'grafana-net'
+    restart: 'on-failure:1'
 
 networks:
   virgin-net:

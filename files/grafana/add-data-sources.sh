@@ -1,30 +1,70 @@
 #!/usr/bin/env sh
 set -e
 
-username="admin"
-password="password"
+protocol="http:"
+host="grafana:3000"
+username="${2:-admin}"
+password="${3:-password}"
+if [ ! -z "$1" ]; then
+  origin=($(echo $1 | tr '/' ' '))
+  protocol=${origin[0]}
+  host=${origin[1]}
+fi
 
-# wait for Grafana to come up
-sleep 5
+max_retries=2
 
-curl --request POST \
-  --url "http://$username:$password@grafana:3000/api/datasources" \
-  --header 'Content-Type: application/json' \
-  --data '{
-    "name":"Loki",
-    "type":"loki",
-    "url":"http://loki:3100",
-    "access":"proxy",
-    "basicAuth":false
-  }'
+# @param $1 The name of the datasource
+# @param $2 The type of the datasource
+# @param $3 The URL of the datasource
+add_datasource () {
+  output=$(curl \
+    --silent \
+    --request POST \
+    --url "$protocol//$username:$password@$host/api/datasources" \
+    --header 'Content-Type: application/json' \
+    --data "{
+      \"name\": \"$1\",
+      \"type\": \"$2\",
+      \"url\": \"$3\",
+      \"access\": \"proxy\",
+      \"basicAuth\": false
+    }")
 
-curl --request POST \
-  --url "http://$username:$password@grafana:3000/api/datasources" \
-  --header 'Content-Type: application/json' \
-  --data '{
-    "name":"Prometheus",
-    "type":"prometheus",
-    "url":"http://prometheus:9090",
-    "access":"proxy",
-    "basicAuth":false
-  }'
+  if \
+    [[ "$output" =~ '"message":"data source with the same name already exists"' ]] || \
+    [[ "$output" =~ '"message":"Datasource added"' ]] \
+  ; then
+    exit 0
+  else
+    echo "Failed to add data source."
+    echo "$output"
+    exit 1
+  fi
+}
+
+main() {
+  # wait for Grafana to come up
+  retries=0
+  set +e;
+  while [ true ]; do
+    curl --silent --url "$protocol//$host" > /dev/null
+    if [ "$?" -eq 0 ]; then
+      break
+    else
+      retries=$((retries+1))
+      if [ "$retries" -gt "$max_retries" ]; then
+        echo "Could not reach Grafana at '$protocol//$host'."
+        exit 1
+      else
+        sleep 2
+        echo "Waiting for Grafana..."
+      fi
+    fi
+  done
+  set -e;
+
+  add_datasource "Loki" "loki" "http://loki:3100"
+  add_datasource "Prometheus" "prometheus" "http://prometheus:9090"
+}
+
+main $@
