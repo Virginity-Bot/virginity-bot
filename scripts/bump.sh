@@ -3,7 +3,8 @@
 echo "Bumping... "
 re='^[0-9]+$'
 list='major minor patch'
-alias message='"🚀🔖 release v%s"'
+message='"🚀🔖 release v%s"'
+echo $message
 
 if [[ -z "$1" ]] ; then
       npm version patch -m $message
