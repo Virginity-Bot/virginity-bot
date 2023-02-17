@@ -3,15 +3,13 @@
 echo "Bumping... "
 re='^[0-9]+$'
 list='major minor patch'
-message='"🚀🔖 release v%s"'
+message='🚀🔖 release v%s'
 echo $message
 
 if [[ -z "$1" ]] ; then
-      npm version patch -m $message
+      npm version --message "$message" patch
       exit 1
 fi
-
-echo "Getting args"
 
 if ! [[ $1 =~ $re ]] ; then
   if [[ $list =~ (^|[[:space:]])$1($|[[:space:]]) ]] ; then
