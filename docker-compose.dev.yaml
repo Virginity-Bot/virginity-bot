@@ -119,7 +119,6 @@ services:
     environment:
       GF_SECURITY_ADMIN_USER: 'admin'
       GF_SECURITY_ADMIN_PASSWORD: 'password'
-      # GF_AUTH_BASIC_ENABLED: 'true'
 
       GF_DATABASE_TYPE: 'postgres'
       GF_DATABASE_HOST: 'grafana-db:5432'
