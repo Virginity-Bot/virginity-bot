@@ -80,6 +80,7 @@ services:
       - './files/object-storage/create-bucket.sh:/create-bucket.sh:ro'
     networks:
       - 's3-net'
+    restart: 'on-failure:1'
 
   loki:
     image: 'docker.io/grafana/loki:latest'
