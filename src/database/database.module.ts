@@ -5,6 +5,7 @@ import { EntityName } from '@mikro-orm/core';
 import config from 'src/mikro-orm.config';
 import { DatabaseService } from 'src/database/database.service';
 import { BotModule } from 'src/bot/bot.module';
+import { PrometheusModule } from 'src/prometheus/prometheus.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { BotModule } from 'src/bot/bot.module';
       entities: config.entities as EntityName<Partial<unknown>>[],
     }),
     forwardRef(() => BotModule),
+    forwardRef(() => PrometheusModule),
   ],
   providers: [DatabaseService],
   exports: [MikroOrmModule, DatabaseService],
