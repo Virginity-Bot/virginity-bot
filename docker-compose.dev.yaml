@@ -39,6 +39,7 @@ services:
     networks:
       - 'virgin-net'
       - 'logger-net'
+      - 'prometheus-net'
     depends_on:
       - 'db'
       - 'object-storage'
@@ -80,8 +81,25 @@ services:
     networks:
       - 'logger-net'
 
-  # prometheus:
-  #   image: 'docker.io/prometheus/prometheus:latest'
+  prometheus:
+    image: 'quay.io/prometheus/prometheus:latest'
+    command: >-
+      --config.file=/etc/prometheus/prometheus.yml
+      --storage.tsdb.path=/prometheus
+      --web.console.libraries=/usr/share/prometheus/console_libraries
+      --web.console.templates=/usr/share/prometheus/consoles
+      --enable-feature=promql-at-modifier
+    volumes:
+      - './files/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml:ro'
+      - 'prometheus:/prometheus'
+    ports:
+      - '9090:9090'
+    networks:
+      - 'prometheus-net'
+    healthcheck:
+      test: 'wget --quiet -O - http://localhost:9090/-/healthy'
+    depends_on:
+      - 'server'
 
   grafana:
     image: 'docker.io/grafana/grafana:latest'
@@ -90,6 +108,7 @@ services:
     environment:
       GF_SECURITY_ADMIN_USER: 'admin'
       GF_SECURITY_ADMIN_PASSWORD: 'password'
+      # GF_AUTH_BASIC_ENABLED: 'true'
 
       GF_DATABASE_TYPE: 'postgres'
       GF_DATABASE_HOST: 'grafana-db:5432'
@@ -101,11 +120,13 @@ services:
     networks:
       - 'grafana-net'
       - 'logger-net'
+      - 'prometheus-net'
     healthcheck:
       test: 'wget --quiet -O - http://localhost:3000/api/health'
     depends_on:
       - 'grafana-db'
       - 'loki'
+      - 'prometheus'
   grafana-db:
     image: 'docker.io/library/postgres:15'
     volumes:
@@ -114,15 +135,25 @@ services:
       POSTGRES_USER: 'postgres'
       POSTGRES_PASSWORD: 'password'
       POSTGRES_DB: 'grafana'
+    ports:
+      - '65432:5432'
     networks:
       - 'grafana-net'
     healthcheck:
       test: 'pg_isready --quiet --username="$$(env | grep POSTGRES_USER | cut -d = -f2)" --dbname="$$(env | grep POSTGRES_DB | cut -d = -f2)"'
+  grafana-setup-datasources:
+    image: 'docker.io/curlimages/curl:latest'
+    command: '/add-data-sources.sh'
+    volumes:
+      - './files/grafana/add-data-sources.sh:/add-data-sources.sh:ro'
+    networks:
+      - 'grafana-net'
 
 networks:
   virgin-net:
   grafana-net:
   logger-net:
+  prometheus-net:
 
 volumes:
   db:
@@ -130,3 +161,4 @@ volumes:
   loki:
   grafana:
   grafana-db:
+  prometheus:
