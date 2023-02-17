@@ -4,7 +4,6 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import {
   Gauge,
   Histogram,
-  Counter,
   collectDefaultMetrics,
   exponentialBuckets,
 } from 'prom-client';

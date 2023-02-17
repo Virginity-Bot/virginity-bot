@@ -27,10 +27,7 @@ import { VCEventEntity } from 'src/entities/vc-event.entity';
 import { DatabaseService } from 'src/database/database.service';
 import { possess, virgin_display_name } from 'src/utils/string-transformers';
 import { DiscordHelperService } from '../discord-helper.service';
-import {
-  TimingLogInterceptor,
-  TimingLogContext,
-} from '../interceptors/logging.interceptor';
+import { TimingLogInterceptor } from '../interceptors/logging.interceptor';
 import { ValidationErrorFilter } from '../filters/validation-error.filter';
 import { CatchallErrorFilter } from '../filters/catchall-error.filter';
 
