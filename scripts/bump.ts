@@ -32,7 +32,7 @@ export default async function bump(): Promise<void> {
     .then((newVersion) => {
       console.error(`version updated! ${npmVersion.newVersion}`, newVersion);
     })
-    .catch(console.log(`Directory is not clean. ${npmVersion.newVersion}`));
+    .catch(console.log());
 }
 
 bump();
