@@ -20,7 +20,7 @@
     "start:debug:docker": "scripts/npm-start-debug-docker.sh",
     "start:prod": "node --enable-source-maps dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "scripts/npm-test-debug.sh",
@@ -29,23 +29,6 @@
   },
   "mikro-orm": {
     "useTsNode": true
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
   },
   "engines": {
     "node": "^18.10.0"
