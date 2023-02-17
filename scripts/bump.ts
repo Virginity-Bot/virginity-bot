@@ -1,67 +1,38 @@
-import * as fs from 'fs';
-import simpleGit, { SimpleGitOptions } from 'simple-git';
+import npmVersion from 'libnpmversion';
 
-// Increments the specified version based on the release type
-function incrementVersion(version: string, release: string): string {
-  const parts = version.split('.').map((part) => parseInt(part, 10));
-
-  if (release[0] === 'major') {
-    parts[0]++;
-    parts[1] = 0;
-    parts[2] = 0;
-  } else if (release[0] === 'minor') {
-    parts[1]++;
-    parts[2] = 0;
-  } else if (release[0] === 'patch') {
-    parts[2]++;
+/**
+ * Bumps the version in the package.json file
+ * Default to patch i.e. x.x.x+1
+ */
+export default async function bump(): Promise<void> {
+  let arg: string = process.argv.slice(2) as unknown as string;
+  const amount = process.argv.slice(3);
+  if (arg === ('major' || 'minor' || 'patch')) {
+    return;
   } else {
-    parts[2]++;
+    arg = 'patch';
   }
 
-  return parts.join('.');
-}
+  npmVersion(arg, {
+    path: `./`, // defaults to cwd
 
-// Reads the current version from the package.json file
-function readPackageJson(): any {
-  const packageJson = fs.readFileSync('package.json', { encoding: 'utf-8' });
-  return JSON.parse(packageJson);
-}
-
-// Writes the new version to the package.json file
-function writePackageJson(packageJson: any): void {
-  fs.writeFileSync('package.json', JSON.stringify(packageJson, null, 2), {
-    encoding: 'utf-8',
-  });
-}
-
-// Bumps the version in the package.json file
-export default async function bump(): Promise<void> {
-  const options: Partial<SimpleGitOptions> = {
-    baseDir: process.cwd(),
-    binary: 'git',
-    maxConcurrentProcesses: 6,
-    trimmed: false,
-  };
-
-  const git = simpleGit(options);
-  const release: string = process.argv.slice(2) as unknown as string;
-  const packageJson = readPackageJson();
-  const currentVersion = packageJson.version;
-  const newVersion = incrementVersion(currentVersion, release);
-  const branchSummary = await git.branch();
-  const branchName = branchSummary.current;
-  packageJson.version = newVersion;
-  writePackageJson(packageJson);
-  const url = `git@github.com:Virginity-Bot/virginity-bot.git`;
-
-  console.log(`Bumped version from ${currentVersion} to ${newVersion}`);
-
-  git
-    .add(`./`)
-    .commit(`🚀🔖 release v${newVersion}`)
-    .addRemote(`${branchName}`, `${url}`);
-
-  // Commit the changes with a message
+    allowSameVersion: false, // allow tagging/etc to the current version
+    preid: '', // when arg=='pre', define the prerelease string, like 'beta' etc.
+    tagVersionPrefix: 'v', // tag as 'v1.2.3' when versioning to 1.2.3
+    commitHooks: true, // default true, run git commit hooks, default true
+    gitTagVersion: true, // default true, tag the version
+    signGitCommit: false, // default false, gpg sign the git commit
+    signGitTag: false, // default false, gpg sign the git tag
+    force: false, // push forward recklessly if any problems happen
+    ignoreScripts: false, // do not run pre/post/version lifecycle scripts
+    scriptShell: '/bin/bash', // shell to run lifecycle scripts in
+    message: `🚀🔖 release v%s`, // message for tag and commit, replace %s with the version
+    silent: false, // passed to @npmcli/run-script to control whether it logs
+  })
+    .then((newVersion) => {
+      console.error(`version updated! ${npmVersion.newVersion}`, newVersion);
+    })
+    .catch(console.log(`Directory is not clean. ${npmVersion.newVersion}`));
 }
 
 bump();
