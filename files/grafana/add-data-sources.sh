@@ -6,9 +6,9 @@ host="grafana:3000"
 username="${2:-admin}"
 password="${3:-password}"
 if [ ! -z "$1" ]; then
-  origin=($(echo $1 | tr '/' ' '))
-  protocol=${origin[0]}
-  host=${origin[1]}
+  set -- $(echo $1 | tr '/' ' ')
+  protocol=$1
+  host=$2
 fi
 
 max_retries=2
