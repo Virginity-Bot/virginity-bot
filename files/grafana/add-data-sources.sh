@@ -34,7 +34,7 @@ add_datasource () {
     [[ "$output" =~ '"message":"data source with the same name already exists"' ]] || \
     [[ "$output" =~ '"message":"Datasource added"' ]] \
   ; then
-    exit 0
+    return
   else
     echo "Failed to add data source."
     echo "$output"
@@ -65,6 +65,9 @@ main() {
 
   add_datasource "Loki" "loki" "http://loki:3100"
   add_datasource "Prometheus" "prometheus" "http://prometheus:9090"
+
+  echo "Added data-sources."
+  exit 0
 }
 
 main $@

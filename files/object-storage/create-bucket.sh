@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 set -e
 
 origin="${1:-http://object-storage:9000}"
@@ -49,6 +49,7 @@ main() {
     [[ "$output" =~ "Your previous request to create the named bucket succeeded" ]] || \
     [[ "$output" =~ "Bucket created successfully" ]] \
   ; then
+    echo "Created bucket."
     exit 0
   else
     echo "Failed to create bucket."
