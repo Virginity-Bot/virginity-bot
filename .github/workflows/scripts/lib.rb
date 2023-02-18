@@ -23,7 +23,8 @@ def get_image_tags(
     versions.push('latest')
   end
 
-  puts versions.join(',')
+  # log to stderr so that stdout only contains the full tags
+  $stderr.puts versions.join(',')
 
   return versions.map { |v| "#{container_repo}/bot:#{v}" }.sort()
 end
