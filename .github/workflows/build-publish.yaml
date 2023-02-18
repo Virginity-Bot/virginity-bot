@@ -75,7 +75,7 @@ jobs:
       - name: 'Test 🧪'
         run: 'npm run test'
 
-  build-container:
+  container-build:
     needs: 'test-scripts'
     runs-on: 'ubuntu-latest'
     steps:
@@ -110,12 +110,20 @@ jobs:
       node_version: '${{ steps.node-version.outputs.node_version }}'
       image_tags: '${{ steps.tag-image.outputs.image_tags }}'
 
+  container-test:
+    needs:
+      - 'container-build'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: 'Run container 🐳'
+
   publish:
     needs:
-      - 'build-container'
+      - 'container-build'
+      - 'container-test'
       - 'lint'
       - 'test'
-    if: "contains(needs.build-container.outputs.image_tags, ':latest')"
+    if: "contains(needs.container-build.outputs.image_tags, ':latest')"
     runs-on: 'ubuntu-latest'
     permissions:
       packages: 'write'
@@ -133,7 +141,7 @@ jobs:
       - name: 'Publish to Registry 💨'
         uses: 'docker/build-push-action@v3'
         with:
-          build-args: 'NODE_VERSION=${{ needs.build-container.outputs.node_version }}'
+          build-args: 'NODE_VERSION=${{ needs.container-build.outputs.node_version }}'
           push: true
-          tags: '${{ needs.build-container.outputs.image_tags }}'
+          tags: '${{ needs.container-build.outputs.image_tags }}'
           cache-from: 'type=gha'
