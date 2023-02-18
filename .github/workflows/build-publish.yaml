@@ -119,7 +119,12 @@ jobs:
       - name: 'Run container 🐳'
         run: |
           touch .env
-          docker compose -f docker-compose.dev.yaml up -d db object-storage
+
+          docker compose \
+            --file docker-compose.dev.yaml \
+            --quiet-pull \
+            up --detach db object-storage
+
           docker run \
             --env LOG_LEVEL='DEBUG' \
             --env DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN_CI }} \
