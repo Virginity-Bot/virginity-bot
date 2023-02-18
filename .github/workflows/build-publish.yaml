@@ -122,8 +122,10 @@ jobs:
 
           docker compose \
             --file docker-compose.dev.yaml \
+            up \
+            --detach \
             --quiet-pull \
-            up --detach db object-storage
+            db object-storage
 
           docker run \
             --env LOG_LEVEL='DEBUG' \
