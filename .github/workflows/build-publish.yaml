@@ -3,7 +3,6 @@ name: 'Build & Publish Container images'
 on:
   push:
   pull_request:
-  release:
 
 permissions:
   contents: 'read'
@@ -116,6 +115,22 @@ jobs:
     runs-on: 'ubuntu-latest'
     steps:
       - name: 'Run container 🐳'
+        run: |
+          docker compose up -d db object-storage
+          docker run \
+            --env DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN_CI }} \
+            --env DATABASE_URL='postgres://postgres:password@db/virginity-bot'
+            --env STORAGE_S3_HOST='object-storage'
+            --env STORAGE_S3_PORT='9000'
+            --env STORAGE_S3_SSL='false'
+            --env STORAGE_S3_REGION='local'
+            --env STORAGE_S3_ACCESS_KEY_ID='admin'
+            --env STORAGE_S3_SECRET_ACCESS_KEY='password'
+            \
+            --network 'virgin-net' \
+            --network 's3-net' \
+            \
+            bot:latest
 
   publish:
     needs:
