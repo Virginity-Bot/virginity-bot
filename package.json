@@ -26,7 +26,7 @@
     "test:debug": "scripts/npm-test-debug.sh",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "db:create": "mikro-orm migration:up",
-    "bump": "npm version --message '🚀🔖 release v%s' \"$1\""
+    "bump": "npm version --message '🚀🔖 release v%s'"
   },
   "mikro-orm": {
     "useTsNode": true
