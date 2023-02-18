@@ -19,21 +19,30 @@ services:
         APP_DIR: '${PWD}'
     env_file: '.env'
     environment:
+      PORT: '8000'
+
       DATABASE_URL: 'postgres://postgres:password@db/virginity-bot'
       DATABASE_AUTO_MIGRATE: 'false'
+
       STORAGE_S3_HOST: 'object-storage'
       STORAGE_S3_PORT: '9000'
       STORAGE_S3_SSL: 'false'
       STORAGE_S3_REGION: 'local'
+      STORAGE_S3_ACCESS_KEY_ID: 'admin'
+      STORAGE_S3_SECRET_ACCESS_KEY: 'password'
+
       LOG_LOKI_ENABLED: 'true'
       LOG_LOKI_ORIGIN: 'http://loki:3100'
     volumes:
       - './:${PWD}'
     ports:
+      - '8000:8000'
       - '9229:9229'
     networks:
       - 'virgin-net'
+      - 's3-net'
       - 'logger-net'
+      - 'prometheus-net'
     depends_on:
       - 'db'
       - 'object-storage'
@@ -63,7 +72,15 @@ services:
       - '9000:9000'
       - '9001:9001'
     networks:
-      - 'virgin-net'
+      - 's3-net'
+  object-storage-create-bucket:
+    image: 'quay.io/minio/minio:latest'
+    entrypoint: '/create-bucket.sh'
+    volumes:
+      - './files/object-storage/create-bucket.sh:/create-bucket.sh:ro'
+    networks:
+      - 's3-net'
+    restart: 'on-failure:1'
 
   loki:
     image: 'docker.io/grafana/loki:latest'
@@ -74,6 +91,27 @@ services:
       - '3100:3100'
     networks:
       - 'logger-net'
+
+  prometheus:
+    image: 'quay.io/prometheus/prometheus:latest'
+    command: >-
+      --config.file=/etc/prometheus/prometheus.yml
+      --storage.tsdb.path=/prometheus
+      --web.console.libraries=/usr/share/prometheus/console_libraries
+      --web.console.templates=/usr/share/prometheus/consoles
+      --enable-feature=promql-at-modifier
+    volumes:
+      - './files/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml:ro'
+      - 'prometheus:/prometheus'
+    ports:
+      - '9090:9090'
+    networks:
+      - 'prometheus-net'
+    healthcheck:
+      test: 'wget --quiet -O - http://localhost:9090/-/healthy'
+    depends_on:
+      - 'server'
+
   grafana:
     image: 'docker.io/grafana/grafana:latest'
     volumes:
@@ -92,11 +130,13 @@ services:
     networks:
       - 'grafana-net'
       - 'logger-net'
+      - 'prometheus-net'
     healthcheck:
       test: 'wget --quiet -O - http://localhost:3000/api/health'
     depends_on:
       - 'grafana-db'
       - 'loki'
+      - 'prometheus'
   grafana-db:
     image: 'docker.io/library/postgres:15'
     volumes:
@@ -105,15 +145,27 @@ services:
       POSTGRES_USER: 'postgres'
       POSTGRES_PASSWORD: 'password'
       POSTGRES_DB: 'grafana'
+    ports:
+      - '65432:5432'
     networks:
       - 'grafana-net'
     healthcheck:
       test: 'pg_isready --quiet --username="$$(env | grep POSTGRES_USER | cut -d = -f2)" --dbname="$$(env | grep POSTGRES_DB | cut -d = -f2)"'
+  grafana-setup-datasources:
+    image: 'docker.io/curlimages/curl:latest'
+    entrypoint: '/add-data-sources.sh'
+    volumes:
+      - './files/grafana/add-data-sources.sh:/add-data-sources.sh:ro'
+    networks:
+      - 'grafana-net'
+    restart: 'on-failure:1'
 
 networks:
   virgin-net:
+  s3-net:
   grafana-net:
   logger-net:
+  prometheus-net:
 
 volumes:
   db:
@@ -121,3 +173,4 @@ volumes:
   loki:
   grafana:
   grafana-db:
+  prometheus:

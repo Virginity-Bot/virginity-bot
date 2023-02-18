@@ -37,7 +37,7 @@ import { VirginEntity } from 'src/entities/virgin.entity';
 import { IntroSongEntity } from 'src/entities/intro-song.entity';
 import { StorageService } from 'src/storage/storage.service';
 import configuration from 'src/config/configuration';
-import { LoggingInterceptor } from '../interceptors/logging.interceptor';
+import { TimingLogInterceptor } from '../interceptors/logging.interceptor';
 
 type CheckedVoiceState = VoiceState & {
   channel: VoiceBasedChannel;
@@ -67,7 +67,7 @@ export class IntroMusicGuard implements CanActivate {
 
 @Injectable()
 @UseGuards(IntroMusicGuard)
-@UseInterceptors(new LoggingInterceptor(IntroMusic.name))
+@UseInterceptors(TimingLogInterceptor)
 export class IntroMusic {
   private readonly logger = new Logger(IntroMusic.name);
 

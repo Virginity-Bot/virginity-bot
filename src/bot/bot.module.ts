@@ -6,6 +6,7 @@ import { SchedulingModule } from 'src/scheduling/scheduling.module';
 import { DatabaseModule } from 'src/database/database.module';
 import { StorageModule } from 'src/storage/storage.module';
 import { DiscordConfigService } from 'src/bot/discord-config.service';
+import { PrometheusModule } from 'src/prometheus/prometheus.module';
 import { DiscordHelperService } from './discord-helper.service';
 import { UpdatedGuilds } from './events/update-guilds';
 import { IntroMusic } from './events/intro-music';
@@ -19,6 +20,7 @@ import { CheckScoreCommand } from './commands/check-score.command';
 import { SettingsCommand } from './commands/settings.command';
 import { GuildSettingsCommand } from './commands/guild-settings.command';
 import { GuildAdminGuard } from './guards/guild-admin.guard';
+import { TimingLogInterceptor } from './interceptors/logging.interceptor';
 
 @Module({
   imports: [
@@ -29,6 +31,7 @@ import { GuildAdminGuard } from './guards/guild-admin.guard';
     forwardRef(() => DatabaseModule),
     StorageModule,
     forwardRef(() => SchedulingModule),
+    forwardRef(() => PrometheusModule),
   ],
   providers: [
     DiscordHelperService,
@@ -47,6 +50,8 @@ import { GuildAdminGuard } from './guards/guild-admin.guard';
     UpdateUsers,
 
     GuildAdminGuard,
+
+    TimingLogInterceptor,
   ],
   exports: [
     DiscordModule.forFeature(),

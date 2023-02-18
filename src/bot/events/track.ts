@@ -22,7 +22,7 @@ import { VCEventEntity } from 'src/entities/vc-event.entity';
 import { DatabaseService } from 'src/database/database.service';
 import { DiscordHelperService } from 'src/bot/discord-helper.service';
 import { boldify, userLogHeader } from 'src/utils/logs';
-import { LoggingInterceptor } from '../interceptors/logging.interceptor';
+import { TimingLogInterceptor } from '../interceptors/logging.interceptor';
 
 type CheckedVoiceState = VoiceState & { member: GuildMember };
 
@@ -43,7 +43,7 @@ export class TrackVoiceStateGuard implements CanActivate {
 }
 
 @Injectable()
-@UseInterceptors(new LoggingInterceptor(Track.name))
+@UseInterceptors(TimingLogInterceptor)
 export class Track {
   private readonly logger = new Logger(Track.name);
 

@@ -7,10 +7,10 @@ import { EntityRepository } from '@mikro-orm/postgresql';
 
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { userLogHeader } from 'src/utils/logs';
-import { LoggingInterceptor } from '../interceptors/logging.interceptor';
+import { TimingLogInterceptor } from '../interceptors/logging.interceptor';
 
 @Injectable()
-@UseInterceptors(new LoggingInterceptor(UpdateUsers.name))
+@UseInterceptors(TimingLogInterceptor)
 export class UpdateUsers {
   private readonly logger = new Logger(UpdateUsers.name);
 

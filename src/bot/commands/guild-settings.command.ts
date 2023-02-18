@@ -33,7 +33,7 @@ import { IsInfrequentCron } from 'src/validators/infrequent-cron.validator';
 import { GuildEntity } from 'src/entities/guild';
 import { GuildAdminGuard } from '../guards/guild-admin.guard';
 import { ValidationErrorFilter } from '../filters/validation-error.filter';
-import { LoggingInterceptor } from '../interceptors/logging.interceptor';
+import { TimingLogInterceptor } from '../interceptors/logging.interceptor';
 import { CatchallErrorFilter } from '../filters/catchall-error.filter';
 
 export class GuildSettingsDTO {
@@ -179,7 +179,7 @@ export class GuildSettingsDTO {
   dmPermission: false,
 })
 @Injectable()
-@UseInterceptors(new LoggingInterceptor(GuildSettingsCommand.name))
+@UseInterceptors(TimingLogInterceptor)
 @UseFilters(ValidationErrorFilter, CatchallErrorFilter)
 export class GuildSettingsCommand {
   private readonly logger = new Logger(GuildSettingsCommand.name);

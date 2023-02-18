@@ -41,7 +41,10 @@ import {
   GuildAdminIfParamGuard,
 } from '../guards/guild-admin-if-param.guard';
 import { IsAutocompleteInteractionGuard } from '../guards/is-autocomplete-interaction.guard';
-import { LoggingInterceptor } from '../interceptors/logging.interceptor';
+import {
+  TimingLogInterceptor,
+  TimingLogContext,
+} from '../interceptors/logging.interceptor';
 import { ValidationErrorFilter } from '../filters/validation-error.filter';
 import { CatchallErrorFilter } from '../filters/catchall-error.filter';
 
@@ -117,7 +120,8 @@ export class SettingsCommand {
   @Handler()
   @GuildAdminIfParam('virgin')
   @UseGuards(GuildAdminIfParamGuard)
-  @UseInterceptors(new LoggingInterceptor(SettingsCommand.name, 'handler'))
+  @TimingLogContext('handler')
+  @UseInterceptors(TimingLogInterceptor)
   @UseRequestContext()
   async handler(
     @InteractionEvent(SlashCommandPipe) dto: SettingsDTO,
@@ -271,7 +275,8 @@ export class SettingsCommand {
 
   @On(Events.InteractionCreate)
   @UseGuards(IsAutocompleteInteractionGuard)
-  @UseInterceptors(new LoggingInterceptor(SettingsCommand.name, 'autocomplete'))
+  @TimingLogContext('autocomplete')
+  @UseInterceptors(TimingLogInterceptor)
   @UseRequestContext()
   async autocomplete(interaction: AutocompleteInteraction): Promise<void> {
     if (interaction.member == null) {

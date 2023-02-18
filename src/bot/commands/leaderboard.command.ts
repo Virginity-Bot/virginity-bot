@@ -23,7 +23,7 @@ import { DatabaseService } from 'src/database/database.service';
 import { boldify } from 'src/utils/logs';
 import { DiscordHelperService } from '../discord-helper.service';
 import { LeaderboardService } from '../leaderboard.service';
-import { LoggingInterceptor } from '../interceptors/logging.interceptor';
+import { TimingLogInterceptor } from '../interceptors/logging.interceptor';
 import { CatchallErrorFilter } from '../filters/catchall-error.filter';
 
 @Command({
@@ -33,7 +33,7 @@ import { CatchallErrorFilter } from '../filters/catchall-error.filter';
   dmPermission: false,
 })
 @Injectable()
-@UseInterceptors(new LoggingInterceptor(LeaderboardCommand.name))
+@UseInterceptors(TimingLogInterceptor)
 @UseFilters(CatchallErrorFilter)
 export class LeaderboardCommand {
   private readonly logger = new Logger(LeaderboardCommand.name);

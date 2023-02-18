@@ -10,13 +10,14 @@ import {
   VoiceState,
 } from 'discord.js';
 import { InjectDiscordClient } from '@discord-nestjs/core';
-import { differenceInMinutes } from 'date-fns';
+import { differenceInMinutes, differenceInSeconds } from 'date-fns';
 
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
 import { boldify, userLogHeader } from 'src/utils/logs';
 import { DiscordHelperService } from 'src/bot/discord-helper.service';
 import { GuildEntity } from 'src/entities/guild';
+import { PrometheusService } from 'src/prometheus/prometheus.service';
 
 @Injectable()
 export class DatabaseService {
@@ -30,6 +31,7 @@ export class DatabaseService {
     private readonly virginsRepo: EntityRepository<VirginEntity>,
     @InjectRepository(VCEventEntity)
     private readonly vcEventsRepo: EntityRepository<VCEventEntity>,
+    private readonly prometheus: PrometheusService,
     private readonly discord_helper: DiscordHelperService,
     @InjectDiscordClient()
     private readonly discord_client: Client,
@@ -190,6 +192,15 @@ export class DatabaseService {
     // TODO: once our scoring lines up 100%, remove this flush
     await this.vcEventsRepo.flush();
 
+    this.prometheus.vc_event_duration_s.observe(
+      Math.abs(
+        differenceInSeconds(
+          event_ent.connection_end,
+          event_ent.connection_start,
+        ),
+      ),
+    );
+
     // TODO(1): this should probably just recalculate their whole score
     const additional_score = this.calculateScoreForEvent(event_ent);
     this.logger.debug(
@@ -257,5 +268,27 @@ export class DatabaseService {
       .groupBy(['vc_event.virgin_snowflake', 'vc_event.guild_snowflake']);
 
     return parseInt(res[0]?.sum ?? '0');
+  }
+
+  getGuildCount(): Promise<number> {
+    return this.guilds.count();
+  }
+
+  getUserCount(): Promise<number> {
+    return this.virginsRepo.count();
+  }
+
+  getVCEventCount(): Promise<number> {
+    return this.vcEventsRepo.count();
+  }
+
+  getUnclosedVCEventCount({
+    start = new Date(0),
+    end = new Date(),
+  } = {}): Promise<number> {
+    return this.vcEventsRepo.count({
+      connection_start: { $gte: start, $lte: end },
+      connection_end: null,
+    });
   }
 }
