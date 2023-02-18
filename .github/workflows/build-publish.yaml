@@ -89,13 +89,13 @@ jobs:
           echo "node_version=$(cat '.nvmrc')" >> "$GITHUB_OUTPUT"
       - name: 'Get image tag names 🏷️'
         id: 'tag-image'
-        run: |
+        run: >-
           echo "image_tags=$(
-            .github/workflows/scripts/get-image-tags.rb \
-              "${{ github.repository }}" \
-              "${{ github.ref_name }}" \
-              "${{ github.ref_type }}" \
-              "${{ github.event.repository.default_branch }}" \
+            .github/workflows/scripts/get-image-tags.rb
+              "${{ github.repository }}"
+              "${{ github.ref_name }}"
+              "${{ github.ref_type }}"
+              "${{ github.event.repository.default_branch }}"
           )" >> "$GITHUB_OUTPUT"
       - name: 'Build container 🐳'
         uses: 'docker/build-push-action@v3'
