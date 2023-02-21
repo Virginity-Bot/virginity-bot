@@ -18,6 +18,7 @@ import { boldify, userLogHeader } from 'src/utils/logs';
 import { DiscordHelperService } from 'src/bot/discord-helper.service';
 import { GuildEntity } from 'src/entities/guild';
 import { PrometheusService } from 'src/prometheus/prometheus.service';
+import { IntroSongEntity } from 'src/entities/intro-song.entity';
 
 @Injectable()
 export class DatabaseService {
@@ -31,6 +32,8 @@ export class DatabaseService {
     private readonly virginsRepo: EntityRepository<VirginEntity>,
     @InjectRepository(VCEventEntity)
     private readonly vcEventsRepo: EntityRepository<VCEventEntity>,
+    @InjectRepository(IntroSongEntity)
+    private readonly intro_songs: EntityRepository<IntroSongEntity>,
     private readonly prometheus: PrometheusService,
     private readonly discord_helper: DiscordHelperService,
     @InjectDiscordClient()
@@ -290,5 +293,9 @@ export class DatabaseService {
       connection_start: { $gte: start, $lte: end },
       connection_end: null,
     });
+  }
+
+  getIntroSongCount(): Promise<number> {
+    return this.intro_songs.count();
   }
 }

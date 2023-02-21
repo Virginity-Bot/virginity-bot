@@ -63,6 +63,15 @@ export class PrometheusService {
     },
   });
 
+  /** Total count of intro_songs. */
+  intro_song_count = new Gauge({
+    name: 'vbot_intro_song_count',
+    help: 'Total count of intro_songs.',
+    collect: async (): Promise<void> => {
+      this.intro_song_count.set(await this.database.getIntroSongCount());
+    },
+  });
+
   constructor(
     @Inject(forwardRef(() => DatabaseService))
     private readonly database: DatabaseService,
