@@ -127,25 +127,7 @@ jobs:
           cache-from: 'type=gha'
 
       - name: 'Run container 🐳'
-        run: |
-          touch .env
-
-          docker compose \
-            --project-name "vbot-helper" \
-            --file "docker-compose.dev.yaml" \
-            up \
-            --detach \
-            --quiet-pull \
-            db object-storage
-
-          IMAGE="bot:latest" \
-          DISCORD_TOKEN="${{ secrets.DISCORD_TOKEN_CI }}" \
-            docker compose \
-              --project-name "vbot-server" \
-              --file "test/docker-compose.test.yaml" \
-              up \
-              --detach \
-              --quiet-pull
+        run: '.github/workflows/scripts/container-test.sh'
 
   publish:
     needs:
