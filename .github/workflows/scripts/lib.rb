@@ -21,6 +21,11 @@ def get_image_tags(
   elsif git_ref_type == 'tag'
     # add version tag
     versions.add(package['version'])
+    # TODO: check that this is actually latest
+    parsed = parse_semver(package['version'])
+    versions.add(parsed.major)
+    versions.add("#{parsed.major}.#{parsed.minor}")
+    versions.add("#{parsed.major}.#{parsed.minor}.#{parsed.patch}")
 
     # TODO: if the tag was made on a non-default branch, we still tag with default branch
     versions.add(git_default_branch)
