@@ -67,7 +67,7 @@ test_container() {
 }
 
 main() {
-  # prepare
+  prepare
   test_container
 }
 
