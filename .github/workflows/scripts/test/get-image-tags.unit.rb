@@ -32,7 +32,7 @@ class TestGetImageTags < Test::Unit::TestCase
     )
   end
 
-  def test_tag
+  def test_simple_tag
     assert_equal(
       Set[
         'ghcr.io/virginity-bot/virginity.bot/bot:latest',
@@ -47,6 +47,23 @@ class TestGetImageTags < Test::Unit::TestCase
         git_ref_type: 'tag',
         git_default_branch: 'master',
         package: JSON.parse('{"version": "1.0.0"}'),
+      ),
+    )
+  end
+
+  def test_pre_tag
+    assert_equal(
+      Set[
+        'ghcr.io/virginity-bot/virginity.bot/bot:latest',
+        'ghcr.io/virginity-bot/virginity.bot/bot:master',
+        'ghcr.io/virginity-bot/virginity.bot/bot:1.0.0-pre'
+      ],
+      get_image_tags(
+        git_repo: 'Virginity-Bot/virginity.bot',
+        git_ref_name: '1.0.0',
+        git_ref_type: 'tag',
+        git_default_branch: 'master',
+        package: JSON.parse('{"version": "1.0.0-pre"}'),
       ),
     )
   end
