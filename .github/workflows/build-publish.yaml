@@ -121,30 +121,21 @@ jobs:
           touch .env
 
           docker compose \
-            --project-name "vbot" \
+            --project-name "vbot-helper" \
             --file "docker-compose.dev.yaml" \
             up \
             --detach \
             --quiet-pull \
             db object-storage
 
-          docker network ls
-
-          docker run \
-            --env LOG_LEVEL='DEBUG' \
-            --env DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN_CI }} \
-            --env DATABASE_URL='postgres://postgres:password@db/virginity-bot' \
-            --env STORAGE_S3_HOST='object-storage' \
-            --env STORAGE_S3_PORT='9000' \
-            --env STORAGE_S3_SSL='false' \
-            --env STORAGE_S3_REGION='local' \
-            --env STORAGE_S3_ACCESS_KEY_ID='admin' \
-            --env STORAGE_S3_SECRET_ACCESS_KEY='password' \
-            \
-            --network 'vbot_virgin-net' \
-            --network 'vbot_s3-net' \
-            \
-            bot:latest
+          IMAGE="bot:latest" \
+          DISCORD_TOKEN="${{ secrets.DISCORD_TOKEN_CI }}" \
+            docker compose \
+              --project-name "vbot-server" \
+              --file "test/docker-compose.test.yaml" \
+              up \
+              --detach \
+              --quiet-pull
 
   publish:
     needs:
