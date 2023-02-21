@@ -36,7 +36,7 @@ prepare() {
 }
 
 test_container() {
-  container="vbot-server_server-1"
+  container="vbot-server-server-1"
 
   if
     # The container didn't start properly.
