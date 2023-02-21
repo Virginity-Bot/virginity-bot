@@ -1,8 +1,10 @@
+require 'set'
+
 # @param git_repo [String]
 # @param git_ref_name [String]
 # @param git_ref_type [String]
 # @param git_default_branch [String]
-# @return [String[]]
+# @return [Set[String]]
 def get_image_tags(
   git_repo: nil,
   git_ref_name: nil,
@@ -11,20 +13,43 @@ def get_image_tags(
   package: nil
 )
   container_repo = "ghcr.io/#{git_repo.downcase}"
-  versions = [git_ref_name.downcase.gsub(/[^a-z0-9._\n]+/, '-')]
+  versions = Set[]
 
-  if git_ref_name == git_default_branch
+  if git_ref_type == 'branch'
+    # add safe branch name
+    versions.add(git_ref_name.downcase.gsub(/[^a-z0-9._\n]+/, '-'))
+  elsif git_ref_type == 'tag'
     # add version tag
-    versions.push(package['version'])
+    versions.add(package['version'])
+    # TODO: check that this is actually latest
+    parsed = parse_semver(package['version'])
+    if parsed.pre == nil
+      versions.add(parsed.major)
+      versions.add("#{parsed.major}.#{parsed.minor}")
+      versions.add("#{parsed.major}.#{parsed.minor}.#{parsed.patch}")
+    end
+
+    # TODO: if the tag was made on a non-default branch, we still tag with default branch
+    versions.add(git_default_branch)
   end
 
+  # TODO: if `tag`, check that this is actually latest
   if git_ref_name == git_default_branch or git_ref_type == 'tag'
     # Use Docker `latest` tag convention, only tagging `latest` on default branch.
-    versions.push('latest')
+    versions.add('latest')
   end
 
-  # log to stderr so that stdout only contains the full tags
-  $stderr.puts versions.join(',')
+  return versions.map! { |v| "#{container_repo}/bot:#{v}" }
+end
 
-  return versions.map { |v| "#{container_repo}/bot:#{v}" }.sort()
+Semver = Struct.new('Semver', :major, :minor, :patch, :pre, :build)
+
+# @param version [String]
+# @return [Semver]
+def parse_semver(version)
+  # Ruby extracts regex named groups to local vars (but only if the regex is inlined).
+  /^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)(?:-(?<pre>[0-9A-Za-z\-.]+))?(?:\+(?<build>[0-9A-Za-z\-]+))?$/ =~
+    version
+
+  Semver.new(major.to_i, minor.to_i, patch.to_i, pre, build)
 end
