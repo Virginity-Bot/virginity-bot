@@ -19,8 +19,8 @@ services:
 
 networks:
   virgin-net:
-    external:
-      name: 'vbot-helper_virgin-net'
+    name: 'vbot-helper_virgin-net'
+    external: true
   s3-net:
-    external:
-      name: 'vbot-helper_s3-net'
+    name: 'vbot-helper_s3-net'
+    external: true
