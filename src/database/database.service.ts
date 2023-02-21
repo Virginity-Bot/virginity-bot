@@ -10,13 +10,14 @@ import {
   VoiceState,
 } from 'discord.js';
 import { InjectDiscordClient } from '@discord-nestjs/core';
-import { differenceInMinutes } from 'date-fns';
+import { differenceInMinutes, differenceInSeconds } from 'date-fns';
 
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
 import { boldify, userLogHeader } from 'src/utils/logs';
 import { DiscordHelperService } from 'src/bot/discord-helper.service';
 import { GuildEntity } from 'src/entities/guild';
+import { PrometheusService } from 'src/prometheus/prometheus.service';
 
 @Injectable()
 export class DatabaseService {
@@ -30,6 +31,7 @@ export class DatabaseService {
     private readonly virginsRepo: EntityRepository<VirginEntity>,
     @InjectRepository(VCEventEntity)
     private readonly vcEventsRepo: EntityRepository<VCEventEntity>,
+    private readonly prometheus: PrometheusService,
     private readonly discord_helper: DiscordHelperService,
     @InjectDiscordClient()
     private readonly discord_client: Client,
@@ -38,14 +40,17 @@ export class DatabaseService {
   /**
    * Finds the most recent unclosed event for a given virgin.
    */
-  async findEventToClose(virgin: VirginEntity): Promise<VCEventEntity> {
-    // TODO(1): limit this to one result?
-    const events = await virgin.vc_events.loadItems({
-      where: { connection_end: null },
-      orderBy: [{ connection_start: -1 }],
-      populate: ['guild'],
-    });
-    return events[0];
+  async findEventToClose(virgin: VirginEntity): Promise<VCEventEntity | null> {
+    return this.vcEventsRepo.findOne(
+      {
+        virgin,
+        connection_end: null,
+      },
+      {
+        orderBy: [{ connection_start: -1 }],
+        populate: ['guild'],
+      },
+    );
   }
 
   calculateScoreForEvent(event: VCEventEntity): number {
@@ -172,8 +177,6 @@ export class DatabaseService {
     // TODO: maybe we don't actually need to talk to the DB right here?
     const virgin_ent = await this.findOrCreateVirgin(guild, member);
     const event_ent = await this.findEventToClose(virgin_ent);
-    if (event_ent.guild == null)
-      event_ent.guild = await this.guilds.findOneOrFail(guild.id);
 
     if (event_ent == null) {
       this.logger.warn(
@@ -182,9 +185,21 @@ export class DatabaseService {
       return;
     }
 
+    if (event_ent.guild == null)
+      event_ent.guild = await this.guilds.findOneOrFail(guild.id);
+
     event_ent.connection_end = timestamp;
     // TODO: once our scoring lines up 100%, remove this flush
     await this.vcEventsRepo.flush();
+
+    this.prometheus.vc_event_duration_s.observe(
+      Math.abs(
+        differenceInSeconds(
+          event_ent.connection_end,
+          event_ent.connection_start,
+        ),
+      ),
+    );
 
     // TODO(1): this should probably just recalculate their whole score
     const additional_score = this.calculateScoreForEvent(event_ent);
@@ -253,5 +268,27 @@ export class DatabaseService {
       .groupBy(['vc_event.virgin_snowflake', 'vc_event.guild_snowflake']);
 
     return parseInt(res[0]?.sum ?? '0');
+  }
+
+  getGuildCount(): Promise<number> {
+    return this.guilds.count();
+  }
+
+  getUserCount(): Promise<number> {
+    return this.virginsRepo.count();
+  }
+
+  getVCEventCount(): Promise<number> {
+    return this.vcEventsRepo.count();
+  }
+
+  getUnclosedVCEventCount({
+    start = new Date(0),
+    end = new Date(),
+  } = {}): Promise<number> {
+    return this.vcEventsRepo.count({
+      connection_start: { $gte: start, $lte: end },
+      connection_end: null,
+    });
   }
 }

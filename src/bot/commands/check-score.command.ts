@@ -1,4 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  UseFilters,
+  UseInterceptors,
+} from '@nestjs/common';
 import {
   Command,
   EventParams,
@@ -22,8 +27,11 @@ import { VCEventEntity } from 'src/entities/vc-event.entity';
 import { DatabaseService } from 'src/database/database.service';
 import { possess, virgin_display_name } from 'src/utils/string-transformers';
 import { DiscordHelperService } from '../discord-helper.service';
+import { TimingLogInterceptor } from '../interceptors/logging.interceptor';
+import { ValidationErrorFilter } from '../filters/validation-error.filter';
+import { CatchallErrorFilter } from '../filters/catchall-error.filter';
 
-export class ScoreDTO {
+export class CheckScoreDTO {
   @Param({
     name: 'virgin',
     description: 'The user to check',
@@ -40,6 +48,8 @@ export class ScoreDTO {
   dmPermission: false,
 })
 @Injectable()
+@UseFilters(ValidationErrorFilter, CatchallErrorFilter)
+@UseInterceptors(TimingLogInterceptor)
 export class CheckScoreCommand {
   private readonly logger = new Logger(CheckScoreCommand.name);
 
@@ -56,7 +66,7 @@ export class CheckScoreCommand {
   @Handler()
   @UseRequestContext()
   async handler(
-    @InteractionEvent(SlashCommandPipe) dto: ScoreDTO,
+    @InteractionEvent(SlashCommandPipe) dto: CheckScoreDTO,
     @EventParams() [interaction]: [interaction: CommandInteraction],
   ): Promise<MessagePayload> {
     if (interaction.member == null) {

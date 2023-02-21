@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UseInterceptors } from '@nestjs/common';
 import { On } from '@discord-nestjs/core';
 import { Events, GuildMember } from 'discord.js';
 import { InjectRepository } from '@mikro-orm/nestjs';
@@ -7,8 +7,10 @@ import { EntityRepository } from '@mikro-orm/postgresql';
 
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { userLogHeader } from 'src/utils/logs';
+import { TimingLogInterceptor } from '../interceptors/logging.interceptor';
 
 @Injectable()
+@UseInterceptors(TimingLogInterceptor)
 export class UpdateUsers {
   private readonly logger = new Logger(UpdateUsers.name);
 

@@ -18,9 +18,11 @@ import { DeletedRecord } from './entities/deleted-record.entity';
 import { GuildIntroSettings } from './entities/guild/guild-intro.embeddable';
 
 const logger = new Logger('MikroORM');
+const debug = configuration.log.level >= LogLevel.DEBUG;
+
 const config: Options = {
-  logger: Logger.log.bind(logger),
-  debug: configuration.log.level >= LogLevel.DEBUG,
+  logger: (debug ? logger.debug : logger.log).bind(logger),
+  debug,
 
   type: configuration.db.type,
   clientUrl: configuration.db.url,

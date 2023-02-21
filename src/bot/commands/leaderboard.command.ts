@@ -1,4 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  UseFilters,
+  UseInterceptors,
+} from '@nestjs/common';
 import { Command, Handler, InjectDiscordClient } from '@discord-nestjs/core';
 import {
   MessagePayload,
@@ -15,9 +20,11 @@ import { VirginEntity } from 'src/entities/virgin.entity';
 import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { VCEventEntity } from 'src/entities/vc-event.entity';
 import { DatabaseService } from 'src/database/database.service';
+import { boldify } from 'src/utils/logs';
 import { DiscordHelperService } from '../discord-helper.service';
 import { LeaderboardService } from '../leaderboard.service';
-import { boldify } from 'src/utils/logs';
+import { TimingLogInterceptor } from '../interceptors/logging.interceptor';
+import { CatchallErrorFilter } from '../filters/catchall-error.filter';
 
 @Command({
   name: 'leaderboard',
@@ -26,6 +33,8 @@ import { boldify } from 'src/utils/logs';
   dmPermission: false,
 })
 @Injectable()
+@UseInterceptors(TimingLogInterceptor)
+@UseFilters(CatchallErrorFilter)
 export class LeaderboardCommand {
   private readonly logger = new Logger(LeaderboardCommand.name);
 

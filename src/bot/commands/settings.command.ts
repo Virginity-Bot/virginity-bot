@@ -1,4 +1,10 @@
-import { Injectable, Logger, UseGuards } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  UseFilters,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import {
   Command,
   EventParams,
@@ -35,6 +41,12 @@ import {
   GuildAdminIfParamGuard,
 } from '../guards/guild-admin-if-param.guard';
 import { IsAutocompleteInteractionGuard } from '../guards/is-autocomplete-interaction.guard';
+import {
+  TimingLogInterceptor,
+  TimingLogContext,
+} from '../interceptors/logging.interceptor';
+import { ValidationErrorFilter } from '../filters/validation-error.filter';
+import { CatchallErrorFilter } from '../filters/catchall-error.filter';
 
 const intro_song_file = 'intro_song_file';
 
@@ -88,6 +100,7 @@ export class SettingsDTO {
   defaultMemberPermissions: PermissionFlagsBits.SendMessages,
 })
 @Injectable()
+@UseFilters(ValidationErrorFilter, CatchallErrorFilter)
 export class SettingsCommand {
   private readonly logger = new Logger(SettingsCommand.name);
 
@@ -107,6 +120,8 @@ export class SettingsCommand {
   @Handler()
   @GuildAdminIfParam('virgin')
   @UseGuards(GuildAdminIfParamGuard)
+  @TimingLogContext('handler')
+  @UseInterceptors(TimingLogInterceptor)
   @UseRequestContext()
   async handler(
     @InteractionEvent(SlashCommandPipe) dto: SettingsDTO,
@@ -246,6 +261,11 @@ export class SettingsCommand {
       }
     }
 
+    if (messages.length === 0) {
+      // TODO: should this maybe show your settings instead?
+      messages.push('No settings updated.');
+    }
+
     interaction.followUp(
       new MessagePayload(interaction.channel, {
         content: messages.join('\n'),
@@ -255,6 +275,8 @@ export class SettingsCommand {
 
   @On(Events.InteractionCreate)
   @UseGuards(IsAutocompleteInteractionGuard)
+  @TimingLogContext('autocomplete')
+  @UseInterceptors(TimingLogInterceptor)
   @UseRequestContext()
   async autocomplete(interaction: AutocompleteInteraction): Promise<void> {
     if (interaction.member == null) {

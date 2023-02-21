@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UseInterceptors } from '@nestjs/common';
 import { InjectDiscordClient, On } from '@discord-nestjs/core';
 import { Client, Events, Guild, OAuth2Guild } from 'discord.js';
 import { InjectRepository } from '@mikro-orm/nestjs';
@@ -8,8 +8,10 @@ import { EntityRepository } from '@mikro-orm/postgresql';
 import { SchedulingService } from 'src/scheduling/scheduling.service';
 import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { DiscordHelperService } from '../discord-helper.service';
+import { TimingLogInterceptor } from '../interceptors/logging.interceptor';
 
 @Injectable()
+@UseInterceptors(TimingLogInterceptor)
 export class UpdatedGuilds {
   constructor(
     private readonly orm: MikroORM,

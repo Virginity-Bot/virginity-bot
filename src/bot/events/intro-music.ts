@@ -1,8 +1,22 @@
-import { Readable } from 'stream';
-import { createReadStream } from 'fs';
-import { Injectable, Logger } from '@nestjs/common';
+import { Readable } from 'node:stream';
+import { createReadStream } from 'node:fs';
+
+import {
+  Injectable,
+  Logger,
+  UseInterceptors,
+  ExecutionContext,
+  CanActivate,
+  UseGuards,
+} from '@nestjs/common';
 import { On } from '@discord-nestjs/core';
-import { Guild, VoiceState } from 'discord.js';
+import {
+  Events,
+  Guild,
+  GuildMember,
+  VoiceBasedChannel,
+  VoiceState,
+} from 'discord.js';
 import {
   createAudioResource,
   joinVoiceChannel,
@@ -16,15 +30,44 @@ import {
 import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
-
 import { differenceInMilliseconds, millisecondsToSeconds } from 'date-fns';
+
 import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { IntroSongEntity } from 'src/entities/intro-song.entity';
 import { StorageService } from 'src/storage/storage.service';
 import configuration from 'src/config/configuration';
+import { TimingLogInterceptor } from '../interceptors/logging.interceptor';
+
+type CheckedVoiceState = VoiceState & {
+  channel: VoiceBasedChannel;
+  member: GuildMember;
+};
+
+export class IntroMusicGuard implements CanActivate {
+  canActivate(context: ExecutionContext): boolean {
+    const [old_state, new_state] = context.getArgs<[VoiceState, VoiceState]>();
+
+    if (
+      // user is leaving VC
+      new_state.channel == null ||
+      // user is switching from one VC to another
+      new_state.channelId === old_state.channelId ||
+      // user is entering AFK
+      new_state.channelId === new_state.guild.afkChannelId ||
+      // there is no user
+      new_state.member == null
+    ) {
+      return false;
+    }
+
+    return true;
+  }
+}
 
 @Injectable()
+@UseGuards(IntroMusicGuard)
+@UseInterceptors(TimingLogInterceptor)
 export class IntroMusic {
   private readonly logger = new Logger(IntroMusic.name);
 
@@ -37,22 +80,9 @@ export class IntroMusic {
     private readonly storage: StorageService,
   ) {}
 
-  @On('voiceStateUpdate')
+  @On(Events.VoiceStateUpdate)
   @UseRequestContext()
-  async voiceStateUpdate(old_state: VoiceState, new_state: VoiceState) {
-    if (
-      // user is leaving VC
-      new_state.channel == null ||
-      // user is switching from one VC to another
-      new_state.channelId === old_state.channelId ||
-      // user is entering AFK
-      new_state.channelId === new_state.guild.afkChannelId ||
-      // there is no user
-      new_state.member == null
-    ) {
-      return;
-    }
-
+  async voiceStateUpdate(old_state: VoiceState, new_state: CheckedVoiceState) {
     const guild_ent = await this.guilds.findOneOrFail(new_state.guild.id);
     if (
       guild_ent.biggest_virgin_role_id == null ||

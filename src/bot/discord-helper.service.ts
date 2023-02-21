@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  UseInterceptors,
+} from '@nestjs/common';
 import {
   Activity,
   ActivityType,
@@ -21,6 +26,10 @@ import { underline } from 'chalk';
 import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { VirginEntity } from 'src/entities/virgin.entity';
 import { boldify, userLogHeader } from 'src/utils/logs';
+import {
+  TimingLogContext,
+  TimingLogInterceptor,
+} from './interceptors/logging.interceptor';
 
 @Injectable()
 export class DiscordHelperService {
@@ -34,6 +43,8 @@ export class DiscordHelperService {
   ) {}
 
   @On(Events.ClientReady)
+  @TimingLogContext('logInviteURL')
+  @UseInterceptors(TimingLogInterceptor)
   async logInviteURL(client: Client): Promise<void> {
     if (client.application == null) {
       throw new Error(`Discord.JS not yet initialized.`);
