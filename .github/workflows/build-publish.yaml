@@ -116,6 +116,15 @@ jobs:
     steps:
       - name: 'Checkout Repository 🛎️'
         uses: 'actions/checkout@v3'
+
+      - name: 'Retrieve container 🐳'
+        uses: 'docker/build-push-action@v3'
+        with:
+          file: 'Dockerfile'
+          build-args: 'NODE_VERSION=${{ needs.container-build.outputs.node_version }}'
+          tags: 'bot:latest'
+          cache-from: 'type=gha'
+
       - name: 'Run container 🐳'
         run: |
           touch .env
@@ -161,6 +170,7 @@ jobs:
       - name: 'Publish to Registry 💨'
         uses: 'docker/build-push-action@v3'
         with:
+          file: 'Dockerfile'
           build-args: 'NODE_VERSION=${{ needs.container-build.outputs.node_version }}'
           push: true
           tags: '${{ needs.container-build.outputs.image_tags }}'
