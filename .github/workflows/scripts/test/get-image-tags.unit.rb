@@ -57,3 +57,32 @@ class TestGetImageTags < Test::Unit::TestCase
     )
   end
 end
+
+class TestParseSemver < Test::Unit::TestCase
+  def parse_basic
+    parsed = parse_semver('1.2.3')
+    assert_equal(1, parsed.major)
+    assert_equal(2, parsed.minor)
+    assert_equal(3, parsed.patch)
+    assert_equal(nil, parsed.pre)
+    assert_equal(nil, parsed.build)
+  end
+
+  def parse_pre
+    parsed = parse_semver('1.2.3-p.re')
+    assert_equal(1, parsed.major)
+    assert_equal(2, parsed.minor)
+    assert_equal(3, parsed.patch)
+    assert_equal('p.re', parsed.pre)
+    assert_equal(nil, parsed.build)
+  end
+
+  def parse_full_semver
+    parsed = parse_semver('1.2.3-p.re+build')
+    assert_equal(1, parsed.major)
+    assert_equal(2, parsed.minor)
+    assert_equal(3, parsed.patch)
+    assert_equal('p.re', parsed.pre)
+    assert_equal('build', parsed.build)
+  end
+end

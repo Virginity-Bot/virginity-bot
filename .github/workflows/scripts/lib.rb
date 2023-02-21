@@ -28,3 +28,15 @@ def get_image_tags(
 
   return versions.map { |v| "#{container_repo}/bot:#{v}" }.sort()
 end
+
+Semver = Struct.new('Semver', :major, :minor, :patch, :pre, :build)
+
+# @param version [String]
+# @return [Semver]
+def parse_semver(version)
+  # Ruby extracts regex named groups to local vars (but only if the regex is inlined).
+  /^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)(?:-(?<pre>[0-9A-Za-z\-.]+))?(?:\+(?<build>[0-9A-Za-z\-]+))?$/ =~
+    version
+
+  Semver.new(major, minor, patch, pre, build)
+end
