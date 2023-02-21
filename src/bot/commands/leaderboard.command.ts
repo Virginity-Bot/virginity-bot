@@ -126,9 +126,10 @@ export class LeaderboardCommand {
           return this.database.openEvent(old_event, null, timestamp);
         }
       }),
+    ).then((events) =>
+      events.filter((event): event is VCEventEntity => event != null),
     );
 
-    // TODO(2): this can throw a `ValidationError: Trying to persist not discovered entity of type undefined.` when someone joins calls leaderboard
     await this.vc_events.persistAndFlush(events);
 
     // Role Changes when scores are updated.
