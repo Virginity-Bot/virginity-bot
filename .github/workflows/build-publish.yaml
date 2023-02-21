@@ -125,6 +125,7 @@ jobs:
           build-args: 'NODE_VERSION=${{ needs.container-build.outputs.node_version }}'
           tags: 'bot:latest'
           cache-from: 'type=gha'
+          load: true
 
       - name: 'Run container 🐳'
         run: '.github/workflows/scripts/container-test.sh "${{ secrets.DISCORD_TOKEN_CI }}"'

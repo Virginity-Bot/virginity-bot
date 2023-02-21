@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 # @param $1 The container name.
 # @returns The container's status.
