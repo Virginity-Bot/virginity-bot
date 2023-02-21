@@ -29,9 +29,9 @@ export class DatabaseService {
     @InjectRepository(GuildEntity)
     private readonly guilds: EntityRepository<GuildEntity>,
     @InjectRepository(VirginEntity)
-    private readonly virginsRepo: EntityRepository<VirginEntity>,
+    private readonly virgins: EntityRepository<VirginEntity>,
     @InjectRepository(VCEventEntity)
-    private readonly vcEventsRepo: EntityRepository<VCEventEntity>,
+    private readonly vc_events: EntityRepository<VCEventEntity>,
     @InjectRepository(IntroSongEntity)
     private readonly intro_songs: EntityRepository<IntroSongEntity>,
     private readonly prometheus: PrometheusService,
@@ -44,7 +44,7 @@ export class DatabaseService {
    * Finds the most recent unclosed event for a given virgin.
    */
   async findEventToClose(virgin: VirginEntity): Promise<VCEventEntity | null> {
-    return this.vcEventsRepo.findOne(
+    return this.vc_events.findOne(
       {
         virgin,
         connection_end: null,
@@ -79,7 +79,7 @@ export class DatabaseService {
     guild: Guild,
     member: GuildMember | APIInteractionGuildMember,
   ): Promise<VirginEntity> {
-    return this.virginsRepo
+    return this.virgins
       .findOneOrFail({
         guild: guild.id,
         id: member.user.id,
@@ -98,7 +98,7 @@ export class DatabaseService {
               ).nickname ?? undefined;
           }
 
-          return this.virginsRepo.create({
+          return this.virgins.create({
             id: member.user.id,
             guild: guild.id,
             username: member.user.username,
@@ -133,7 +133,7 @@ export class DatabaseService {
         // TODO: maybe we don't actually need to talk to the DB right here?
         const virgin = await this.findOrCreateVirgin(state.guild, state.member);
 
-        const event = this.vcEventsRepo.create({
+        const event = this.vc_events.create({
           virgin: [virgin.id, state.guild.id],
           connection_start: timestamp,
           screen: state.streaming ?? false,
@@ -153,7 +153,7 @@ export class DatabaseService {
         > | null;
         const timestamp = args[2] as Date;
 
-        const event = this.vcEventsRepo.create({
+        const event = this.vc_events.create({
           virgin: old_vc_event.virgin,
           connection_start: timestamp,
           screen: states?.screen ?? old_vc_event.screen ?? false,
@@ -193,7 +193,7 @@ export class DatabaseService {
 
     event_ent.connection_end = timestamp;
     // TODO: once our scoring lines up 100%, remove this flush
-    await this.vcEventsRepo.flush();
+    await this.vc_events.flush();
 
     this.prometheus.vc_event_duration_s.observe(
       Math.abs(
@@ -240,7 +240,7 @@ export class DatabaseService {
    */
   async calculateScore(virgin_id: string, guild_id: string): Promise<number> {
     // TODO(2): is there a better place to get a query builder from?
-    const qb = this.vcEventsRepo.createQueryBuilder();
+    const qb = this.vc_events.createQueryBuilder();
 
     // TODO: write result to DB
     const res = await qb
@@ -278,18 +278,18 @@ export class DatabaseService {
   }
 
   getUserCount(): Promise<number> {
-    return this.virginsRepo.count();
+    return this.virgins.count();
   }
 
   getVCEventCount(): Promise<number> {
-    return this.vcEventsRepo.count();
+    return this.vc_events.count();
   }
 
   getUnclosedVCEventCount({
     start = new Date(0),
     end = new Date(),
   } = {}): Promise<number> {
-    return this.vcEventsRepo.count({
+    return this.vc_events.count({
       connection_start: { $gte: start, $lte: end },
       connection_end: null,
     });
