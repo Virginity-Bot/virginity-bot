@@ -5,7 +5,7 @@ require 'set'
 require_relative '../lib'
 
 class TestGetImageTags < Test::Unit::TestCase
-  def test_get_image_tags
+  def test_simple_branch
     assert_equal(
       Set['ghcr.io/virginity-bot/virginity-bot/bot:feat-foo-bar'],
       get_image_tags(
@@ -30,7 +30,9 @@ class TestGetImageTags < Test::Unit::TestCase
         package: JSON.parse('{"version": "1.0.0"}'),
       ),
     )
+  end
 
+  def test_tag
     assert_equal(
       Set[
         'ghcr.io/virginity-bot/virginity.bot/bot:latest',
@@ -47,7 +49,9 @@ class TestGetImageTags < Test::Unit::TestCase
         package: JSON.parse('{"version": "1.0.0"}'),
       ),
     )
+  end
 
+  def test_unsafe_branch_name
     assert_equal(
       Set['ghcr.io/virginity-bot/virginity.bot/bot:feat-foo-bar'],
       get_image_tags(
@@ -62,7 +66,7 @@ class TestGetImageTags < Test::Unit::TestCase
 end
 
 class TestParseSemver < Test::Unit::TestCase
-  def parse_basic
+  def test_parse_basic
     parsed = parse_semver('1.2.3')
     assert_equal(1, parsed.major)
     assert_equal(2, parsed.minor)
@@ -71,7 +75,7 @@ class TestParseSemver < Test::Unit::TestCase
     assert_equal(nil, parsed.build)
   end
 
-  def parse_pre
+  def test_parse_pre
     parsed = parse_semver('1.2.3-p.re')
     assert_equal(1, parsed.major)
     assert_equal(2, parsed.minor)
@@ -80,7 +84,7 @@ class TestParseSemver < Test::Unit::TestCase
     assert_equal(nil, parsed.build)
   end
 
-  def parse_full_semver
+  def test_parse_full_semver
     parsed = parse_semver('1.2.3-p.re+build')
     assert_equal(1, parsed.major)
     assert_equal(2, parsed.minor)
