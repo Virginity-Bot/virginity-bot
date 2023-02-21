@@ -24,7 +24,12 @@ RUN rm -rf node_modules
 
 # run stage
 FROM docker.io/library/node:${NODE_VERSION}-slim as runner
-LABEL maintainer="louis@orleans.io"
+LABEL \
+  maintainer="louis@orleans.io" \
+  org.opencontainers.image.source="https://github.com/Virginity-Bot/virginity-bot" \
+  org.opencontainers.image.title="virginity-bot3" \
+  org.opencontainers.image.description="A Discord Bot to track peoples' time in VC." \
+  org.opencontainers.image.licenses="AGPL-3.0"
 
 ARG USER
 ARG APP_DIR

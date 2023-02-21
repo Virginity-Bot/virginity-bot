@@ -2,7 +2,7 @@ import { Readable } from 'stream';
 import { spawn } from 'child_process';
 import { Injectable, Logger } from '@nestjs/common';
 import ffmpeg_path from 'ffmpeg-static';
-import { parse } from 'date-fns';
+import { millisecondsToSeconds, parse } from 'date-fns';
 
 @Injectable()
 export class AudioService {
@@ -50,15 +50,17 @@ export class AudioService {
         if (exit_code !== 0)
           return reject(new Error(`exit code ${exit_code}.\n${console_log}`));
 
+        // matches the 1st time output from ffmpeg
         const times = console_log.match(/(?<=\btime=)(\d\d:\d\d:\d\d.\d\d)\b/g);
-        const duration =
+        const duration_s = millisecondsToSeconds(
           parse(
             times?.[times.length - 1] ?? '00:00:00.00',
             'HH:mm:ss.SS',
             new Date(0),
-          ).getTime() / 1000;
+          ).getTime(),
+        );
 
-        return resolve(duration);
+        return resolve(duration_s);
       });
       proc.on('error', (err) => {
         this.logger.error(err);
