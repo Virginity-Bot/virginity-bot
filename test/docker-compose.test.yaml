@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  server:
+    image: '${IMAGE}'
+    environment:
+      LOG_LEVEL: 'DEBUG'
+      DISCORD_TOKEN: '${DISCORD_TOKEN}'
+      DATABASE_URL: 'postgres://postgres:password@db/virginity-bot'
+      STORAGE_S3_HOST: 'object-storage'
+      STORAGE_S3_PORT: '9000'
+      STORAGE_S3_SSL: 'false'
+      STORAGE_S3_REGION: 'local'
+      STORAGE_S3_ACCESS_KEY_ID: 'admin'
+      STORAGE_S3_SECRET_ACCESS_KEY: 'password'
+    networks:
+      - 'virgin-net'
+      - 's3-net'
+
+networks:
+  virgin-net:
+    name: 'vbot-helper_virgin-net'
+    external: true
+  s3-net:
+    name: 'vbot-helper_s3-net'
+    external: true
