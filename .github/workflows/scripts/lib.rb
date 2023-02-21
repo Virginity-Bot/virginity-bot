@@ -49,5 +49,5 @@ def parse_semver(version)
   /^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)(?:-(?<pre>[0-9A-Za-z\-.]+))?(?:\+(?<build>[0-9A-Za-z\-]+))?$/ =~
     version
 
-  Semver.new(major, minor, patch, pre, build)
+  Semver.new(major.to_i, minor.to_i, patch.to_i, pre, build)
 end
