@@ -138,7 +138,7 @@ export class SettingsCommand {
       throw new Error(`interaction.guild was null somehow`);
     }
 
-    await interaction.deferReply();
+    await interaction.deferReply({ ephemeral: true });
     const messages: string[] = [];
 
     const target_user_snowflake = dto.virgin_to_modify ?? interaction.user.id;
