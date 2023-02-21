@@ -127,7 +127,7 @@ jobs:
           cache-from: 'type=gha'
 
       - name: 'Run container 🐳'
-        run: '.github/workflows/scripts/container-test.sh'
+        run: '.github/workflows/scripts/container-test.sh "${{ secrets.DISCORD_TOKEN_CI }}"'
 
   publish:
     needs:

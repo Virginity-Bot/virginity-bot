@@ -7,7 +7,10 @@ get_container_status() {
   docker inspect "$1" | jq --raw-output '.[0].State.Status'
 }
 
+# @param $1 A Discord bot token.
 prepare() {
+  DISCORD_TOKEN="$1"
+
   # Create an empty .env so that docker compose is happy.
   touch .env
 
@@ -22,7 +25,7 @@ prepare() {
 
   # Create vbot server container.
   IMAGE="bot:latest" \
-  DISCORD_TOKEN="${{ secrets.DISCORD_TOKEN_CI }}" \
+  DISCORD_TOKEN="$DISCORD_TOKEN" \
     docker compose \
       --project-name "vbot-server" \
       --file "test/docker-compose.test.yaml" \
@@ -67,8 +70,8 @@ test_container() {
 }
 
 main() {
-  prepare
+  prepare "$1"
   test_container
 }
 
-main
+main $@
