@@ -53,4 +53,4 @@ ENV FORCE_COLOR 1
 USER ${USER}
 CMD npm run start:prod
 
-# HEALTHCHECK CMD curl --fail localhost:${PORT}/health || exit 1
+HEALTHCHECK CMD curl --fail localhost:${PORT}/health || exit 1
