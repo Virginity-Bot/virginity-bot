@@ -14,6 +14,8 @@ jobs:
   copy-project-card-priority:
     runs-on: 'ubuntu-latest'
     steps:
+      - name: 'Checkout Repository 🛎️'
+        uses: 'actions/checkout@v3'
       - name: 'Copy 📮'
         run: |
           .github/workflows/scripts/copy-project-card-priority.rb \
