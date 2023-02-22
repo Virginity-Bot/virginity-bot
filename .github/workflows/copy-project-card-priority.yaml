@@ -1,0 +1,20 @@
+name: 'Copy Project Card priority to Issue'
+
+on:
+  project_card:
+    types:
+      - 'created'
+      - 'edited'
+
+permissions:
+  repository-projects: 'write'
+  issues: 'write'
+
+jobs:
+  copy-project-card-priority:
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: 'Copy 📮'
+        run: |
+          .github/workflows/scripts/copy-project-card-priority.rb \
+            "${{ github.event.projects_v2_item.id }}"
