@@ -23,7 +23,7 @@ jobs:
         run: |
           if [[ "${{ github.event.sender.type }}" == "User" ]]; then
             .github/workflows/scripts/copy-issue-priority.rb \
-              "${{ github.repository_owner }}" \
+              "${{ github.event.org.id }}" \
               "${{ github.event.action }}" \
               "${{ github.event.issue.node_id }}" \
               "${{ github.event.label.name }}"
