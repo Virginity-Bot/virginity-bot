@@ -7,15 +7,15 @@ on:
       - 'labeled'
       - 'unlabeled'
 
-permissions:
-  repository-projects: 'write'
-  issues: 'write'
+# permissions:
+#   repository-projects: 'write'
+#   issues: 'write'
 
 jobs:
   copy-issue-priority:
     runs-on: 'ubuntu-latest'
     env:
-      GH_TOKEN: ${{ github.token }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN_ISSUE_PROJECT }}
     steps:
       - name: 'Checkout Repository 🛎️'
         uses: 'actions/checkout@v3'
