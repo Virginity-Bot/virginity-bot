@@ -21,8 +21,10 @@ jobs:
         uses: 'actions/checkout@v3'
       - name: 'Copy 📮'
         run: |
-          .github/workflows/scripts/copy-issue-priority.rb \
-            "${{ github.org.login }}" \
-            "${{ github.event.action }}" \
-            "${{ github.event.issue.node_id }}" \
-            "${{ github.event.label.name }}"
+          if [[ "${{ github.event.sender.type }}" == "User" ]]; then
+            .github/workflows/scripts/copy-issue-priority.rb \
+              "${{ github.repository_owner }}" \
+              "${{ github.event.action }}" \
+              "${{ github.event.issue.node_id }}" \
+              "${{ github.event.label.name }}"
+          fi
