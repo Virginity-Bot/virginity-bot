@@ -13,6 +13,8 @@ permissions:
 jobs:
   copy-project-card-priority:
     runs-on: 'ubuntu-latest'
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - name: 'Checkout Repository 🛎️'
         uses: 'actions/checkout@v3'
