@@ -34,6 +34,10 @@ LABEL \
 ARG USER
 ARG APP_DIR
 
+RUN DEBIAN_FRONTEND=noninteractive apt-get update
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install \
+  curl
+
 RUN useradd "$USER" --create-home;
 WORKDIR ${APP_DIR}
 
