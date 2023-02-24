@@ -71,9 +71,9 @@
     "winston-transport": "^4.5.0"
   },
   "devDependencies": {
-    "@iunu-inc/code-style": "^0.0.12",
-    "@iunu-inc/eslint-config-node": "^0.0.11",
-    "@iunu-inc/eslint-config-typescript": "^0.0.12",
+    "@dudeofawesome/code-style": "^0.1.0",
+    "@dudeofawesome/eslint-config-node": "^0.1.0",
+    "@dudeofawesome/eslint-config-typescript": "^0.1.0",
     "@mikro-orm/cli": "5.6.7",
     "@nestjs/cli": "^9.0.0",
     "@nestjs/schematics": "^9.0.0",
