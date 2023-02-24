@@ -2,19 +2,29 @@
 
 require 'json'
 
-def main
-  organization = ARGV[0]
-  # one of "opened", "labeled", "unlabeled"
-  action = ARGV[1]
-  issue_id = ARGV[2]
-  label = ARGV[3]
+# @param sender_type [String] One of "User", ???
+# @param organization [String] The name of the GH org.
+# @param action [String] One of "opened", "labeled", "unlabeled"
+# @param issue_id [String] The modified issue's ID.
+#
+#   @example "I_kwDOG9mg085eMlGZ"
+# @param label [String] The name of the modified label.
+#
+#   This is only set when `action` is "labeled" or "unlabeled"
+def main(
+  sender_type: nil,
+  organization: nil,
+  action: nil,
+  issue_id: nil,
+  label: nil
+)
+  puts `gh auth status`
 
   # check that a human caused this event
+  exit 0 if sender_type != 'User'
 
-  if !label.match /^p\d$/
-    # The label that was changed was not a "priority" label
-    exit 0
-  end
+  # The label that was changed was not a "priority" label
+  exit 0 if !label.match /^p\d$/
 
   project =
     JSON
@@ -154,4 +164,10 @@ def main
   end
 end
 
-main
+main(
+  sender_type: ARGV[0],
+  organization: ARGV[1],
+  action: ARGV[2],
+  issue_id: ARGV[3],
+  label: ARGV[4],
+)

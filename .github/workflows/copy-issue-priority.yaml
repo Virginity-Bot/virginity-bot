@@ -15,16 +15,15 @@ jobs:
   copy-issue-priority:
     runs-on: 'ubuntu-latest'
     env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN_ISSUE_PROJECT }}
+      GH_TOKEN: '${{ secrets.GH_TOKEN_ISSUE_PROJECT }}'
     steps:
       - name: 'Checkout Repository 🛎️'
         uses: 'actions/checkout@v3'
       - name: 'Copy 📮'
         run: |
-          if [[ "${{ github.event.sender.type }}" == "User" ]]; then
-            .github/workflows/scripts/copy-issue-priority.rb \
-              "${{ github.event.org.id }}" \
-              "${{ github.event.action }}" \
-              "${{ github.event.issue.node_id }}" \
-              "${{ github.event.label.name }}"
-          fi
+          .github/workflows/scripts/copy-issue-priority.rb \
+            "${{ github.event.sender.type }}" \
+            "${{ github.event.org.id }}" \
+            "${{ github.event.action }}" \
+            "${{ github.event.issue.node_id }}" \
+            "${{ github.event.label.name }}"
