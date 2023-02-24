@@ -23,7 +23,7 @@ jobs:
         run: |
           .github/workflows/scripts/copy-issue-priority.rb \
             "${{ github.event.sender.type }}" \
-            "${{ github.event.org.id }}" \
+            "${{ github.repository_owner }}" \
             "${{ github.event.action }}" \
             "${{ github.event.issue.node_id }}" \
             "${{ github.event.label.name }}"
