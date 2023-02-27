@@ -15,8 +15,7 @@ RUN mkdir -p "$APP_DIR"; \
 WORKDIR ${APP_DIR}
 
 COPY package*.json ${APP_DIR}/
-
-RUN npm clean-install
+RUN npm install
 
 COPY . ${APP_DIR}/
 RUN npm run build
@@ -41,9 +40,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install \
 RUN useradd "$USER" --create-home;
 WORKDIR ${APP_DIR}
 
-COPY --from=builder ${APP_DIR} ${APP_DIR}/
-
-RUN npm clean-install --omit=dev
+COPY package*.json ${APP_DIR}/
+RUN npm install --omit=dev
 
 ENV MIKRO_ORM_CACHE_DIR=/tmp/mikroorm-cache
 
@@ -53,6 +51,8 @@ ENV PORT $PORT
 
 # Ensure Chalk outputs colors
 ENV FORCE_COLOR 1
+
+COPY --from=builder ${APP_DIR} ${APP_DIR}/
 
 USER ${USER}
 CMD npm run start:prod
