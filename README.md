@@ -16,7 +16,7 @@ A Discord Bot to track peoples' virginity, i.e. their accumulated online time in
 ### Additional Features
 
 -   If you're the biggest virgin, you get an intro song when you join voice chat.
-    -   You can also pick a custom intro song using the `/settings` command.
+    -   You can also upload your own custom intro song using the `/settings` command.
 -   Guilds can customize a number of settings for themselves using `/guild-settings`. This includes customizing scoring, the biggest virgin role, and more.
 
 ### Supported Commands
