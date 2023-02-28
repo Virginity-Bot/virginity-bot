@@ -2,37 +2,48 @@
 
 A Discord Bot to track peoples' virginity, i.e. their accumulated online time in VC.
 
-[Invite the official Virginity Bot to your Server](https://discord.com/api/oauth2/authorize?client_id=943974476469645333&permissions=2452817936&scope=bot)
+[Invite the official Virginity Bot to your Server](https://discord.com/api/oauth2/authorize?client_id=688470281320267800&permissions=2452817936&scope=bot%20applications.commands)
 
-## Supported Commands
+## Features
 
--   `/leaderboard` - List biggest virgins in the server.
--   `/check` - Checks virginity of a given user.
--   `/reset` - Resets a specified member's virginity.
-
-## How to Increase Your Virginity
+### How to Increase Your Virginity
 
 1. Join a public voice chat.
     1. Virgins must not be muted or deafened.
     1. Virgins may not be in the AFK channel.
-1. Play games, stream, or share your camera for more virginity points :)
+1. Play games, stream, or share your camera for more points :)
+
+### Additional Features
+
+-   If you're the biggest virgin, you get an intro song when you join voice chat.
+    -   You can also upload your own custom intro song using the `/settings` command.
+-   Guilds can customize a number of settings for themselves using `/guild-settings`. This includes customizing scoring, the biggest virgin role, and more.
+
+### Supported Commands
+
+-   `/leaderboard` - Lists biggest virgins in the server.
+-   `/check` - Checks virginity of yourself or a specified user.
+-   `/settings` - Changes your user settings.
+-   `/guild-settings` - Changes guild settings for the bot.
+
+## Discord Permissions Explanation
+
+| Permission               | Explanation                                                  |
+| ------------------------ | ------------------------------------------------------------ |
+| Manage Roles             | Allows the bot to create and assign the Biggest Virgin role. |
+| Manage Channels          | Allows the bot to create a text channel for interactions.    |
+| Send Messages            | Allows the bot to respond to messages.                       |
+| Read Message History     | Allows the bot to respond to messages.                       |
+| Mention All Roles        | Allows the bot to mention users.                             |
+| Use Application Commands | Allows the bot to create and use slash commands.             |
+| Connect                  | Allows the bot to connect to VC & play intro songs.          |
+| Speak                    | Allows the bot to connect to VC & play intro songs.          |
+| Use Voice Activity       | Allows the bot to see user status for scoring.               |
 
 ## Run your own Virginity Bot
 
-1. [Create a new Discord Application](https://discord.com/developers/applications/)
-    1. Retrieve your Bot Token from the bot tab.
-1. Make sure to set the [/.env](/.env) variables appropriately.
-1. Run `npm start` to start the bot.
-
-## Permissions
-
--   **Manage Roles** - Required to create and move the biggest virgin role.
--   **Manage Nickname**
--   **Change Nickname**
--   **Send Messages** - Required to respond to commands.
--   **Read Message History** - Required to respond to commands.
--   **Connect**, **Speak** - Required for playing the biggest virgin's intro theme.
--   **Voice Activity** - Required for counting users virginity.
+-   See [CONTRIBUTING.md](/CONTRIBUTING.md) for information about spinning up your own bot.
+-   Be aware that a number of the defaults (especially for supporting services) are intended for development purposes, and would be very insecure in a production environment!
 
 ## Contributing
 

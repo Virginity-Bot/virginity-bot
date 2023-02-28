@@ -4,7 +4,7 @@ What a gamer! We'd love to see where you want to take Virginity Bot!
 
 ## Getting Started
 
-1. Create a private Discord bot for testing
+1. [Create a private Discord bot for testing](https://discord.com/developers/applications/)
 
     1. Enable `Presence Intent` and `Server Member Intent`.
     1. Add the `TOKEN` to your `/.env`
