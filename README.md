@@ -4,19 +4,27 @@ A Discord Bot to track peoples' virginity, i.e. their accumulated online time in
 
 [Invite the official Virginity Bot to your Server](https://discord.com/api/oauth2/authorize?client_id=688470281320267800&permissions=2452817936&scope=bot%20applications.commands)
 
-## Supported Commands
+## Features
 
--   `/leaderboard` - Lists biggest virgins in the server.
--   `/check` - Checks virginity of yourself or a specified user.
--   `/settings` - Changes your user settings.
--   `/guild-settings` - Changes guild settings for the bot.
-
-## How to Increase Your Virginity
+### How to Increase Your Virginity
 
 1. Join a public voice chat.
     1. Virgins must not be muted or deafened.
     1. Virgins may not be in the AFK channel.
 1. Play games, stream, or share your camera for more points :)
+
+### Additional Features
+
+-   If you're the biggest virgin, you get an intro song when you join voice chat.
+    -   You can also pick a custom intro song using the `/settings` command.
+-   Guilds can customize a number of settings for themselves using `/guild-settings`. This includes customizing scoring, the biggest virgin role, and more.
+
+### Supported Commands
+
+-   `/leaderboard` - Lists biggest virgins in the server.
+-   `/check` - Checks virginity of yourself or a specified user.
+-   `/settings` - Changes your user settings.
+-   `/guild-settings` - Changes guild settings for the bot.
 
 ## Discord Permissions Explanation
 
@@ -34,7 +42,7 @@ A Discord Bot to track peoples' virginity, i.e. their accumulated online time in
 
 ## Run your own Virginity Bot
 
--   See [CONTRIBUTING.md](/CONTRIBUTING.md) for details.
+-   See [CONTRIBUTING.md](/CONTRIBUTING.md) for information about spinning up your own bot.
 -   Be aware that a number of the defaults (especially for supporting services) are intended for development purposes, and would be very insecure in a production environment!
 
 ## Contributing
