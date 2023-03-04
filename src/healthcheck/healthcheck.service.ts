@@ -11,4 +11,22 @@ export class HealthcheckService {
   checkDiscordWS(): boolean {
     return this.client.ws.status !== Status.Disconnected;
   }
+
+  getDiscordWSStatus(): string {
+    return Status[this.client.ws.status];
+  }
+
+  /** Gets the Discord connection uptime in seconds. */
+  getDiscordUptime(): number | null {
+    return this.client.uptime != null ? this.client.uptime / 1000 : null;
+  }
+
+  getDiscordReadyAt(): Date | null {
+    return this.client.readyAt;
+  }
+
+  /** Gets the ping to Discord in seconds. */
+  getDiscordPing(): number {
+    return this.client.ws.ping / 1000;
+  }
 }
