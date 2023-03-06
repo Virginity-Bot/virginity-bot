@@ -75,7 +75,6 @@ export class RulesCommand {
     }
 
     await interaction.deferReply();
-    console.log(interaction.guildId);
 
     const guild_ent = await this.guilds.findOneOrFail(interaction.guildId);
 
