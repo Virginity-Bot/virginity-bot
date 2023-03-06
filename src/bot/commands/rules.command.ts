@@ -9,14 +9,10 @@ import {
   EventParams,
   Handler,
   InteractionEvent,
-  Param,
-  ParamType,
 } from '@discord-nestjs/core';
 import { SlashCommandPipe } from '@discord-nestjs/common';
 import {
-  AttachmentBuilder,
   CommandInteraction,
-  EmbedBuilder,
   Message,
   MessagePayload,
   PermissionFlagsBits,
@@ -25,11 +21,7 @@ import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
-import { VirginEntity } from 'src/entities/virgin.entity';
-import { VCEventEntity } from 'src/entities/vc-event.entity';
-import { DatabaseService } from 'src/database/database.service';
 import { RulesService } from '../rules.service';
-import { DiscordHelperService } from '../discord-helper.service';
 import { TimingLogInterceptor } from '../interceptors/logging.interceptor';
 import { ValidationErrorFilter } from '../filters/validation-error.filter';
 import { CatchallErrorFilter } from '../filters/catchall-error.filter';
@@ -53,10 +45,6 @@ export class RulesCommand {
     private readonly orm: MikroORM,
     @InjectRepository(GuildEntity)
     private readonly guilds: EntityRepository<GuildEntity>,
-    @InjectRepository(VCEventEntity)
-    private readonly vc_events: EntityRepository<VCEventEntity>,
-    private readonly database: DatabaseService,
-    private readonly discord_helper: DiscordHelperService,
     private readonly rulesBoard: RulesService,
   ) {}
 

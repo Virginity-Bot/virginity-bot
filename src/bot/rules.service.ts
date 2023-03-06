@@ -1,4 +1,3 @@
-import { InjectDiscordClient } from '@discord-nestjs/core';
 import { EmbedBuilder } from 'discord.js';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
