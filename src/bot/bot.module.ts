@@ -15,10 +15,12 @@ import { UpdateUsers } from './events/update-users';
 import { LeaderboardService } from './leaderboard.service';
 import { SettingsService } from './commands/settings.service';
 import { AudioService } from './audio.service';
+import { RulesService } from './rules.service';
 import { LeaderboardCommand } from './commands/leaderboard.command';
 import { CheckScoreCommand } from './commands/check-score.command';
 import { SettingsCommand } from './commands/settings.command';
 import { GuildSettingsCommand } from './commands/guild-settings.command';
+import { RulesCommand } from './commands/rules.command';
 import { GuildAdminGuard } from './guards/guild-admin.guard';
 import { TimingLogInterceptor } from './interceptors/logging.interceptor';
 
@@ -38,11 +40,13 @@ import { TimingLogInterceptor } from './interceptors/logging.interceptor';
     LeaderboardService,
     SettingsService,
     AudioService,
+    RulesService,
 
     LeaderboardCommand,
     CheckScoreCommand,
     SettingsCommand,
     GuildSettingsCommand,
+    RulesCommand,
 
     IntroMusic,
     Track,
