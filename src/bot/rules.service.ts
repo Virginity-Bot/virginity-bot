@@ -1,8 +1,5 @@
 import { EmbedBuilder } from 'discord.js';
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@mikro-orm/nestjs';
-import { UseRequestContext, MikroORM } from '@mikro-orm/core';
-import { EntityRepository } from '@mikro-orm/postgresql';
 import { stripIndent } from 'common-tags';
 import * as cronstrue from 'cronstrue';
 
@@ -10,9 +7,6 @@ import { GuildEntity } from 'src/entities/guild/guild.entity';
 
 @Injectable()
 export class RulesService {
-  constructor(private readonly orm: MikroORM) {}
-
-  @UseRequestContext()
   async buildRulesboardEmbed(guild: GuildEntity): Promise<EmbedBuilder> {
     let cron_human = `${cronstrue.toString(guild.score.reset_schedule, {
       locale: `en`,

@@ -4,16 +4,9 @@ import {
   UseFilters,
   UseInterceptors,
 } from '@nestjs/common';
-import {
-  Command,
-  EventParams,
-  Handler,
-  InteractionEvent,
-} from '@discord-nestjs/core';
-import { SlashCommandPipe } from '@discord-nestjs/common';
+import { Command, EventParams, Handler } from '@discord-nestjs/core';
 import {
   CommandInteraction,
-  Message,
   MessagePayload,
   PermissionFlagsBits,
 } from 'discord.js';
@@ -21,11 +14,10 @@ import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
+import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { RulesService } from '../rules.service';
 import { TimingLogInterceptor } from '../interceptors/logging.interceptor';
-import { ValidationErrorFilter } from '../filters/validation-error.filter';
 import { CatchallErrorFilter } from '../filters/catchall-error.filter';
-import { GuildEntity } from 'src/entities/guild/guild.entity';
 
 @Command({
   name: 'rules',
