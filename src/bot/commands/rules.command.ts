@@ -50,7 +50,7 @@ export class RulesCommand {
   @UseRequestContext()
   async handler(
     @EventParams() [interaction]: [interaction: CommandInteraction],
-  ): Promise<Message> {
+  ): Promise<MessagePayload> {
     if (interaction.guildId == null || interaction.guild == null) {
       this.logger.error([`interaction.guildId was null somehow`, interaction]);
       throw new Error(`interaction.guildId was null somehow`);
@@ -59,14 +59,10 @@ export class RulesCommand {
       throw new Error(`interaction.channel was null somehow`);
     }
 
-    await interaction.deferReply();
-
     const guild_ent = await this.guilds.findOneOrFail(interaction.guildId);
 
     const rulesBoard = await this.rules.buildRulesboardEmbed(guild_ent);
 
-    return interaction.followUp(
-      new MessagePayload(interaction.channel, { embeds: [rulesBoard] }),
-    );
+    return new MessagePayload(interaction.channel, { embeds: [rulesBoard] });
   }
 }
