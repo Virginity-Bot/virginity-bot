@@ -10,11 +10,7 @@ import { GuildEntity } from 'src/entities/guild/guild.entity';
 
 @Injectable()
 export class RulesService {
-  constructor(
-    private readonly orm: MikroORM,
-    @InjectRepository(GuildEntity)
-    private readonly guilds: EntityRepository<GuildEntity>,
-  ) {}
+  constructor(private readonly orm: MikroORM) {}
 
   @UseRequestContext()
   async buildRulesboardEmbed(guild: GuildEntity): Promise<EmbedBuilder> {

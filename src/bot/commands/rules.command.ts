@@ -27,8 +27,6 @@ import { ValidationErrorFilter } from '../filters/validation-error.filter';
 import { CatchallErrorFilter } from '../filters/catchall-error.filter';
 import { GuildEntity } from 'src/entities/guild/guild.entity';
 
-export class CheckScoreDTO {}
-
 @Command({
   name: 'rules',
   description: `Rules for Virginity Bot on your server.`,
@@ -36,7 +34,7 @@ export class CheckScoreDTO {}
   dmPermission: false,
 })
 @Injectable()
-@UseFilters(ValidationErrorFilter, CatchallErrorFilter)
+@UseFilters(CatchallErrorFilter)
 @UseInterceptors(TimingLogInterceptor)
 export class RulesCommand {
   private readonly logger = new Logger(RulesCommand.name);
@@ -45,13 +43,12 @@ export class RulesCommand {
     private readonly orm: MikroORM,
     @InjectRepository(GuildEntity)
     private readonly guilds: EntityRepository<GuildEntity>,
-    private readonly rulesBoard: RulesService,
+    private readonly rules: RulesService,
   ) {}
 
   @Handler()
   @UseRequestContext()
   async handler(
-    @InteractionEvent(SlashCommandPipe) dto: CheckScoreDTO,
     @EventParams() [interaction]: [interaction: CommandInteraction],
   ): Promise<Message> {
     if (interaction.guildId == null || interaction.guild == null) {
@@ -66,7 +63,7 @@ export class RulesCommand {
 
     const guild_ent = await this.guilds.findOneOrFail(interaction.guildId);
 
-    const rulesBoard = await this.rulesBoard.buildRulesboardEmbed(guild_ent);
+    const rulesBoard = await this.rules.buildRulesboardEmbed(guild_ent);
 
     return interaction.followUp(
       new MessagePayload(interaction.channel, { embeds: [rulesBoard] }),
