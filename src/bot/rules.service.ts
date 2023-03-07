@@ -14,11 +14,10 @@ export class RulesService {
 
   @UseRequestContext()
   async buildRulesboardEmbed(guild: GuildEntity): Promise<EmbedBuilder> {
-    let cron_human =
-      cronstrue.toString(guild.score.reset_schedule, {
-        locale: `en`,
-        use24HourTimeFormat: true,
-      }) + ` UTC`;
+    let cron_human = `${cronstrue.toString(guild.score.reset_schedule, {
+      locale: `en`,
+      use24HourTimeFormat: true,
+    })} UTC`;
     cron_human = cron_human[0].toLocaleLowerCase() + cron_human.slice(1);
 
     // Board Embed for Rules
