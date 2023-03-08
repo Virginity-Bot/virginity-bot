@@ -1,6 +1,6 @@
 import { Injectable, UseInterceptors } from '@nestjs/common';
 import { InjectDiscordClient, On } from '@discord-nestjs/core';
-import { Client, Events, Guild, OAuth2Guild } from 'discord.js';
+import { Client, Events, Guild, MessagePayload, OAuth2Guild } from 'discord.js';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { MikroORM, NotFoundError, UseRequestContext } from '@mikro-orm/core';
 import { EntityRepository } from '@mikro-orm/postgresql';
@@ -9,6 +9,7 @@ import { SchedulingService } from 'src/scheduling/scheduling.service';
 import { GuildEntity } from 'src/entities/guild/guild.entity';
 import { DiscordHelperService } from '../discord-helper.service';
 import { TimingLogInterceptor } from '../interceptors/logging.interceptor';
+import { RulesService } from '../rules.service';
 
 @Injectable()
 @UseInterceptors(TimingLogInterceptor)
@@ -19,6 +20,7 @@ export class UpdatedGuilds {
     private readonly guilds: EntityRepository<GuildEntity>,
     private readonly discord_helper: DiscordHelperService,
     private readonly scheduling: SchedulingService,
+    private readonly rules: RulesService,
     @InjectDiscordClient()
     private readonly client: Client,
   ) {}
@@ -74,11 +76,16 @@ export class UpdatedGuilds {
       });
 
     await this.discord_helper.findOrCreateBiggestVirginRole(guild_ent);
-    await this.discord_helper.findOrCreateVirginityBotChannel(guild_ent);
+    const channel = await this.discord_helper.findOrCreateVirginityBotChannel(
+      guild_ent,
+    );
 
     await this.guilds.flush();
 
     await this.scheduling.scheduleResets();
+
+    const rulesBoard = await this.rules.buildRulesboardEmbed(guild_ent);
+    await channel.send(new MessagePayload(channel, { embeds: [rulesBoard] }));
 
     return guild_ent;
   }
